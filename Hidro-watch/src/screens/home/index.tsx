@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   decorativeImage: {
     position: 'absolute',
     width: '110%',
-    height: 200,
+    height: 180,
     resizeMode: 'cover',
     marginBottom: 200,
     padding: 0,
@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 40,
     alignItems: 'center',
-    marginBottom: 10,
-    marginTop: 140,
+    marginBottom: 20,
+    marginTop: 90,
   },
   addButtonText: {
     color: '#fff',

@@ -26,7 +26,6 @@ const FavoritePage = () => {
   return (
     <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
       <View style={styles.header}>
-        <Image source={require('../../../assets/images/profilePicture.jpeg')} style={styles.profilePicture} />
         <TouchableOpacity onPress={() => navigation.navigate('Search_favorite')}>
           <Ionicons name="search" size={24} color="white" />
         </TouchableOpacity>
@@ -78,21 +77,16 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 20,
     zIndex: 1,
   },
-  profilePicture: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    zIndex: 1,
-  },
+  
   decorativeImage: {
     position: 'absolute',
     width: '110%',
-    height: 200,
+    height: 180,
     resizeMode: 'cover',
     marginBottom: 200,
     padding: 0,

@@ -1,32 +1,39 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-
-type Device = {
-  id: string;
-  name: string;
-  location: string;
-};
-
-const devices: Device[] = [
-  { id: '1', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '2', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '3', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '4', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '5', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '6', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '7', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-];
+import { AuthContext } from '../../context/authContext';
 
 const HistoryPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const { getUserObjects } = useContext(AuthContext);
+  const [devices, setDevices] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function fetchDevices() {
+      const response = await getUserObjects();
+      if (response) {
+        setDevices(response);
+      }
+      setLoading(false);
+    }
+
+    fetchDevices();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#00bfa5" />
+      </View>
+    );
+  }
 
   return (
     <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
       <View style={styles.header}>
-        <Image source={require('../../../assets/images/profilePicture.jpeg')} style={styles.profilePicture} />
         <TouchableOpacity onPress={() => navigation.navigate('Search_history')}>
           <Ionicons name="search" size={24} color="white" />
         </TouchableOpacity>
@@ -36,11 +43,11 @@ const HistoryPage = () => {
       <Text style={styles.sectionTitle}>Dispositivos Registrados</Text>
       <FlatList
         data={devices}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.deviceContainer}>
             <View>
-              <Text style={styles.deviceName}>{item.name}</Text>
+              <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
             <TouchableOpacity style={styles.detailsButton}>
@@ -50,23 +57,22 @@ const HistoryPage = () => {
         )}
       />
       <View style={styles.navBar}>
-                    <View style={styles.navItem}>
-                      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                          <Ionicons name="home" size={24} color="white" />
-                      </TouchableOpacity>
-                      <View style={styles.activeDot} />
-                    </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('History')}>
-                      <Ionicons name="time" size={24} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-                      <Ionicons name="heart" size={24} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('User')}>
-                      <Ionicons name="person" size={24} color="white" />
-                    </TouchableOpacity>
-                    
-                  </View>
+        <View style={styles.navItem}>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <Ionicons name="home" size={24} color="white" />
+          </TouchableOpacity>
+          <View style={styles.activeDot} />
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('History')}>
+          <Ionicons name="time" size={24} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Like')}>
+          <Ionicons name="heart" size={24} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('User')}>
+          <Ionicons name="person" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 };
@@ -76,23 +82,23 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#01002C',
+  },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 20,
-    zIndex: 1,
-  },
-  profilePicture: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
     zIndex: 1,
   },
   decorativeImage: {
     position: 'absolute',
     width: '110%',
-    height: 200,
+    height: 180,
     resizeMode: 'cover',
     marginBottom: 200,
     padding: 0,

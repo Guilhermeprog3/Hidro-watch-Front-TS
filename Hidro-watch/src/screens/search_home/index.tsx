@@ -1,33 +1,40 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-
-type Device = {
-  id: string;
-  name: string;
-  location: string;
-};
-
-const devices: Device[] = [
-  { id: '1', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '2', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '3', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '4', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '5', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '6', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '7', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '8', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-];
+import { AuthContext } from '../../context/authContext';
 
 const SearchHomePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { getUserObjects } = useContext(AuthContext);
+  const [devices, setDevices] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigation = useNavigation<NavigationProp<any>>();
 
+  useEffect(() => {
+    async function fetchDevices() {
+      const response = await getUserObjects();
+      if (response) {
+        setDevices(response);
+      }
+      setLoading(false);
+    }
+
+    fetchDevices();
+  }, []);
+
   const filteredDevices = devices.filter(device =>
-    device.name.toLowerCase().includes(searchQuery.toLowerCase())
+    device.tittle.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#00bfa5" />
+      </View>
+    );
+  }
 
   return (
     <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
@@ -45,11 +52,11 @@ const SearchHomePage = () => {
       </View>
       <FlatList
         data={filteredDevices}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.deviceContainer}>
             <View>
-              <Text style={styles.deviceName}>{item.name}</Text>
+              <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
             <TouchableOpacity style={styles.detailsButton}>
@@ -80,6 +87,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#01002C',
   },
   header: {
     flexDirection: 'row',

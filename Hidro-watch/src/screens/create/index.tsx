@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authContext';
 
-const CreatePage: React.FC = () => {
+const CreatePage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { postUserObject } = useContext(AuthContext);
   const [Tittle, setTittle] = useState<string>('');
@@ -37,22 +37,26 @@ const CreatePage: React.FC = () => {
       <Text style={styles.sectionTitle}>PRENCHA OS DADOS DE MEDIÇÃO</Text>
 
       <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nome da medição"
-          placeholderTextColor="#aaa"
-          value={Tittle}
-          onChangeText={setTittle}
-        />
-        {Tittle ? <Ionicons name="checkmark-circle" size={24} color="green" /> : null}
-        <TextInput
-          style={styles.input}
-          placeholder="Location"
-          placeholderTextColor="#aaa"
-          value={Location}
-          onChangeText={setLocation}
-        />
-        {Location ? <Ionicons name="checkmark-circle" size={24} color="green" /> : null}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nome da medição"
+            placeholderTextColor="#aaa"
+            value={Tittle}
+            onChangeText={setTittle}
+          />
+          {Tittle ? <Ionicons name="checkmark-circle" size={24} color="green" style={styles.checkIcon} /> : null}
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Location"
+            placeholderTextColor="#aaa"
+            value={Location}
+            onChangeText={setLocation}
+          />
+          {Location ? <Ionicons name="checkmark-circle" size={24} color="green" style={styles.checkIcon} /> : null}
+        </View>
       </View>
       <Text style={styles.connectedText}>DISPOSITIVO CONECTADO</Text>
       <TouchableOpacity onPress={handleSubmit} style={styles.addButton}>
@@ -70,7 +74,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 30,
     marginTop: 20,
   },
   headerTitle: {
@@ -79,14 +83,25 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   form: {
-    marginBottom: 30,
+    marginBottom: 20,
+  },
+  inputContainer: {
+    position: 'relative',
+    marginBottom: 25,
   },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: 'white',
+    borderRadius:10,
     padding: 10,
-    marginBottom: 25,
-    color: '#000',
+    color: '#fff',
+  },
+  checkIcon: {
+    position: 'absolute',
+    right: -310,
+    top: 10,
   },
   connectedText: {
     color: 'green',

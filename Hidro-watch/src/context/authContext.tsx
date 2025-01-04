@@ -8,6 +8,7 @@ type UserToken = {
   type: string; 
 };
 
+
 type User = {
   id: string;
   name: string;
@@ -23,6 +24,7 @@ type AuthContextProps = {
   postUserObject: (objectData: any) => Promise<void>;
   Postuser: (name: string, email: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
+  GetUserforId: () => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -32,7 +34,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     async function getStorageData() {
-      const userStorage = await AsyncStorage.getItem('@token-hidrowatch!');
+      const userStorage = await AsyncStorage.getItem('@token-hidrowatch!2');
       if (userStorage) {
         setUser(JSON.parse(userStorage));
       }
@@ -43,7 +45,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   async function login(email: string, password: string) {
     try {
       const response = await api.post('session', { email, password });
-      await AsyncStorage.setItem('@token-hidrowatch!', JSON.stringify(response.data));
+      await AsyncStorage.setItem('@token-hidrowatch!2', JSON.stringify(response.data));
       setUser(response.data);
     } catch (error) {
       Alert.alert('Erro de Autenticação');
@@ -52,13 +54,34 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function logout() {
-    await AsyncStorage.removeItem('@token-hidrowatch!');
+    await AsyncStorage.removeItem('@token-hidrowatch!2');
     setUser(null);
+  }
+
+  async function GetUserforId() {
+    if (!user || !user.id) {
+      console.error('Usuário ou ID não encontrado');
+      return;
+    }
+
+    try {
+      const token = user.token.token;
+      const response = await api.get(`user/${user.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUser(response.data);
+      Alert.alert('Dados do usuário atualizados com sucesso');
+    } catch (error) {
+      console.error('Erro ao buscar dados do usuário:', error);
+      Alert.alert('Erro ao buscar dados do usuário');
+    }
   }
 
   async function Postuser(name: string, email: string, password: string) {
     try {
-      const response = await api.post('user', { name, email, password });
+      const response = await api.post('user', { email, password, name });
       Alert.alert('Usuário criado com sucesso');
     } catch (error) {
       Alert.alert('Erro ao criar usuário');
@@ -67,24 +90,25 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function deleteUser() {
-    if (!user || !user.token || !user.token.token) {
-      console.error('Usuário ou token não encontrados');
+    if (!user || !user.id) {
+      console.error('Usuário ou ID não encontrado');
       return;
     }
 
     try {
       const token = user.token.token;
-      await api.delete('user', {
+      const response = await api.delete(`user/${user.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      await AsyncStorage.removeItem('@token-hidrowatch!');
+      setUser(response.data);
+      await AsyncStorage.removeItem('@token-hidrowatch!2');
       setUser(null);
-      Alert.alert('Usuário deletado com sucesso');
+      Alert.alert('Usuario deletado com Sucesso');
     } catch (error) {
-      console.error('Erro ao deletar usuário:', error);
-      Alert.alert('Erro ao deletar usuário');
+      console.error('Erro ao buscar dados do usuário:', error);
+      Alert.alert('Erro ao buscar dados do usuário');
     }
   }
 
@@ -127,7 +151,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, getUserObjects, postUserObject, Postuser, deleteUser }}>
+    <AuthContext.Provider value={{ user, login, logout, getUserObjects, postUserObject, Postuser, deleteUser, GetUserforId }}>
       {children}
     </AuthContext.Provider>
   );

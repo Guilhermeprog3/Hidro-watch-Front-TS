@@ -7,27 +7,20 @@ import { AuthContext } from '../../context/authContext';
 
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { Postuser,login } = useContext(AuthContext);
+  const { Postuser, login } = useContext(AuthContext);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
-  const [passwordStrength, setPasswordStrength] = useState<string>('Fraca');
 
   const handlePasswordChange = (password: string) => {
     setPassword(password);
-    if (password.length < 6) {
-      setPasswordStrength('Fraca');
-    } else if (password.length < 10) {
-      setPasswordStrength('Média');
-    } else {
-      setPasswordStrength('Forte');
-    }
   };
 
   const handleSignUp = async () => {
     if (name && email && password) {
-      await Postuser(email, password, name);
-      await login(email, password)
+      await Postuser(name, email, password,);
+      await login(email, password);
     } else {
       Alert.alert('Por favor, preencha todos os campos.');
     }
@@ -61,11 +54,18 @@ const SignUpScreen = () => {
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#888"
-            secureTextEntry
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={handlePasswordChange}
           />
-          <Text style={styles.passwordStrength}>{passwordStrength}</Text>
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <MaterialIcons
+              name={showPassword ? 'visibility' : 'visibility-off'}
+              size={24}
+              color="#888"
+              style={styles.showPasswordIcon}
+            />
+          </TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
           <MaterialIcons name="person" size={24} color="#888" style={styles.inputIcon} />
@@ -160,10 +160,10 @@ const styles = StyleSheet.create({
     height: 40,
     color: '#fff',
   },
-  passwordStrength: {
-    color: 'white',
+  showPasswordIcon: {
     marginLeft: 10,
   },
+  
   button: {
     width: '100%',
     height: 40,

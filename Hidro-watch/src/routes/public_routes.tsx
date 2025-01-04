@@ -8,9 +8,9 @@ const PublicRoutes = () => {
     const {Navigator,Screen} = createNativeStackNavigator()
     return ( 
         <Navigator>
-            {/* <Screen name = "Splash" component={Loading_page}></Screen> */}
-            <Screen name = "Login" component={LoginScreen}></Screen>
-            <Screen name = "SignUp" component={SignUpScreen}></Screen>
+            {/* <Screen name = "Splash" component={Loading_page} options={{headerShown:false}}></Screen> */}
+            <Screen name = "Login" component={LoginScreen} options={{ headerShown: false}} ></Screen>
+            <Screen name = "SignUp" component={SignUpScreen} options={{ headerShown: false}} ></Screen>
 
         </Navigator>
      );

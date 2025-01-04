@@ -5,22 +5,15 @@ import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 
-const LoginScreen= () => {
+const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { login } = useAuth(); 
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [passwordStrength, setPasswordStrength] = useState<string>('Fraca');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handlePasswordChange = (password: string) => {
     setPassword(password);
-    if (password.length < 6) {
-      setPasswordStrength('Fraca');
-    } else if (password.length < 10) {
-      setPasswordStrength('Média');
-    } else {
-      setPasswordStrength('Forte');
-    }
   };
 
   const handleLogin = () => {
@@ -55,11 +48,18 @@ const LoginScreen= () => {
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#888"
-            secureTextEntry
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={handlePasswordChange}
           />
-          <Text style={styles.passwordStrength}>{passwordStrength}</Text>
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <MaterialIcons
+              name={showPassword ? 'visibility' : 'visibility-off'}
+              size={24}
+              color="#888"
+              style={styles.showPasswordIcon}
+            />
+          </TouchableOpacity>
         </View>
         <LinearGradient colors={['#0066ff', '#00ccff']} style={styles.button}>
           <TouchableOpacity onPress={handleLogin}>
@@ -138,8 +138,7 @@ const styles = StyleSheet.create({
     height: 40,
     color: '#fff',
   },
-  passwordStrength: {
-    color: 'white',
+  showPasswordIcon: {
     marginLeft: 10,
   },
   button: {

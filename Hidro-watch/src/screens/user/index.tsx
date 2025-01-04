@@ -1,27 +1,22 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { useAuth } from '../../hooks/Auth';
-
-type Order = {
-  id: string;
-  title: string;
-};
+import { AuthContext } from '../../context/authContext';
 
 const UserPage = () => {
-
   const navigation = useNavigation<NavigationProp<any>>();
-  const { logout, deleteUser } = useAuth();
+  const { user, logout, deleteUser} = useContext(AuthContext);
+
 
   return (
     <LinearGradient colors={['#01002C', '#000481']} style={styles.container}>
       <View style={styles.header}>
         <View style={styles.profileSection}>
           <Image source={require('../../../assets/images/profilePicture.jpeg')} style={styles.profilePicture} />
-          <Text style={styles.profileName}>Guilherme Silva Rios</Text>
-          <Text style={styles.profileEmail}>GuiRios@gmail.com</Text>
+          <Text style={styles.profileName}>{user?.name}</Text>
+          <Text style={styles.profileEmail}>{user?.email}</Text>
         </View>
       </View>
 
@@ -62,7 +57,7 @@ const UserPage = () => {
         <TouchableOpacity onPress={() => navigation.navigate('History')}>
           <Ionicons name="time" size={24} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Favorites')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Like')}>
           <Ionicons name="heart" size={24} color="white" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('User')}>
