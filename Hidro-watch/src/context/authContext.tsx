@@ -8,7 +8,6 @@ type UserToken = {
   type: string; 
 };
 
-
 type User = {
   id: string;
   name: string;
@@ -25,12 +24,14 @@ type AuthContextProps = {
   Postuser: (name: string, email: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
   GetUserforId: () => Promise<void>;
+  GetObjectforId: (objectId: string) => Promise<any>;
 };
 
 export const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<User | null>(null);
+  const [object, setObject] = useState<any | null>(null);
 
   useEffect(() => {
     async function getStorageData() {
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function GetUserforId() {
-    if (!user || !user.id) {
+    if (!user?.id) {
       console.error('Usuário ou ID não encontrado');
       return;
     }
@@ -90,7 +91,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function deleteUser() {
-    if (!user || !user.id) {
+    if (!user?.id) {
       console.error('Usuário ou ID não encontrado');
       return;
     }
@@ -113,7 +114,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function getUserObjects() {
-    if (!user || !user.token || !user.token.token) {
+    if (!user?.token?.token) {
       console.error('Usuário ou token não encontrados');
       return null;
     }
@@ -150,8 +151,30 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
+  async function GetObjectforId(objectId: string) {
+    if (!user?.token?.token) {
+      console.error('Usuário ou token não encontrados');
+      return null;
+    }
+
+    try {
+      const token = user.token.token;
+      const response = await api.get(`object/${objectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setObject(response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar dados do objeto:', error);
+      Alert.alert('Erro ao buscar dados do objeto');
+      return null;
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, getUserObjects, postUserObject, Postuser, deleteUser, GetUserforId }}>
+    <AuthContext.Provider value={{ user, login, logout, getUserObjects, postUserObject, Postuser, deleteUser, GetUserforId, GetObjectforId }}>
       {children}
     </AuthContext.Provider>
   );

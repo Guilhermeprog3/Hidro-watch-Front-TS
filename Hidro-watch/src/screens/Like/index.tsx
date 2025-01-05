@@ -53,7 +53,6 @@ const FavoritePage = () => {
                       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
                           <Ionicons name="home" size={24} color="white" />
                       </TouchableOpacity>
-                      <View style={styles.activeDot} />
                     </View>
                     <TouchableOpacity onPress={() => navigation.navigate('History')}>
                       <Ionicons name="time" size={24} color="white" />
@@ -134,13 +133,6 @@ const styles = StyleSheet.create({
   },
   navItem: {
     alignItems: 'center',
-  },
-  activeDot: {
-    width: 8,
-    height: 8,
-    backgroundColor: 'red',
-    borderRadius: 4,
-    marginTop: 2,
   },
 });
 

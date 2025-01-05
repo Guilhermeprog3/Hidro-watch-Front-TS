@@ -45,7 +45,7 @@ const CreatePage = () => {
             value={Tittle}
             onChangeText={setTittle}
           />
-          {Tittle ? <Ionicons name="checkmark-circle" size={24} color="green" style={styles.checkIcon} /> : null}
+          
         </View>
         <View style={styles.inputContainer}>
           <TextInput
@@ -55,7 +55,7 @@ const CreatePage = () => {
             value={Location}
             onChangeText={setLocation}
           />
-          {Location ? <Ionicons name="checkmark-circle" size={24} color="green" style={styles.checkIcon} /> : null}
+  
         </View>
       </View>
       <Text style={styles.connectedText}>DISPOSITIVO CONECTADO</Text>
@@ -98,11 +98,7 @@ const styles = StyleSheet.create({
     padding: 10,
     color: '#fff',
   },
-  checkIcon: {
-    position: 'absolute',
-    right: -310,
-    top: 10,
-  },
+
   connectedText: {
     color: 'green',
     fontSize: 28,

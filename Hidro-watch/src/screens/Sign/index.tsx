@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -10,19 +10,25 @@ const SignUpScreen = () => {
   const { Postuser, login } = useContext(AuthContext);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handlePasswordChange = (password: string) => {
     setPassword(password);
   };
 
   const handleSignUp = async () => {
-    if (name && email && password) {
-      await Postuser(name, email, password,);
-      await login(email, password);
+    if (name && email && password && confirmPassword) {
+      if (password === confirmPassword) {
+        await Postuser(name, email, password);
+        await login(email, password);
+      } else {
+        setErrorMessage('As senhas não coincidem.');
+      }
     } else {
-      Alert.alert('Por favor, preencha todos os campos.');
+      setErrorMessage('Por favor, preencha todos os campos.');
     }
   };
 
@@ -68,6 +74,25 @@ const SignUpScreen = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
+          <MaterialIcons name="lock" size={24} color="#888" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor="#888"
+            secureTextEntry={!showPassword}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <MaterialIcons
+              name={showPassword ? 'visibility' : 'visibility-off'}
+              size={24}
+              color="#888"
+              style={styles.showPasswordIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.inputContainer}>
           <MaterialIcons name="person" size={24} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
@@ -76,7 +101,9 @@ const SignUpScreen = () => {
             value={name}
             onChangeText={setName}
           />
+         
         </View>
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         <LinearGradient colors={['#0066ff', '#00ccff']} style={styles.button}>
           <TouchableOpacity onPress={handleSignUp}>
             <Text style={styles.buttonText}>Criar Conta</Text>
@@ -137,6 +164,10 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 20,
   },
+  errorText: {
+    color: 'red',
+    marginBottom: 20,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -151,7 +182,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 10,
   },
-
   inputIcon: {
     marginRight: 10,
   },
@@ -163,7 +193,6 @@ const styles = StyleSheet.create({
   showPasswordIcon: {
     marginLeft: 10,
   },
-  
   button: {
     width: '100%',
     height: 40,

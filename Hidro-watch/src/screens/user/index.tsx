@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -7,8 +7,41 @@ import { AuthContext } from '../../context/authContext';
 
 const UserPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { user, logout, deleteUser} = useContext(AuthContext);
+  const { user, logout, deleteUser } = useContext(AuthContext);
 
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Você tem certeza de que deseja deletar sua conta?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Confirmar",
+          onPress: deleteUser
+        }
+      ]
+    );
+  };
+
+  const confirmLogout = () => {
+    Alert.alert(
+      "Confirmar Saida",
+      "Você tem certeza de que deseja sair?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Confirmar",
+          onPress: logout
+        }
+      ]
+    );
+  };
 
   return (
     <LinearGradient colors={['#01002C', '#000481']} style={styles.container}>
@@ -24,26 +57,32 @@ const UserPage = () => {
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
           <Ionicons name="moon" size={24} color="white" />
           <Text style={styles.menuItemText}>Dark Mode</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
           <Ionicons name="person" size={24} color="white" />
           <Text style={styles.menuItemText}>Informações</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
           <Ionicons name="settings-outline" size={24} color="white" />
           <Text style={styles.menuItemText}>Configuração</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
           <Ionicons name="information-circle-outline" size={24} color="white" />
           <Text style={styles.menuItemText}>Sobre</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={deleteUser}>
+        <TouchableOpacity style={styles.menuItem} onPress={confirmDeleteAccount}>
           <Ionicons name="trash-outline" size={24} color="white" />
           <Text style={styles.menuItemText}>Deletar Conta</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={logout}>
+        <TouchableOpacity style={styles.menuItem} onPress={confirmLogout}>
           <Ionicons name="exit-outline" size={24} color="white" />
           <Text style={styles.menuItemText}>Sair</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -52,7 +91,6 @@ const UserPage = () => {
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Ionicons name="home" size={24} color="white" />
           </TouchableOpacity>
-          <View style={styles.activeDot} />
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('History')}>
           <Ionicons name="time" size={24} color="white" />
@@ -109,6 +147,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
     marginLeft: 10,
+    flex: 1,
   },
   navBar: {
     flexDirection: 'row',
@@ -123,13 +162,6 @@ const styles = StyleSheet.create({
   },
   navItem: {
     alignItems: 'center',
-  },
-  activeDot: {
-    width: 8,
-    height: 8,
-    backgroundColor: 'red',
-    borderRadius: 4,
-    marginTop: 2,
   },
 });
 

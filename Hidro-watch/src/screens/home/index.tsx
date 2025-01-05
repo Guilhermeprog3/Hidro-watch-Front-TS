@@ -24,7 +24,7 @@ const HomePage = () => {
       }
     }
     fetchDevices();
-  }, [getUserObjects]);
+  }, []);
 
   return (
     <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
@@ -62,7 +62,7 @@ const HomePage = () => {
               <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity style={styles.detailsButton}>
+            <TouchableOpacity onPress = {() => navigation.navigate('Measurement')} style={styles.detailsButton}>
               <Text style={styles.detailsButtonText}>Detalhes</Text>
             </TouchableOpacity>
           </View>
@@ -73,7 +73,6 @@ const HomePage = () => {
                       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
                           <Ionicons name="home" size={24} color="white" />
                       </TouchableOpacity>
-                      <View style={styles.activeDot} />
                     </View>
                     <TouchableOpacity onPress={() => navigation.navigate('History')}>
                       <Ionicons name="time" size={24} color="white" />
@@ -192,13 +191,6 @@ const styles = StyleSheet.create({
 
   navItem: {
     alignItems: 'center',
-  },
-  activeDot: {
-    width: 8,
-    height: 8,
-    backgroundColor: 'red',
-    borderRadius: 4,
-    marginTop: 2,
   },
   
 });

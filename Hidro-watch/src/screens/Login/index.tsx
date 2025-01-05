@@ -7,17 +7,22 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { login } = useAuth(); 
+  const { login } = useAuth();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handlePasswordChange = (password: string) => {
     setPassword(password);
   };
 
   const handleLogin = () => {
-    login(email, password);
+    if (email && password) {
+      login(email, password);
+    } else {
+      setErrorMessage('Por favor, preencha todos os campos.');
+    }
   };
 
   return (
@@ -61,6 +66,7 @@ const LoginScreen = () => {
             />
           </TouchableOpacity>
         </View>
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         <LinearGradient colors={['#0066ff', '#00ccff']} style={styles.button}>
           <TouchableOpacity onPress={handleLogin}>
             <Text style={styles.buttonText}>Entrar</Text>
@@ -119,6 +125,10 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     color: 'white',
+    marginBottom: 20,
+  },
+  errorText: {
+    color: 'red',
     marginBottom: 20,
   },
   inputContainer: {

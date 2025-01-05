@@ -8,11 +8,14 @@ import Search_historyPage from '../screens/search_history';
 import CreatePage from '../screens/create';
 import FavoritePage from '../screens/Like';
 import UserPage from '../screens/user';
+import MeasurementPage from '../screens/measurement';
+import Week_page from '../screens/week';
 
 const PrivateRoutes = () => {
     const { Navigator, Screen } = createNativeStackNavigator();
     return (
         <Navigator>
+            
             <Screen name="Home" component={HomePage} options={{ headerShown: false}} />
             <Screen name="Like" component={FavoritePage} options={{ headerShown: false}} />
             <Screen name="History" component={HistoryPage} options={{ headerShown: false}} />
@@ -21,6 +24,9 @@ const PrivateRoutes = () => {
             <Screen name="Search_favorite" component={Search_favoritePage}  options={{ headerShown: false}} />
             <Screen name="Create" component={CreatePage}  options={{ headerShown: false}} />
             <Screen name="User" component={UserPage} options={{ headerShown: false}} />
+            <Screen name="Week" component={Week_page} options={{ headerShown: false}} />
+            <Screen name="Measurement" component={MeasurementPage} options={{ headerShown: false}} />
+            
         </Navigator>
     );
 };

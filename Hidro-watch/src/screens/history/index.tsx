@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -9,7 +9,6 @@ const HistoryPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { getUserObjects } = useContext(AuthContext);
   const [devices, setDevices] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchDevices() {
@@ -17,19 +16,10 @@ const HistoryPage = () => {
       if (response) {
         setDevices(response);
       }
-      setLoading(false);
     }
 
     fetchDevices();
   }, []);
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#00bfa5" />
-      </View>
-    );
-  }
 
   return (
     <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
@@ -50,7 +40,7 @@ const HistoryPage = () => {
               <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity style={styles.detailsButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('Week')} style={styles.detailsButton}>
               <Text style={styles.detailsButtonText}>Historico</Text>
             </TouchableOpacity>
           </View>
@@ -61,7 +51,6 @@ const HistoryPage = () => {
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Ionicons name="home" size={24} color="white" />
           </TouchableOpacity>
-          <View style={styles.activeDot} />
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('History')}>
           <Ionicons name="time" size={24} color="white" />
@@ -81,12 +70,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#01002C',
   },
   header: {
     flexDirection: 'row',
@@ -151,13 +134,6 @@ const styles = StyleSheet.create({
   },
   navItem: {
     alignItems: 'center',
-  },
-  activeDot: {
-    width: 8,
-    height: 8,
-    backgroundColor: 'red',
-    borderRadius: 4,
-    marginTop: 2,
   },
 });
 
