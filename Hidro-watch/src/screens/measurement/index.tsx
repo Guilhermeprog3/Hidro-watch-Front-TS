@@ -29,21 +29,21 @@ const MeasurementPage = () => {
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.row}>
-            <View style={[styles.measurementBox, { backgroundColor: '#00FF11' }]}>
+            <View style={[styles.measurementBox, { backgroundColor: '#00CC00' }]}>
               <Text style={styles.measurementLabel}>PH</Text>
               <Text style={styles.measurementValue}>8</Text>
             </View>
-            <View style={[styles.measurementBox, { backgroundColor: '#0011FF' }]}>
+            <View style={[styles.measurementBox, { backgroundColor: '#0000CC' }]}>
               <Text style={styles.measurementLabel}>Temperatura (°C)</Text>
               <Text style={styles.measurementValue}>20°</Text>
             </View>
           </View>
           <View style={styles.row}>
-            <View style={[styles.measurementBox, { backgroundColor: '#DC0016' }]}>
+            <View style={[styles.measurementBox, { backgroundColor: '#CC0000' }]}>
               <Text style={styles.measurementLabel}>TURBIDEZ (NTU)</Text>
               <Text style={styles.measurementValue}>7</Text>
             </View>
-            <View style={[styles.measurementBox, { backgroundColor: '#00FF11' }]}>
+            <View style={[styles.measurementBox, { backgroundColor: '#00CC00' }]}>
               <Text style={styles.measurementLabel}>TURBIDEZ (NTU)</Text>
               <Text style={styles.measurementValue}>12</Text>
             </View>

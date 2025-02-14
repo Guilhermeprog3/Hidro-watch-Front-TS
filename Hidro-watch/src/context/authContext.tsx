@@ -25,6 +25,7 @@ type AuthContextProps = {
   deleteUser: () => Promise<void>;
   GetUserforId: () => Promise<void>;
   GetObjectforId: (objectId: string) => Promise<any>;
+  markFavorite: (objectId: string) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -114,7 +115,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function getUserObjects() {
-    if (!user?.token?.token) {
+    if (!user?.token.token) {
       console.error('Usuário ou token não encontrados');
       return null;
     }
@@ -142,7 +143,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         location: objectData.Location,
       }, {
         headers: {
-          Authorization: `Bearer ${user.token.token}`,
+          Authorization: `Bearer ${user.token}`,
         },
       });
       Alert.alert('Objeto criado com sucesso');
@@ -152,7 +153,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function GetObjectforId(objectId: string) {
-    if (!user?.token?.token) {
+    if (!user?.token) {
       console.error('Usuário ou token não encontrados');
       return null;
     }
@@ -173,8 +174,27 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
+  async function markFavorite(objectId: string) {
+    if (!user?.token.token) {
+      console.error('Usuário ou token não encontrados');
+      return;
+    }
+
+    try {
+      const token = user.token.token;
+      const response = await api.patch(`object/${objectId}/edit`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao marcar como favorito:', error);
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, getUserObjects, postUserObject, Postuser, deleteUser, GetUserforId, GetObjectforId }}>
+    <AuthContext.Provider value={{ user, login, logout, getUserObjects, postUserObject, Postuser, deleteUser, GetUserforId, GetObjectforId, markFavorite }}>
       {children}
     </AuthContext.Provider>
   );

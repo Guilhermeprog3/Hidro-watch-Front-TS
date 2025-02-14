@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, Modal } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -9,11 +9,13 @@ type Device = {
   id: string;
   tittle: string;
   location: string;
+  favorite: boolean;
 };
 
 const HomePage = () => {
-  const { getUserObjects } = useAuth();
+  const { getUserObjects, markFavorite } = useAuth();
   const [devices, setDevices] = useState<Device[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const navigation = useNavigation<NavigationProp<any>>();
 
   useEffect(() => {
@@ -21,10 +23,33 @@ const HomePage = () => {
       const userDevices = await getUserObjects();
       if (userDevices) {
         setDevices(userDevices);
+        setFavorites(userDevices.filter((device: Device) => device.favorite).map((device: Device) => device.id));
       }
     }
     fetchDevices();
   }, []);
+
+  const toggleFavorite = async (deviceId: string) => {
+    const updatedDevices = devices.map((device) => {
+      if (device.id === deviceId) {
+        device.favorite = !device.favorite;
+      }
+      return device;
+    });
+    setDevices(updatedDevices);
+
+    if (favorites.includes(deviceId)) {
+      setFavorites((prevFavorites) => prevFavorites.filter((id) => id !== deviceId));
+    } else {
+      setFavorites((prevFavorites) => [...prevFavorites, deviceId]);
+    }
+
+    try {
+      await markFavorite(deviceId);
+    } catch (error) {
+      console.error('Erro ao marcar como favorito:', error);
+    }
+  };
 
   return (
     <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
@@ -62,14 +87,26 @@ const HomePage = () => {
               <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity onPress = {() => navigation.navigate('Measurement')} style={styles.detailsButton}>
-              <Text style={styles.detailsButtonText}>Detalhes</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite(item.id)}
+              >
+                <Ionicons
+                  name={favorites.includes(item.id) ? "heart" : "heart-outline"}
+                  size={24}
+                  color={favorites.includes(item.id) ? "red" : "white"}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Measurement')} style={styles.detailsButton}>
+                <Text style={styles.detailsButtonText}>Detalhes</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
       <View style={styles.navBar}>
-                    <View style={styles.navItem}>
+        <View style={styles.navItem}>
                       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
                           <Ionicons name="home" size={24} color="white" />
                       </TouchableOpacity>
@@ -83,8 +120,7 @@ const HomePage = () => {
                     <TouchableOpacity onPress={() => navigation.navigate('User')}>
                       <Ionicons name="person" size={24} color="white" />
                     </TouchableOpacity>
-                    
-                  </View>
+      </View>
     </LinearGradient>
   );
 };
@@ -101,7 +137,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     zIndex: 1,
   },
-  
   decorativeImage: {
     position: 'absolute',
     width: '110%',
@@ -168,6 +203,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#a9a9a9',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  favoriteButton: {
+    marginRight: 10,
+  },
   detailsButton: {
     backgroundColor: '#00bfa5',
     padding: 10,
@@ -188,11 +230,9 @@ const styles = StyleSheet.create({
     width: '110%',
     alignSelf: 'center',
   },
-
   navItem: {
     alignItems: 'center',
   },
-  
 });
 
 export default HomePage;

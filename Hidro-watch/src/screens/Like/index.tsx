@@ -1,27 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useAuth } from '../../hooks/Auth';
 
 type Device = {
   id: string;
   name: string;
   location: string;
+  favorite: boolean;
 };
 
-const devices: Device[] = [
-  { id: '1', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '2', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '3', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '4', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '5', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '6', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-  { id: '7', name: 'Bebedouro', location: 'IFMA Campus Timon' },
-];
-
 const FavoritePage = () => {
+  const { getUserObjects } = useAuth();
+  const [devices, setDevices] = useState<Device[]>([]);
   const navigation = useNavigation<NavigationProp<any>>();
+
+  useEffect(() => {
+    async function fetchDevices() {
+      const userDevices = await getUserObjects();
+      if (userDevices) {
+        const favoriteDevices = userDevices.filter((device: Device) => device.favorite);
+        setDevices(favoriteDevices);
+      }
+    }
+    fetchDevices();
+  }, []);
 
   return (
     <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
@@ -32,7 +37,7 @@ const FavoritePage = () => {
       </View>
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
       
-      <Text style={styles.sectionTitle}>Dispositivos Registrados</Text>
+      <Text style={styles.sectionTitle}>Dispositivos Favoritos</Text>
       <FlatList
         data={devices}
         keyExtractor={(item) => item.id}
@@ -49,22 +54,21 @@ const FavoritePage = () => {
         )}
       />
       <View style={styles.navBar}>
-                    <View style={styles.navItem}>
-                      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                          <Ionicons name="home" size={24} color="white" />
-                      </TouchableOpacity>
-                    </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('History')}>
-                      <Ionicons name="time" size={24} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-                      <Ionicons name="heart" size={24} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('User')}>
-                      <Ionicons name="person" size={24} color="white" />
-                    </TouchableOpacity>
-                    
-                  </View>
+        <View style={styles.navItem}>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <Ionicons name="home" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('History')}>
+          <Ionicons name="time" size={24} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Like')}>
+          <Ionicons name="heart" size={24} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('User')}>
+          <Ionicons name="person" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 };
@@ -81,7 +85,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     zIndex: 1,
   },
-  
   decorativeImage: {
     position: 'absolute',
     width: '110%',

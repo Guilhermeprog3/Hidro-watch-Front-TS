@@ -7,7 +7,7 @@ import { AuthContext } from '../../context/authContext';
 
 const SearchFavoritePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { getUserObjects } = useContext(AuthContext);
+  const { getUserObjects, markFavorite } = useContext(AuthContext);
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const navigation = useNavigation<NavigationProp<any>>();
@@ -16,13 +16,30 @@ const SearchFavoritePage = () => {
     async function fetchDevices() {
       const response = await getUserObjects();
       if (response) {
-        setDevices(response);
+        const favoriteDevices = response.filter((device: any) => device.favorite);
+        setDevices(favoriteDevices);
       }
       setLoading(false);
     }
 
     fetchDevices();
   }, []);
+
+  const toggleFavorite = async (deviceId: string) => {
+    const updatedDevices = devices.map((device) => {
+      if (device.id === deviceId) {
+        device.isFavorite = !device.isFavorite;
+      }
+      return device;
+    });
+    setDevices(updatedDevices);
+
+    try {
+      await markFavorite(deviceId);
+    } catch (error) {
+      console.error('Erro ao marcar como favorito:', error);
+    }
+  };
 
   const filteredDevices = devices.filter(device =>
     device.tittle.toLowerCase().includes(searchQuery.toLowerCase())
@@ -59,9 +76,21 @@ const SearchFavoritePage = () => {
               <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity style={styles.favoriteButton}>
-              <Ionicons name="heart" size={24} color="red" />
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite(item.id)}
+              >
+                <Ionicons
+                  name={item.isFavorite ? "heart" : "heart-outline"}
+                  size={24}
+                  color={item.isFavorite ? "red" : "white"}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Measurement')} style={styles.detailsButton}>
+                <Text style={styles.detailsButtonText}>Detalhes</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
@@ -129,6 +158,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#a9a9a9',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  favoriteButton: {
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  detailsButton: {
+    backgroundColor: '#00bfff',
+    padding: 10,
+    borderRadius: 5,
+  },
+  detailsButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -140,9 +187,8 @@ const styles = StyleSheet.create({
     width: '110%',
     alignSelf: 'center',
   },
-  favoriteButton: {
-    padding: 10,
-    borderRadius: 5,
+  navItem: {
+    alignItems: 'center',
   },
 });
 
