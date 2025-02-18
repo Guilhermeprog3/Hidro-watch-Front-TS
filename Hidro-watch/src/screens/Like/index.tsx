@@ -4,39 +4,68 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../hooks/Auth';
+import { Primary_theme, Secondary_theme,Tertiary_theme } from '../../colors/color';
 
 type Device = {
   id: string;
-  name: string;
+  tittle: string; 
   location: string;
   favorite: boolean;
 };
 
+const colors = Tertiary_theme;
+
 const FavoritePage = () => {
-  const { getUserObjects } = useAuth();
+  const { getUserObjects, markFavorite } = useAuth();
   const [devices, setDevices] = useState<Device[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const navigation = useNavigation<NavigationProp<any>>();
 
-  useEffect(() => {
-    async function fetchDevices() {
-      const userDevices = await getUserObjects();
-      if (userDevices) {
-        const favoriteDevices = userDevices.filter((device: Device) => device.favorite);
-        setDevices(favoriteDevices);
-      }
+  const fetchDevices = async () => {
+    const userDevices = await getUserObjects();
+    if (userDevices) {
+      const favoriteDevices = userDevices.filter((device: Device) => device.favorite);
+      setDevices(favoriteDevices);
+      setFavorites(favoriteDevices.map((device: Device) => device.id));
     }
+  };
+
+  useEffect(() => {
     fetchDevices();
   }, []);
 
+  const toggleFavorite = async (deviceId: string) => {
+    const updatedDevices = devices.map((device) => {
+      if (device.id === deviceId) {
+        device.favorite = !device.favorite;
+      }
+      return device;
+    });
+    setDevices(updatedDevices);
+
+    if (favorites.includes(deviceId)) {
+      setFavorites((prevFavorites) => prevFavorites.filter((id) => id !== deviceId));
+    } else {
+      setFavorites((prevFavorites) => [...prevFavorites, deviceId]);
+    }
+
+    try {
+      await markFavorite(deviceId);
+      fetchDevices();
+    } catch (error) {
+      console.error('Erro ao marcar como favorito:', error);
+    }
+  };
+
   return (
-    <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Search_favorite')}>
-          <Ionicons name="search" size={24} color="white" />
+          <Ionicons name="search" size={24} color={colors.white} />
         </TouchableOpacity>
       </View>
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
-      
+
       <Text style={styles.sectionTitle}>Dispositivos Favoritos</Text>
       <FlatList
         data={devices}
@@ -44,29 +73,41 @@ const FavoritePage = () => {
         renderItem={({ item }) => (
           <View style={styles.deviceContainer}>
             <View>
-              <Text style={styles.deviceName}>{item.name}</Text>
+              <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity style={styles.favoriteButton}>
-              <Ionicons name="heart" size={24} color="red" />
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite(item.id)}
+              >
+                <Ionicons
+                  name={favorites.includes(item.id) ? "heart" : "heart-outline"}
+                  size={24}
+                  color={favorites.includes(item.id) ? colors.red : colors.white}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Measurement')} style={styles.detailsButton}>
+                <Text style={styles.detailsButtonText}>Detalhes</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
       <View style={styles.navBar}>
         <View style={styles.navItem}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-            <Ionicons name="home" size={24} color="white" />
+            <Ionicons name="home" size={24} color={colors.navBarIconColor} />
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Ionicons name="time" size={24} color="white" />
+          <Ionicons name="time" size={24} color={colors.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-          <Ionicons name="heart" size={24} color="white" />
+          <Ionicons name="heart" size={24} color={colors.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('User')}>
-          <Ionicons name="person" size={24} color="white" />
+          <Ionicons name="person" size={24} color={colors.navBarIconColor} />
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -95,7 +136,7 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   sectionTitle: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -113,21 +154,33 @@ const styles = StyleSheet.create({
   deviceName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.textPrimary,
   },
   deviceLocation: {
     fontSize: 14,
-    color: '#a9a9a9',
+    color: colors.textSecondary,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   favoriteButton: {
+    marginRight: 10,
+  },
+  detailsButton: {
+    backgroundColor: colors.buttonBackground,
     padding: 10,
     borderRadius: 5,
+  },
+  detailsButtonText: {
+    color: colors.buttonText,
+    fontWeight: 'bold',
   },
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 10,
-    backgroundColor: '#21006E',
+    backgroundColor: colors.navBarBackground,
     borderRadius: 0,
     position: 'absolute',
     bottom: 0,

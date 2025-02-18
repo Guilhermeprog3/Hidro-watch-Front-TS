@@ -4,6 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authContext';
+import { Secondary_theme,Primary_theme,Tertiary_theme } from '../../colors/color';
+
+const colors = Tertiary_theme;
 
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -33,7 +36,7 @@ const SignUpScreen = () => {
   };
 
   return (
-    <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
           <Image
@@ -45,21 +48,21 @@ const SignUpScreen = () => {
         <Text style={styles.subtitle}>Porque cada gota importa</Text>
         <Text style={styles.heading}>Criar Conta</Text>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="email" size={24} color="#888" style={styles.inputIcon} />
+          <MaterialIcons name="email" size={24} color={colors.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Email Address"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.textPrimary}
             value={email}
             onChangeText={setEmail}
           />
         </View>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="lock" size={24} color="#888" style={styles.inputIcon} />
+          <MaterialIcons name="lock" size={24} color={colors.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.iconColor}
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={handlePasswordChange}
@@ -68,17 +71,17 @@ const SignUpScreen = () => {
             <MaterialIcons
               name={showPassword ? 'visibility' : 'visibility-off'}
               size={24}
-              color="#888"
+              color={colors.iconColor}
               style={styles.showPasswordIcon}
             />
           </TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="lock" size={24} color="#888" style={styles.inputIcon} />
+          <MaterialIcons name="lock" size={24} color={colors.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Confirm Password"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.iconColor}
             secureTextEntry={!showPassword}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
@@ -87,24 +90,23 @@ const SignUpScreen = () => {
             <MaterialIcons
               name={showPassword ? 'visibility' : 'visibility-off'}
               size={24}
-              color="#888"
+              color={colors.iconColor}
               style={styles.showPasswordIcon}
             />
           </TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="person" size={24} color="#888" style={styles.inputIcon} />
+          <MaterialIcons name="person" size={24} color={colors.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Your Name"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.textPrimary}
             value={name}
             onChangeText={setName}
           />
-         
         </View>
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-        <LinearGradient colors={['#0066ff', '#00ccff']} style={styles.button}>
+        <LinearGradient colors={[colors.secondary, colors.secondary]} style={styles.button}>
           <TouchableOpacity onPress={handleSignUp}>
             <Text style={styles.buttonText}>Criar Conta</Text>
           </TouchableOpacity>
@@ -150,34 +152,34 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: 'white',
+    color: colors.textPrimary,
     marginLeft: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: 'white',
+    color: colors.textPrimary,
     marginBottom: 20,
-    marginLeft:30,
+    marginLeft: 30,
   },
   heading: {
     fontSize: 24,
-    color: 'white',
+    color: colors.textPrimary,
     marginBottom: 20,
   },
   errorText: {
-    color: 'red',
+    color: colors.red,
     marginBottom: 20,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    borderColor: '#fff',
+    borderColor: colors.textPrimary,
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    shadowColor: '#0066ff',
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 10,
@@ -188,7 +190,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 40,
-    color: '#fff',
+    color: colors.textPrimary,
   },
   showPasswordIcon: {
     marginLeft: 10,
@@ -202,11 +204,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonText: {
-    color: '#fff',
+    color: colors.buttonText,
     fontWeight: 'bold',
   },
   orText: {
-    color: '#fff',
+    color: colors.textPrimary,
     marginVertical: 10,
   },
   socialButtons: {
@@ -230,12 +232,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#0078D4',
   },
   socialButtonText: {
-    color: '#fff',
+    color: colors.buttonText,
     marginLeft: 10,
     fontWeight: 'bold',
   },
   link: {
-    color: '#FFF',
+    color: colors.textPrimary,
     marginTop: 20,
   },
 });

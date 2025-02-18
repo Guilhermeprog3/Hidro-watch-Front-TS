@@ -143,7 +143,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         location: objectData.Location,
       }, {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user.token.token}`,
         },
       });
       Alert.alert('Objeto criado com sucesso');
@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function GetObjectforId(objectId: string) {
-    if (!user?.token) {
+    if (!user?.token.token) {
       console.error('Usuário ou token não encontrados');
       return null;
     }

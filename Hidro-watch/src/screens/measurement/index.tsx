@@ -2,24 +2,27 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { Primary_theme, Secondary_theme,Tertiary_theme } from '../../colors/color';
+
+const colors = Tertiary_theme;
 
 const MeasurementPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
 
   return (
-    <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
       <View>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="white" />
+            <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>VOLTAR</Text>
           <TouchableOpacity onPress={() => console.log('More options')}>
-            <Ionicons name="ellipsis-vertical" size={24} color="white" />
+            <Ionicons name="ellipsis-vertical" size={24} color={colors.iconColor} />
           </TouchableOpacity>
         </View>
         <Text style={styles.headerText}>Bebedouro Do Corredor</Text>
-        <Text style={styles.headerSubText}>Max: 14   Min: 7</Text>
+        <Text style={styles.headerSubText}>Max: 14   Min: 6</Text>
 
         <View style={styles.circle}>
           <Text style={styles.circleText}>10 MD</Text>
@@ -69,18 +72,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   headerTitle: {
-    color: 'white',
+    color: colors.white,
     fontSize: 18,
     marginRight: 200,
   },
   headerText: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   headerSubText: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 20,
     marginTop: 8,
     textAlign: 'center',
@@ -90,19 +93,19 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#21006E',
+    backgroundColor: colors.navBarBackground,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
     marginBottom: 20,
   },
   circleText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 24,
     fontWeight: 'bold',
   },
   sectionTitle: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
@@ -124,13 +127,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   measurementLabel: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 13,
     fontWeight: 'bold',
     marginBottom: 5,
   },
   measurementValue: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 18,
     fontWeight: 'bold',
   },

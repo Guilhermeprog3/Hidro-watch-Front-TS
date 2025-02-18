@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../hooks/Auth';
+import { Primary_theme, Secondary_theme,Tertiary_theme } from '../../colors/color';
 
 type Device = {
   id: string;
@@ -11,6 +12,7 @@ type Device = {
   location: string;
   favorite: boolean;
 };
+const colors = Tertiary_theme;
 
 const HomePage = () => {
   const { getUserObjects, markFavorite } = useAuth();
@@ -52,10 +54,10 @@ const HomePage = () => {
   };
 
   return (
-    <LinearGradient colors={["#01002C", "#000481"]} style={styles.container}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Search_home')}>
-          <Ionicons name="search" size={24} color="white" />
+          <Ionicons name="search" size={24} color={colors.white} />
         </TouchableOpacity>
       </View>
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
@@ -95,7 +97,7 @@ const HomePage = () => {
                 <Ionicons
                   name={favorites.includes(item.id) ? "heart" : "heart-outline"}
                   size={24}
-                  color={favorites.includes(item.id) ? "red" : "white"}
+                  color={favorites.includes(item.id) ? colors.red : colors.navBarIconColor}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate('Measurement')} style={styles.detailsButton}>
@@ -107,19 +109,19 @@ const HomePage = () => {
       />
       <View style={styles.navBar}>
         <View style={styles.navItem}>
-                      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                          <Ionicons name="home" size={24} color="white" />
-                      </TouchableOpacity>
-                    </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('History')}>
-                      <Ionicons name="time" size={24} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-                      <Ionicons name="heart" size={24} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('User')}>
-                      <Ionicons name="person" size={24} color="white" />
-                    </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <Ionicons name="home" size={24} color={colors.navBarIconColor} />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('History')}>
+          <Ionicons name="time" size={24} color={colors.navBarIconColor} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Like')}>
+          <Ionicons name="heart" size={24} color={colors.navBarIconColor} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('User')}>
+          <Ionicons name="person" size={24} color={colors.navBarIconColor} />
+        </TouchableOpacity>
       </View>
     </LinearGradient>
   );
@@ -147,7 +149,7 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   addButton: {
-    backgroundColor: '#00bfa5',
+    backgroundColor: colors.buttonBackground,
     padding: 15,
     borderRadius: 40,
     alignItems: 'center',
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
     marginTop: 90,
   },
   addButtonText: {
-    color: '#fff',
+    color: colors.buttonText,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -173,14 +175,14 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: colors.textPrimary,
   },
   statText: {
     fontSize: 14,
-    color: 'white',
+    color: colors.textPrimary,
   },
   sectionTitle: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -197,11 +199,11 @@ const styles = StyleSheet.create({
   deviceName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.textPrimary,
   },
   deviceLocation: {
     fontSize: 14,
-    color: '#a9a9a9',
+    color: colors.textSecondary,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -211,19 +213,19 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   detailsButton: {
-    backgroundColor: '#00bfa5',
+    backgroundColor: colors.buttonBackground,
     padding: 10,
     borderRadius: 5,
   },
   detailsButtonText: {
-    color: '#fff',
+    color: colors.buttonText,
     fontSize: 14,
   },
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 10,
-    backgroundColor: '#21006E',
+    backgroundColor: colors.navBarBackground,
     borderRadius: 0,
     position: 'absolute',
     bottom: 0,
