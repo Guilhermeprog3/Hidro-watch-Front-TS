@@ -4,7 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../hooks/Auth';
-import { Primary_theme, Secondary_theme,Tertiary_theme } from '../../colors/color';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
 type Device = {
   id: string;
@@ -12,13 +13,35 @@ type Device = {
   location: string;
   favorite: boolean;
 };
-const colors = Tertiary_theme;
 
 const HomePage = () => {
   const { getUserObjects, markFavorite } = useAuth();
   const [devices, setDevices] = useState<Device[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [mode, setMode] = useState('Light');
+  const [colors, setColors] = useState(Secondary_theme);
   const navigation = useNavigation<NavigationProp<any>>();
+
+  useEffect(() => {
+    const loadMode = async () => {
+      const savedMode = await AsyncStorage.getItem('userMode');
+      if (savedMode) {
+        setMode(savedMode);
+        updateColors(savedMode);
+      }
+    };
+    loadMode();
+  }, []);
+
+  const updateColors = (mode: string) => {
+    if (mode === 'Hidro') {
+      setColors(Primary_theme);
+    } else if (mode === 'Light') {
+      setColors(Secondary_theme);
+    } else {
+      setColors(Tertiary_theme);
+    }
+  };
 
   useEffect(() => {
     async function fetchDevices() {
@@ -52,6 +75,116 @@ const HomePage = () => {
       console.error('Erro ao marcar como favorito:', error);
     }
   };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      marginBottom: 20,
+      zIndex: 1,
+    },
+    decorativeImage: {
+      position: 'absolute',
+      width: '110%',
+      height: 180,
+      resizeMode: 'cover',
+      marginBottom: 200,
+      padding: 0,
+      zIndex: 0,
+    },
+    addButton: {
+      backgroundColor: colors.buttonBackground,
+      padding: 15,
+      borderRadius: 40,
+      alignItems: 'center',
+      marginBottom: 20,
+      marginTop: 90,
+    },
+    addButtonText: {
+      color: colors.buttonText,
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      backgroundColor: 'transparent',
+      padding: 10,
+      borderRadius: 10,
+      marginBottom: 20,
+    },
+    statItem: {
+      alignItems: 'center',
+    },
+    statNumber: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    statText: {
+      fontSize: 14,
+      color: colors.textPrimary,
+    },
+    sectionTitle: {
+      color: colors.textPrimary,
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    deviceContainer: {
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      padding: 15,
+      borderRadius: 10,
+      marginBottom: 10,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    deviceName: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    deviceLocation: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    favoriteButton: {
+      marginRight: 10,
+    },
+    detailsButton: {
+      backgroundColor: colors.buttonBackground,
+      padding: 10,
+      borderRadius: 5,
+    },
+    detailsButtonText: {
+      color: colors.buttonText,
+      fontSize: 14,
+    },
+    navBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingVertical: 10,
+      backgroundColor: colors.navBarBackground,
+      borderRadius: 0,
+      position: 'absolute',
+      bottom: 0,
+      width: '110%',
+      alignSelf: 'center',
+    },
+    navItem: {
+      alignItems: 'center',
+    },
+  });
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
@@ -126,115 +259,5 @@ const HomePage = () => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginBottom: 20,
-    zIndex: 1,
-  },
-  decorativeImage: {
-    position: 'absolute',
-    width: '110%',
-    height: 180,
-    resizeMode: 'cover',
-    marginBottom: 200,
-    padding: 0,
-    zIndex: 0,
-  },
-  addButton: {
-    backgroundColor: colors.buttonBackground,
-    padding: 15,
-    borderRadius: 40,
-    alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 90,
-  },
-  addButtonText: {
-    color: colors.buttonText,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: 'transparent',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-  statText: {
-    fontSize: 14,
-    color: colors.textPrimary,
-  },
-  sectionTitle: {
-    color: colors.textPrimary,
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  deviceContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  deviceName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-  deviceLocation: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  favoriteButton: {
-    marginRight: 10,
-  },
-  detailsButton: {
-    backgroundColor: colors.buttonBackground,
-    padding: 10,
-    borderRadius: 5,
-  },
-  detailsButtonText: {
-    color: colors.buttonText,
-    fontSize: 14,
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    backgroundColor: colors.navBarBackground,
-    borderRadius: 0,
-    position: 'absolute',
-    bottom: 0,
-    width: '110%',
-    alignSelf: 'center',
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-});
 
 export default HomePage;

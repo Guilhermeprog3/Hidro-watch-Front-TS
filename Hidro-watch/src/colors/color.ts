@@ -18,39 +18,41 @@ const Primary_theme = {
 
 const Secondary_theme = {
   primaryDark: '#ffffff',
-  primaryLight: '#f0f0f0',
+  primaryLight: '#f5f5f5',
   secondary: '#00bfa5',
   white: '#ffffff',
-  lightGray: '#e0e0e0',
-  red: '#ff4d4d',
+  lightGray: '#e3e3e3',
+  red: '#ff6b6b',
   gradientStart: '#00A652',
-  gradientEnd: '#9bde87',
+  gradientEnd: '#87d6b3',
   buttonBackground: '#00bfa5',
   buttonText: '#ffffff',
-  textPrimary: '#005a3e',
+  textPrimary: '#003d2b',
   textSecondary: '#333333',
-  navBarBackground: '#9bde87',
-  iconColor: '#00A652',
+  navBarBackground: '#8be4b5',
+  iconColor: '#007f5f',
   navBarIconColor: '#ffffff',
 };
 
 
+
 const Tertiary_theme = {
-  primaryDark: '#000000',
-  primaryLight: '#121212',
+  primaryDark: '#121212',
+  primaryLight: '#1d1d1d',
   secondary: '#00bfa5',
-  white: '#ffffff',
-  lightGray: '#4d4d4d',
-  red: '#ff4d4d',
-  gradientStart: '#000000',
-  gradientEnd: '#0F5929',
+  white: '#ffffff', 
+  lightGray: '#5c5c5c',
+  red: '#ff6b6b',
+  gradientStart: '#003d2b',
+  gradientEnd: '#056f47',
   buttonBackground: '#00bfa5',
   buttonText: '#000000',
   textPrimary: '#00bfa5',
   textSecondary: '#e0e0e0',
-  navBarBackground: '#005A2C',
+  navBarBackground: '#004d3f',
   iconColor: '#00bfa5',
-  navBarIconColor: '#00bfa5',
-}
+  navBarIconColor: '#ffffff',
+};
+
 
 export { Primary_theme, Secondary_theme,Tertiary_theme };

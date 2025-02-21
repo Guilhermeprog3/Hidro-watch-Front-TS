@@ -1,4 +1,6 @@
 import React from 'react';
+import { useState,useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,9 +12,31 @@ const colors = Tertiary_theme;
 const Week_page = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const [currentStartDay, setCurrentStartDay] = React.useState(0);
-
+  const [colors, setColors] = useState(Secondary_theme);
+  const [mode, setMode] = useState('Light');
   const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
   const results = [0, 0, 3, 7, 14, 0, 0];
+
+  useEffect(() => {
+    const loadMode = async () => {
+      const savedMode = await AsyncStorage.getItem('userMode');
+      if (savedMode) {
+        setMode(savedMode);
+        updateColors(savedMode);
+      }
+    };
+    loadMode();
+  }, []);
+
+  const updateColors = (mode: string) => {
+    if (mode === 'Hidro') {
+      setColors(Primary_theme);
+    } else if (mode === 'Light') {
+      setColors(Secondary_theme);
+    } else {
+      setColors(Tertiary_theme);
+    }
+  };
 
   const nextDay = () => {
     setCurrentStartDay((currentStartDay + 1) % 7);

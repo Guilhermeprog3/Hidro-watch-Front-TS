@@ -1,12 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authContext';
-import { Secondary_theme,Primary_theme,Tertiary_theme } from '../../colors/color';
-
-const colors = Tertiary_theme;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
 
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -17,6 +16,29 @@ const SignUpScreen = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [mode, setMode] = useState('Light');
+  const [colors, setColors] = useState(Secondary_theme);
+
+  useEffect(() => {
+    const loadMode = async () => {
+      const savedMode = await AsyncStorage.getItem('userMode');
+      if (savedMode) {
+        setMode(savedMode);
+        updateColors(savedMode);
+      }
+    };
+    loadMode();
+  }, []);
+
+  const updateColors = (mode: string) => {
+    if (mode === 'Hidro') {
+      setColors(Primary_theme);
+    } else if (mode === 'Light') {
+      setColors(Secondary_theme);
+    } else {
+      setColors(Tertiary_theme);
+    }
+  };
 
   const handlePasswordChange = (password: string) => {
     setPassword(password);
@@ -34,6 +56,118 @@ const SignUpScreen = () => {
       setErrorMessage('Por favor, preencha todos os campos.');
     }
   };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    content: {
+      width: '80%',
+      alignItems: 'center',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 0,
+    },
+    logo: {
+      width: 50,
+      height: 50,
+    },
+    title: {
+      fontSize: 36,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginLeft: 10,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textPrimary,
+      marginBottom: 20,
+      marginLeft: 30,
+    },
+    heading: {
+      fontSize: 24,
+      color: colors.textPrimary,
+      marginBottom: 20,
+    },
+    errorText: {
+      color: colors.red,
+      marginBottom: 20,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 20,
+      borderColor: colors.textPrimary,
+      borderWidth: 1,
+      borderRadius: 5,
+      paddingHorizontal: 20,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      shadowColor: colors.secondary,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.8,
+      shadowRadius: 10,
+    },
+    inputIcon: {
+      marginRight: 10,
+    },
+    input: {
+      flex: 1,
+      height: 40,
+      color: colors.textPrimary,
+    },
+    showPasswordIcon: {
+      marginLeft: 10,
+    },
+    button: {
+      width: '100%',
+      height: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 5,
+      marginBottom: 20,
+    },
+    buttonText: {
+      color: colors.buttonText,
+      fontWeight: 'bold',
+    },
+    orText: {
+      color: colors.textPrimary,
+      marginVertical: 10,
+    },
+    socialButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+      marginBottom: 20,
+    },
+    socialButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '48%',
+      height: 40,
+      borderRadius: 5,
+    },
+    googleButton: {
+      backgroundColor: '#DB4437',
+    },
+    microsoftButton: {
+      backgroundColor: '#0078D4',
+    },
+    socialButtonText: {
+      color: colors.buttonText,
+      marginLeft: 10,
+      fontWeight: 'bold',
+    },
+    link: {
+      color: colors.textPrimary,
+      marginTop: 20,
+    },
+  });
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
@@ -129,117 +263,5 @@ const SignUpScreen = () => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    width: '80%',
-    alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 0,
-  },
-  logo: {
-    width: 50,
-    height: 50,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginLeft: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textPrimary,
-    marginBottom: 20,
-    marginLeft: 30,
-  },
-  heading: {
-    fontSize: 24,
-    color: colors.textPrimary,
-    marginBottom: 20,
-  },
-  errorText: {
-    color: colors.red,
-    marginBottom: 20,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    borderColor: colors.textPrimary,
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 40,
-    color: colors.textPrimary,
-  },
-  showPasswordIcon: {
-    marginLeft: 10,
-  },
-  button: {
-    width: '100%',
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: colors.buttonText,
-    fontWeight: 'bold',
-  },
-  orText: {
-    color: colors.textPrimary,
-    marginVertical: 10,
-  },
-  socialButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 20,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '48%',
-    height: 40,
-    borderRadius: 5,
-  },
-  googleButton: {
-    backgroundColor: '#DB4437',
-  },
-  microsoftButton: {
-    backgroundColor: '#0078D4',
-  },
-  socialButtonText: {
-    color: colors.buttonText,
-    marginLeft: 10,
-    fontWeight: 'bold',
-  },
-  link: {
-    color: colors.textPrimary,
-    marginTop: 20,
-  },
-});
 
 export default SignUpScreen;

@@ -1,13 +1,118 @@
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { Primary_theme, Secondary_theme,Tertiary_theme } from '../../colors/color';
-
-const colors = Tertiary_theme;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
 const MeasurementPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const [mode, setMode] = useState('Light');
+  const [colors, setColors] = useState(Secondary_theme);
+
+  useEffect(() => {
+    const loadMode = async () => {
+      const savedMode = await AsyncStorage.getItem('userMode');
+      if (savedMode) {
+        setMode(savedMode);
+        updateColors(savedMode);
+      }
+    };
+    loadMode();
+  }, []);
+
+  const updateColors = (mode: string) => {
+    if (mode === 'Hidro') {
+      setColors(Primary_theme);
+    } else if (mode === 'Light') {
+      setColors(Secondary_theme);
+    } else {
+      setColors(Tertiary_theme);
+    }
+  };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#0A0F39',
+      paddingHorizontal: 20,
+      paddingTop: 50,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 40,
+      marginTop: 20,
+    },
+    headerTitle: {
+      color: colors.white,
+      fontSize: 18,
+      marginRight: 200,
+    },
+    headerText: {
+      color: colors.textPrimary,
+      fontSize: 22,
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+    headerSubText: {
+      color: colors.textPrimary,
+      fontSize: 20,
+      marginTop: 8,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    circle: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      backgroundColor: colors.navBarBackground,
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignSelf: 'center',
+      marginBottom: 20,
+    },
+    circleText: {
+      color: colors.white,
+      fontSize: 24,
+      fontWeight: 'bold',
+    },
+    sectionTitle: {
+      color: colors.textPrimary,
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 20,
+      textAlign: 'left',
+    },
+    scrollContent: {
+      paddingVertical: 20,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 10,
+    },
+    measurementBox: {
+      borderRadius: 10,
+      padding: 20,
+      width: '48%',
+      height: 90,
+      alignItems: 'center',
+    },
+    measurementLabel: {
+      color: colors.white,
+      fontSize: 13,
+      fontWeight: 'bold',
+      marginBottom: 5,
+    },
+    measurementValue: {
+      color: colors.white,
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+  });
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
@@ -56,87 +161,5 @@ const MeasurementPage = () => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0A0F39',
-    paddingHorizontal: 20,
-    paddingTop: 50,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 40,
-    marginTop: 20,
-  },
-  headerTitle: {
-    color: colors.white,
-    fontSize: 18,
-    marginRight: 200,
-  },
-  headerText: {
-    color: colors.textPrimary,
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  headerSubText: {
-    color: colors.textPrimary,
-    fontSize: 20,
-    marginTop: 8,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  circle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.navBarBackground,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  circleText: {
-    color: colors.white,
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  sectionTitle: {
-    color: colors.textPrimary,
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'left',
-  },
-  scrollContent: {
-    paddingVertical: 20,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  measurementBox: {
-    borderRadius: 10,
-    padding: 20,
-    width: '48%',
-    height: 90,
-    alignItems: 'center',
-  },
-  measurementLabel: {
-    color: colors.white,
-    fontSize: 13,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  measurementValue: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
 
 export default MeasurementPage;

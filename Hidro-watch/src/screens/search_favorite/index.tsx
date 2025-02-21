@@ -4,16 +4,38 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authContext';
-import { Secondary_theme,Primary_theme,Tertiary_theme } from '../../colors/color';
-
-const colors = Tertiary_theme;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
 
 const SearchFavoritePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { getUserObjects, markFavorite } = useContext(AuthContext);
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [mode, setMode] = useState('Light');
+  const [colors, setColors] = useState(Secondary_theme);
   const navigation = useNavigation<NavigationProp<any>>();
+
+  useEffect(() => {
+    const loadMode = async () => {
+      const savedMode = await AsyncStorage.getItem('userMode');
+      if (savedMode) {
+        setMode(savedMode);
+        updateColors(savedMode);
+      }
+    };
+    loadMode();
+  }, []);
+
+  const updateColors = (mode: string) => {
+    if (mode === 'Hidro') {
+      setColors(Primary_theme);
+    } else if (mode === 'Light') {
+      setColors(Secondary_theme);
+    } else {
+      setColors(Tertiary_theme);
+    }
+  };
 
   useEffect(() => {
     async function fetchDevices() {
@@ -48,13 +70,86 @@ const SearchFavoritePage = () => {
     device.tittle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.secondary} />
-      </View>
-    );
-  }
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.gradientEnd,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 20,
+      backgroundColor: colors.gradientStart,
+      borderRadius: 10,
+      padding: 5,
+    },
+    searchBar: {
+      backgroundColor: colors.white,
+      borderRadius: 10,
+      padding: 10,
+      flex: 1,
+      color: colors.textPrimary,
+      marginLeft: 10,
+      marginRight: 10,
+    },
+    deviceContainer: {
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      padding: 15,
+      borderRadius: 10,
+      marginBottom: 10,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    deviceName: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    deviceLocation: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    favoriteButton: {
+      padding: 10,
+      borderRadius: 5,
+      marginRight: 10,
+    },
+    detailsButton: {
+      backgroundColor: colors.buttonBackground,
+      padding: 10,
+      borderRadius: 5,
+    },
+    detailsButtonText: {
+      color: colors.buttonText,
+      fontWeight: 'bold',
+    },
+    navBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingVertical: 10,
+      backgroundColor: colors.navBarBackground,
+      borderRadius: 0,
+      position: 'absolute',
+      bottom: 0,
+      width: '110%',
+      alignSelf: 'center',
+    },
+    navItem: {
+      alignItems: 'center',
+    },
+  });
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
@@ -114,85 +209,5 @@ const SearchFavoritePage = () => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.gradientEnd,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    backgroundColor: colors.gradientStart,
-    borderRadius: 10,
-    padding: 5,
-  },
-  searchBar: {
-    backgroundColor: colors.white,
-    borderRadius: 10,
-    padding: 10,
-    flex: 1,
-    color: colors.textPrimary,
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  deviceContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  deviceName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-  deviceLocation: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  favoriteButton: {
-    padding: 10,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  detailsButton: {
-    backgroundColor: colors.buttonBackground,
-    padding: 10,
-    borderRadius: 5,
-  },
-  detailsButtonText: {
-    color: colors.buttonText,
-    fontWeight: 'bold',
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    backgroundColor: colors.navBarBackground,
-    borderRadius: 0,
-    position: 'absolute',
-    bottom: 0,
-    width: '110%',
-    alignSelf: 'center',
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-});
 
 export default SearchFavoritePage;
