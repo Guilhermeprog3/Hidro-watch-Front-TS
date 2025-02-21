@@ -4,12 +4,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authContext';
+import { useObject } from '../../hooks/objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
 
 const SearchFavoritePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { getUserObjects, markFavorite } = useContext(AuthContext);
+  const { getUserObjects, markFavorite } = useObject();
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [mode, setMode] = useState('Light');

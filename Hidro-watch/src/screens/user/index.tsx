@@ -4,12 +4,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authContext';
+import { UserContext } from '../../context/userContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
 const UserPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { user, logout, deleteUser } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+  const { deleteUser } = useContext(UserContext);
 
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
@@ -68,7 +70,7 @@ const UserPage = () => {
 
   const confirmLogout = () => {
     Alert.alert(
-      "Confirmar Saida",
+      "Confirmar Saída",
       "Você tem certeza de que deseja sair?",
       [
         {
@@ -153,22 +155,21 @@ const UserPage = () => {
       </View>
 
       <View style={styles.menuContainer}>
-      <TouchableOpacity style={styles.menuItem} onPress={toggleMode}>
-        <Ionicons 
-          name={
-          mode === 'Hidro' ? 'sunny' :
-          mode === 'Light' ? 'moon' :
-          'water'
-          }
-          size={24}
-          color={colors.iconColor} 
+        <TouchableOpacity style={styles.menuItem} onPress={toggleMode}>
+          <Ionicons 
+            name={
+            mode === 'Hidro' ? 'sunny' :
+            mode === 'Light' ? 'moon' :
+            'water'
+            }
+            size={24}
+            color={colors.iconColor} 
           />
-        <Text style={styles.menuItemText}>
-          {mode === 'Hidro' ? 'Light Mode' : mode === 'Light' ? 'Dark Mode' : 'Hidro Mode'}
-        </Text>
-      <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
-      </TouchableOpacity>
-
+          <Text style={styles.menuItemText}>
+            {mode === 'Hidro' ? 'Light Mode' : mode === 'Light' ? 'Dark Mode' : 'Hidro Mode'}
+          </Text>
+          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
           <Ionicons name="person" size={24} color={colors.iconColor} />

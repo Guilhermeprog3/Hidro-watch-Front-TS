@@ -6,10 +6,11 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
+import { useObject } from '../../hooks/objectcontext';
 
 const SearchHomePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { getUserObjects } = useContext(AuthContext);
+  const { getUserObjects } = useObject();
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [mode, setMode] = useState('Light');

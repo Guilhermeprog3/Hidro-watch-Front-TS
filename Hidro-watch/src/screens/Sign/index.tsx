@@ -4,12 +4,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authContext';
+import { UserContext } from '../../context/userContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
 
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { Postuser, login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
+  const {Postuser} = useContext(UserContext);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');

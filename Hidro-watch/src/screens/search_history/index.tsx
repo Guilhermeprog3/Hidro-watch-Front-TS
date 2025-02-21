@@ -3,13 +3,13 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, Activity
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { AuthContext } from '../../context/authContext';
+import { useObject } from '../../hooks/objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Secondary_theme, Tertiary_theme, Primary_theme } from '../../colors/color';
 
 const SearchHistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { getUserObjects } = useContext(AuthContext);
+  const { getUserObjects} = useObject();
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [mode, setMode] = useState('Light');

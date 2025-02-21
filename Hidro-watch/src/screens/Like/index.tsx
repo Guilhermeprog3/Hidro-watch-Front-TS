@@ -3,24 +3,23 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { useAuth } from '../../hooks/Auth';
+import { useObject } from '../../hooks/objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
 type Device = {
   id: string;
-  tittle: string; 
+  tittle: string;
   location: string;
   favorite: boolean;
 };
 
 const FavoritePage = () => {
-  const { getUserObjects, markFavorite } = useAuth();
+  const { getUserObjects, markFavorite } = useObject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
-
   const navigation = useNavigation<NavigationProp<any>>();
 
   useEffect(() => {
@@ -74,7 +73,7 @@ const FavoritePage = () => {
 
     try {
       await markFavorite(deviceId);
-      fetchDevices();
+      fetchDevices(); // Atualiza a lista de dispositivos após marcar/desmarcar favorito
     } catch (error) {
       console.error('Erro ao marcar como favorito:', error);
     }

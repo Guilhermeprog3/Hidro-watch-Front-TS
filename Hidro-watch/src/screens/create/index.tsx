@@ -3,11 +3,11 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { AuthContext } from '../../context/authContext';
+import { ObjectContext } from '../../context/objectContext';
 
 const CreatePage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { postUserObject } = useContext(AuthContext);
+  const { postUserObject } = useContext(ObjectContext);
   const [Tittle, setTittle] = useState<string>('');
   const [Location, setLocation] = useState<string>('');
 

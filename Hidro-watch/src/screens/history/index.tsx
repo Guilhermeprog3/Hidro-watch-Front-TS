@@ -3,13 +3,13 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { AuthContext } from '../../context/authContext';
+import { useObject } from '../../hooks/objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
 const HistoryPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { getUserObjects } = useContext(AuthContext);
+  const { getUserObjects} = useObject();
   const [devices, setDevices] = useState<any[]>([]);
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);

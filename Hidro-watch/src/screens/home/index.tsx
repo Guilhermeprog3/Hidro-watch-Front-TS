@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { useAuth } from '../../hooks/Auth';
+import { useObject } from '../../hooks/objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
@@ -15,7 +15,8 @@ type Device = {
 };
 
 const HomePage = () => {
-  const { getUserObjects, markFavorite } = useAuth();
+
+  const { getUserObjects, markFavorite } = useObject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [mode, setMode] = useState('Light');
@@ -75,7 +76,6 @@ const HomePage = () => {
       console.error('Erro ao marcar como favorito:', error);
     }
   };
-
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -199,15 +199,15 @@ const HomePage = () => {
       </TouchableOpacity>
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>6</Text>
+        <Text style={styles.statNumber}>{devices.length}</Text>
           <Text style={styles.statText}>Acima da Média</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>14</Text>
+        <Text style={styles.statNumber}>{devices.length}</Text>
           <Text style={styles.statText}>Dispositivos</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>3</Text>
+        <Text style={styles.statNumber}>{devices.length}</Text>
           <Text style={styles.statText}>Abaixo da Média</Text>
         </View>
       </View>
