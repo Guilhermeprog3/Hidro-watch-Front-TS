@@ -10,6 +10,8 @@ import FavoritePage from '../screens/Like';
 import UserPage from '../screens/user';
 import MeasurementPage from '../screens/measurement';
 import Week_page from '../screens/week';
+import SettingsPage from '../screens/Settingss';
+import Person from '../screens/person';
 
 const PrivateRoutes = () => {
     const { Navigator, Screen } = createNativeStackNavigator();
@@ -26,7 +28,8 @@ const PrivateRoutes = () => {
             <Screen name="User" component={UserPage} options={{ headerShown: false}} />
             <Screen name="Week" component={Week_page} options={{ headerShown: false}} />
             <Screen name="Measurement" component={MeasurementPage} options={{ headerShown: false}} />
-            
+            <Screen name="settings" component={SettingsPage} options={{ headerShown: false}} />
+            <Screen name="Person" component={Person} options={{headerShown:false}}/>
         </Navigator>
     );
 };

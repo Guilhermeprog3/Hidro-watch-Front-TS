@@ -1,7 +1,7 @@
 import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
 import { Alert } from 'react-native';
 import { api } from '../services/api';
-import { AuthContext } from './authContext';
+import { AuthContext } from './authcontext';
 
 type ObjectContextProps = {
   getUserObjects: () => Promise<any>;

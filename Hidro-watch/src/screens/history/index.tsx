@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { useObject } from '../../hooks/objectcontext';
+import { useObject } from '../../hooks/Objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
@@ -136,8 +136,8 @@ const HistoryPage = () => {
               <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('Week')} style={styles.detailsButton}>
-              <Text style={styles.detailsButtonText}>Historico</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Week', { objectId: item.id })} style={styles.detailsButton}>
+              <Text style={styles.detailsButtonText}>Histórico</Text>
             </TouchableOpacity>
           </View>
         )}

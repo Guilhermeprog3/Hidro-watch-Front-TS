@@ -1,49 +1,51 @@
-import React from 'react';
-import { useState,useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useContext, useEffect, useState } from 'react';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { Secondary_theme,Primary_theme,Tertiary_theme } from '../../colors/color';
+import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
+import { MeasurementContext } from '../../context/measurementscontext';
+import { ObjectContext } from '../../context/objectcontext';
 
 const colors = Tertiary_theme;
 
+type WeekScreenRouteProp = RouteProp<{ Week: { objectId: string } }, 'Week'>;
+
 const Week_page = () => {
+  const route = useRoute<WeekScreenRouteProp>();
+  const { objectId } = route.params;
+
   const navigation = useNavigation<NavigationProp<any>>();
-  const [currentStartDay, setCurrentStartDay] = React.useState(0);
-  const [colors, setColors] = useState(Secondary_theme);
-  const [mode, setMode] = useState('Light');
-  const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-  const results = [0, 0, 3, 7, 14, 0, 0];
+  const { getWeeklyAverage } = useContext(MeasurementContext);
+  const { GetObjectforId } = useContext(ObjectContext);
+
+  const [weeklyData, setWeeklyData] = useState<any[]>([]);
+  const [objectTitle, setObjectTitle] = useState<string>('Carregando...');
+  const [currentStartDay, setCurrentStartDay] = useState(0);
 
   useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
+    const fetchData = async () => {
+      const objectData = await GetObjectforId(objectId);
+      if (objectData) {
+        setObjectTitle(objectData.tittle);
+      }
+
+      const weeklyData = await getWeeklyAverage(objectId);
+      if (weeklyData) {
+        setWeeklyData(weeklyData);
       }
     };
-    loadMode();
-  }, []);
 
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
+    fetchData();
+  }, [objectId]);
+
+  const prevDay = () => {
+    setCurrentStartDay((prev) => (prev === 0 ? 6 : prev - 1));
   };
 
   const nextDay = () => {
-    setCurrentStartDay((currentStartDay + 1) % 7);
-  };
-
-  const prevDay = () => {
-    setCurrentStartDay((currentStartDay + 6) % 7); 
+    setCurrentStartDay((prev) => (prev === 6 ? 0 : prev + 1)); 
   };
 
   const getBackgroundColor = (result: number) => {
@@ -57,10 +59,13 @@ const Week_page = () => {
 
   const getDayResult = (index: number) => {
     const dayIndex = (currentStartDay + index) % 7;
+    const dayData = weeklyData[dayIndex];
+    if (!dayData) return null;
+
     return (
-      <View key={index} style={[styles.dayResult, { backgroundColor: getBackgroundColor(results[dayIndex]) }]}>
-        <Text style={styles.dayText}>{results[dayIndex]}</Text>
-        <Text style={styles.dayLabel}>{days[dayIndex]}</Text>
+      <View key={dayIndex} style={[styles.dayResult, { backgroundColor: getBackgroundColor(dayData.average_measurement) }]}>
+        <Text style={styles.dayText}>{dayData.average_measurement}</Text>
+        <Text style={styles.dayLabel}>{dayData.day}</Text>
       </View>
     );
   };
@@ -74,7 +79,7 @@ const Week_page = () => {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>VOLTAR</Text>
         </View>
-        <Text style={styles.headerText}>Bebedouro Do Corredor</Text>
+        <Text style={styles.headerText}>{objectTitle}</Text>
         <Text style={styles.headerSubText}>Max: 14   Min: 7</Text>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -84,7 +89,7 @@ const Week_page = () => {
               <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
             </TouchableOpacity>
 
-            {[0, 1, 2, 3].map(i => getDayResult(i))}
+            {[0, 1, 2, 3].map((index) => getDayResult(index))}
 
             <TouchableOpacity onPress={nextDay} style={styles.arrowButton}>
               <Ionicons name="arrow-forward" size={24} color={colors.iconColor} />
@@ -135,12 +140,6 @@ const styles = StyleSheet.create({
     color: colors.iconColor,
     fontSize: 18,
     marginLeft: 10,
-  },
-  backButton: {
-    color: colors.iconColor,
-    fontSize: 16,
-    alignSelf: 'flex-start',
-    marginBottom: 10,
   },
   headerText: {
     color: colors.textPrimary,

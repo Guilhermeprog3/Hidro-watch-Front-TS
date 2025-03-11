@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { useObject } from '../../hooks/objectcontext';
+import { useObject } from '../../hooks/Objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
@@ -73,7 +73,7 @@ const FavoritePage = () => {
 
     try {
       await markFavorite(deviceId);
-      fetchDevices(); // Atualiza a lista de dispositivos após marcar/desmarcar favorito
+      fetchDevices();
     } catch (error) {
       console.error('Erro ao marcar como favorito:', error);
     }

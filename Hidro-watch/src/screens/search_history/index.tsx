@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, Activity
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { useObject } from '../../hooks/objectcontext';
+import { useObject } from '../../hooks/Objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Secondary_theme, Tertiary_theme, Primary_theme } from '../../colors/color';
 

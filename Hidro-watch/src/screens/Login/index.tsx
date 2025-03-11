@@ -155,6 +155,11 @@ const LoginScreen = () => {
       color: colors.textPrimary,
       marginTop: 20,
     },
+    forgotPasswordText: {
+      color: colors.textPrimary,
+      marginTop: 10,
+      textDecorationLine: 'underline',
+    },
   });
 
   return (
@@ -198,6 +203,9 @@ const LoginScreen = () => {
             />
           </TouchableOpacity>
         </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Recoverpass')}>
+          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+        </TouchableOpacity>
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         <LinearGradient colors={[colors.secondary, colors.secondary]} style={styles.button}>
           <TouchableOpacity onPress={handleLogin}>

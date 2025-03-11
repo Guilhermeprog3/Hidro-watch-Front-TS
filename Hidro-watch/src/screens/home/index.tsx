@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { useObject } from '../../hooks/objectcontext';
+import { useObject } from '../../hooks/Objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
@@ -15,7 +15,6 @@ type Device = {
 };
 
 const HomePage = () => {
-
   const { getUserObjects, markFavorite } = useObject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -76,6 +75,7 @@ const HomePage = () => {
       console.error('Erro ao marcar como favorito:', error);
     }
   };
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -199,15 +199,15 @@ const HomePage = () => {
       </TouchableOpacity>
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
-        <Text style={styles.statNumber}>{devices.length}</Text>
+          <Text style={styles.statNumber}>{devices.length}</Text>
           <Text style={styles.statText}>Acima da Média</Text>
         </View>
         <View style={styles.statItem}>
-        <Text style={styles.statNumber}>{devices.length}</Text>
+          <Text style={styles.statNumber}>{devices.length}</Text>
           <Text style={styles.statText}>Dispositivos</Text>
         </View>
         <View style={styles.statItem}>
-        <Text style={styles.statNumber}>{devices.length}</Text>
+          <Text style={styles.statNumber}>{devices.length}</Text>
           <Text style={styles.statText}>Abaixo da Média</Text>
         </View>
       </View>
@@ -233,7 +233,10 @@ const HomePage = () => {
                   color={favorites.includes(item.id) ? colors.red : colors.navBarIconColor}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('Measurement')} style={styles.detailsButton}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Measurement', { deviceId: item.id })}
+                style={styles.detailsButton}
+              >
                 <Text style={styles.detailsButtonText}>Detalhes</Text>
               </TouchableOpacity>
             </View>

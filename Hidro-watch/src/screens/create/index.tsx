@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { ObjectContext } from '../../context/objectContext';
+import { ObjectContext } from '../../context/objectcontext';
 
 const CreatePage = () => {
   const navigation = useNavigation<NavigationProp<any>>();

@@ -3,10 +3,10 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, Activity
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { AuthContext } from '../../context/authContext';
+import { AuthContext } from '../../context/authcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
-import { useObject } from '../../hooks/objectcontext';
+import { useObject } from '../../hooks/Objectcontext';
 
 const SearchHomePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');

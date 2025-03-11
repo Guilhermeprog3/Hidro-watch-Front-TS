@@ -3,8 +3,8 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'reac
 import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { AuthContext } from '../../context/authContext';
-import { UserContext } from '../../context/userContext';
+import { AuthContext } from '../../context/authcontext';
+import { UserContext } from '../../context/usercontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
 

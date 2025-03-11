@@ -34,8 +34,6 @@ const Secondary_theme = {
   navBarIconColor: '#ffffff',
 };
 
-
-
 const Tertiary_theme = {
   primaryDark: '#121212',
   primaryLight: '#1d1d1d',
@@ -46,13 +44,12 @@ const Tertiary_theme = {
   gradientStart: '#003d2b',
   gradientEnd: '#056f47',
   buttonBackground: '#00bfa5',
-  buttonText: '#000000',
-  textPrimary: '#00bfa5',
-  textSecondary: '#e0e0e0',
+  buttonText: '#ffff',
+  textPrimary: '#ffff',
+  textSecondary: '#ffff',
   navBarBackground: '#004d3f',
   iconColor: '#00bfa5',
   navBarIconColor: '#ffffff',
 };
-
 
 export { Primary_theme, Secondary_theme,Tertiary_theme };

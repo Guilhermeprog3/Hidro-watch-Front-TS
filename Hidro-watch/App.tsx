@@ -1,7 +1,8 @@
 import React from 'react';
-import { AuthProvider } from './src/context/authContext';
-import { UserProvider } from './src/context/userContext';
-import { ObjectProvider } from './src/context/objectContext';
+import { AuthProvider } from './src/context/authcontext';
+import { UserProvider } from './src/context/usercontext';
+import { ObjectProvider } from './src/context/objectcontext';
+import { MeasurementProvider } from './src/context/measurementscontext';
 import Routes from './src/routes';
 
 export default function App() {
@@ -9,7 +10,9 @@ export default function App() {
     <AuthProvider>
       <UserProvider>
         <ObjectProvider>
-          <Routes />
+          <MeasurementProvider>
+            <Routes />
+          </MeasurementProvider>
         </ObjectProvider>
       </UserProvider>
     </AuthProvider>
