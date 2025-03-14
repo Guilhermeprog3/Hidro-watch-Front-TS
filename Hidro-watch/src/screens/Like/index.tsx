@@ -187,7 +187,7 @@ const FavoritePage = () => {
                   color={favorites.includes(item.id) ? colors.red : colors.white}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('Measurement')} style={styles.detailsButton}>
+              <TouchableOpacity onPress={() => navigation.navigate('Measurement', { deviceId: item.id })} style={styles.detailsButton}>
                 <Text style={styles.detailsButtonText}>Detalhes</Text>
               </TouchableOpacity>
             </View>

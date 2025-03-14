@@ -155,7 +155,7 @@ const SearchHomePage = () => {
               <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity style={styles.detailsButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('Measurement', { deviceId: item.id })} style={styles.detailsButton}>
               <Text style={styles.detailsButtonText}>Detalhes</Text>
             </TouchableOpacity>
           </View>

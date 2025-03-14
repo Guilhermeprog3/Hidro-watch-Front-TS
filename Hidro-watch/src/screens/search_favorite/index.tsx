@@ -3,7 +3,6 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, Activity
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { AuthContext } from '../../context/authcontext';
 import { useObject } from '../../hooks/Objectcontext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
@@ -181,12 +180,12 @@ const SearchFavoritePage = () => {
                 onPress={() => toggleFavorite(item.id)}
               >
                 <Ionicons
-                  name={item.isFavorite ? "heart" : "heart-outline"}
+                  name={item.isFavorite ? "heart-outline" : "heart"}
                   size={24}
-                  color={item.isFavorite ? colors.red : colors.white}
+                  color={item.isFavorite ? colors.white : colors.red}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('Measurement')} style={styles.detailsButton}>
+              <TouchableOpacity onPress={() => navigation.navigate('Measurement', { deviceId: item.id })} style={styles.detailsButton}>
                 <Text style={styles.detailsButtonText}>Detalhes</Text>
               </TouchableOpacity>
             </View>

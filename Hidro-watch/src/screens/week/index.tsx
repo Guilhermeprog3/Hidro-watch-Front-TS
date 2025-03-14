@@ -7,6 +7,7 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
 import { MeasurementContext } from '../../context/measurementscontext';
 import { ObjectContext } from '../../context/objectcontext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const colors = Tertiary_theme;
 
@@ -19,10 +20,34 @@ const Week_page = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { getWeeklyAverage } = useContext(MeasurementContext);
   const { GetObjectforId } = useContext(ObjectContext);
-
+  const [mode, setMode] = useState('Light');
+  const [colors, setColors] = useState(Secondary_theme);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [objectTitle, setObjectTitle] = useState<string>('Carregando...');
   const [currentStartDay, setCurrentStartDay] = useState(0);
+  const [weeklyAverage, setWeeklyAverage] = useState<number | null>(null);
+  const [qualityStatus, setQualityStatus] = useState<string>('');
+
+  useEffect(() => {
+    const loadMode = async () => {
+      const savedMode = await AsyncStorage.getItem('userMode');
+      if (savedMode) {
+        setMode(savedMode);
+        updateColors(savedMode);
+      }
+    };
+    loadMode();
+  }, []);
+
+  const updateColors = (mode: string) => {
+    if (mode === 'Hidro') {
+      setColors(Primary_theme);
+    } else if (mode === 'Light') {
+      setColors(Secondary_theme);
+    } else {
+      setColors(Tertiary_theme);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,11 +59,37 @@ const Week_page = () => {
       const weeklyData = await getWeeklyAverage(objectId);
       if (weeklyData) {
         setWeeklyData(weeklyData);
+        calculateWeeklyAverage(weeklyData);
       }
     };
 
     fetchData();
   }, [objectId]);
+
+  const roundToNearestHalf = (value: number) => {
+    return Math.round(value * 2) / 2;
+  };
+
+  const calculateWeeklyAverage = (data: any[]) => {
+    const total = data.reduce((sum, day) => sum + day.average_measurement, 0);
+    const average = total / data.length;
+    setWeeklyAverage(average);
+    determineQualityStatus(average);
+  };
+
+  const determineQualityStatus = (average: number) => {
+    if (average >= 1 && average <= 5) {
+      setQualityStatus('Ruim');
+    } else if (average >= 6 && average <= 7) {
+      setQualityStatus('Mediana');
+    } else if (average >= 8 && average <= 9) {
+      setQualityStatus('Boa');
+    } else if (average >= 10) {
+      setQualityStatus('Ótima');
+    } else {
+      setQualityStatus('Desconhecida');
+    }
+  };
 
   const prevDay = () => {
     setCurrentStartDay((prev) => (prev === 0 ? 6 : prev - 1));
@@ -49,12 +100,12 @@ const Week_page = () => {
   };
 
   const getBackgroundColor = (result: number) => {
-    if (result <= 2) return '#DC0016';
-    if (result <= 4) return '#F2EE00';
-    if (result <= 8) return '#00FF11';
-    if (result <= 10) return '#0011FF';
-    if (result <= 13) return '#000483';
-    return '#580D78';
+    if (result <= 2) return 'rgba(220, 0, 22, 0.8)';
+    if (result <= 4) return 'rgba(242, 238, 0, 0.8)';
+    if (result <= 8) return 'rgba(0, 255, 17, 0.8)';
+    if (result <= 10) return 'rgba(0, 17, 255, 0.8)';
+    if (result <= 13) return 'rgba(0, 4, 131, 0.8)';
+    return 'rgba(88, 13, 120, 0.8)';
   };
 
   const getDayResult = (index: number) => {
@@ -62,9 +113,11 @@ const Week_page = () => {
     const dayData = weeklyData[dayIndex];
     if (!dayData) return null;
 
+    const roundedAverage = roundToNearestHalf(dayData.average_measurement);
+
     return (
-      <View key={dayIndex} style={[styles.dayResult, { backgroundColor: getBackgroundColor(dayData.average_measurement) }]}>
-        <Text style={styles.dayText}>{dayData.average_measurement}</Text>
+      <View key={dayIndex} style={[styles.dayResult, { backgroundColor: getBackgroundColor(roundedAverage) }]}>
+        <Text style={styles.dayText}>{roundedAverage}</Text>
         <Text style={styles.dayLabel}>{dayData.day}</Text>
       </View>
     );
@@ -74,14 +127,13 @@ const Week_page = () => {
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
       <View>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>VOLTAR</Text>
+           <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center' }}>
+               <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+               <Text style={styles.headerTitle}>VOLTAR</Text>
+            </TouchableOpacity>
         </View>
         <Text style={styles.headerText}>{objectTitle}</Text>
         <Text style={styles.headerSubText}>Max: 14   Min: 7</Text>
-
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.sectionTitle}>Resultados da Semana</Text>
           <View style={styles.weekResults}>
@@ -97,9 +149,9 @@ const Week_page = () => {
           </View>
 
           <LinearGradient colors={[colors.primaryLight, colors.secondary]} style={styles.qualityCard}>
-            <Text style={styles.qualityText}>Média de Resultados</Text>
-            <Text style={styles.qualityStatus}>Boa Qualidade</Text>
-            <TouchableOpacity>
+            <Text style={styles.qualityText}>Média da Semana</Text>
+            <Text style={styles.qualityStatus}>{qualityStatus}</Text>
+            <TouchableOpacity  onPress={() => navigation.navigate('Measurement', { deviceId: objectId })}>
               <Text style={styles.learnMore}>Saiba Mais {'>'}</Text>
             </TouchableOpacity>
           </LinearGradient>
@@ -137,7 +189,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   headerTitle: {
-    color: colors.iconColor,
+    color: colors.textPrimary,
     fontSize: 18,
     marginLeft: 10,
   },

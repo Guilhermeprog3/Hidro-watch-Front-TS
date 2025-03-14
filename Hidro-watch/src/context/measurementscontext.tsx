@@ -43,8 +43,6 @@ export const MeasurementProvider = ({ children }: PropsWithChildren) => {
       });
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar medição mais recente:', error);
-      Alert.alert('Erro ao buscar medição mais recente');
       return null;
     }
   }

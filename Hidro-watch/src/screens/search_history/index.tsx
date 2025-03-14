@@ -144,7 +144,7 @@ const SearchHistoryPage = () => {
               <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity style={styles.detailsButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('Week', { objectId: item.id })} style={styles.detailsButton}>
               <Text style={styles.detailsButtonText}>Historico</Text>
             </TouchableOpacity>
           </View>

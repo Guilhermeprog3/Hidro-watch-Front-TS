@@ -10,7 +10,6 @@ import UserPage from '../screens/user';
 import MeasurementPage from '../screens/measurement';
 import Week_page from '../screens/week';
 import SettingsPage from '../screens/Settingss';
-import DetailsPage from '../screens/details';
 import Chargepage from '../screens/charge';
 
 
@@ -28,7 +27,6 @@ const PrivateRoutes = () => {
             <Screen name="Week" component={Week_page} options={{ headerShown: false}} />
             <Screen name="Measurement" component={MeasurementPage} options={{ headerShown: false}} />
             <Screen name="settings" component={SettingsPage} options={{ headerShown: false}} />
-            <Screen name="Details" component={DetailsPage} options={{headerShown:false}}/>
             <Screen name="changepassword" component={Chargepage} options={{headerShown:false}}/>
             <Screen name="QRCode" component={HomePage} options={{headerShown:false}}/>
         </Navigator>

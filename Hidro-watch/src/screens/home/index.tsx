@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
+import { Measurementobject } from '../../hooks/measurements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
@@ -12,17 +13,22 @@ type Device = {
   tittle: string;
   location: string;
   favorite: boolean;
+  averageMeasurement?: number;
 };
 
 const HomePage = () => {
   const [Tittle, setTittle] = useState<string>('');
   const [Location, setLocation] = useState<string>('');
-  const { getUserObjects, markFavorite,postUserObject  } = useObject();
+  const { getUserObjects, markFavorite, postUserObject } = useObject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
   const navigation = useNavigation<NavigationProp<any>>();
+  const { getLatestMeasurement } = Measurementobject();
+
+  const [aboveAverage, setAboveAverage] = useState<number>(0);
+  const [belowAverage, setBelowAverage] = useState<number>(0);
 
   useEffect(() => {
     const loadMode = async () => {
@@ -49,8 +55,31 @@ const HomePage = () => {
     async function fetchDevices() {
       const userDevices = await getUserObjects();
       if (userDevices) {
-        setDevices(userDevices);
-        setFavorites(userDevices.filter((device: Device) => device.favorite).map((device: Device) => device.id));
+        const devicesWithAverage = await Promise.all(
+          userDevices.map(async (device: Device) => {
+            const latestMeasurement = await getLatestMeasurement(device.id);
+            const averageMeasurement = latestMeasurement?.averageMeasurement || 0;
+            return { ...device, averageMeasurement };
+          })
+        );
+
+        setDevices(devicesWithAverage);
+
+        const aboveAverageCount = devicesWithAverage.filter(
+          (device) => device.averageMeasurement! > 10
+        ).length;
+        const belowAverageCount = devicesWithAverage.filter(
+          (device) => device.averageMeasurement! <= 10
+        ).length;
+
+        setAboveAverage(aboveAverageCount);
+        setBelowAverage(belowAverageCount);
+
+        setFavorites(
+          devicesWithAverage
+            .filter((device: Device) => device.favorite)
+            .map((device: Device) => device.id)
+        );
       }
     }
     fetchDevices();
@@ -201,7 +230,7 @@ const HomePage = () => {
       </TouchableOpacity>
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{devices.length}</Text>
+          <Text style={styles.statNumber}>{aboveAverage}</Text>
           <Text style={styles.statText}>Acima da Média</Text>
         </View>
         <View style={styles.statItem}>
@@ -209,7 +238,7 @@ const HomePage = () => {
           <Text style={styles.statText}>Dispositivos</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{devices.length}</Text>
+          <Text style={styles.statNumber}>{belowAverage}</Text>
           <Text style={styles.statText}>Abaixo da Média</Text>
         </View>
       </View>
