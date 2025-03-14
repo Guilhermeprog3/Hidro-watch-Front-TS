@@ -15,7 +15,9 @@ type Device = {
 };
 
 const HomePage = () => {
-  const { getUserObjects, markFavorite } = useObject();
+  const [Tittle, setTittle] = useState<string>('');
+  const [Location, setLocation] = useState<string>('');
+  const { getUserObjects, markFavorite,postUserObject  } = useObject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [mode, setMode] = useState('Light');
@@ -194,7 +196,7 @@ const HomePage = () => {
         </TouchableOpacity>
       </View>
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
-      <TouchableOpacity onPress={() => navigation.navigate('Create')} style={styles.addButton}>
+      <TouchableOpacity onPress={() => navigation.navigate('QRCode')} style={styles.addButton}>
         <Text style={styles.addButtonText}>Adicionar um Novo Dispositivo</Text>
       </TouchableOpacity>
       <View style={styles.statsContainer}>

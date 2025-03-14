@@ -4,10 +4,12 @@ import { UserProvider } from './src/context/usercontext';
 import { ObjectProvider } from './src/context/objectcontext';
 import { MeasurementProvider } from './src/context/measurementscontext';
 import Routes from './src/routes';
+import { MenuProvider } from 'react-native-popup-menu';
 
 export default function App() {
   return (
-    <AuthProvider>
+    <MenuProvider>
+      <AuthProvider>
       <UserProvider>
         <ObjectProvider>
           <MeasurementProvider>
@@ -16,5 +18,6 @@ export default function App() {
         </ObjectProvider>
       </UserProvider>
     </AuthProvider>
+    </MenuProvider>
   );
 }

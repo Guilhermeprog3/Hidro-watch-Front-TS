@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
@@ -16,6 +16,7 @@ const LoginScreen = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
+
 
   useEffect(() => {
     const loadMode = async () => {
@@ -38,15 +39,27 @@ const LoginScreen = () => {
     }
   };
 
-  const handlePasswordChange = (password: string) => {
-    setPassword(password);
+  const validateEmail = (email: string) => {
+    return email.includes('@');
   };
 
-  const handleLogin = () => {
-    if (email && password) {
-      login(email, password);
-    } else {
+  const handleLogin = async () => {
+    if (!email || !password) {
       setErrorMessage('Por favor, preencha todos os campos.');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setErrorMessage('Por favor, insira um email válido.');
+      return;
+    }
+
+    try {
+      await login(email, password);
+      setErrorMessage('');
+      navigation.navigate('Home');
+    } catch (error: any) {
+      setErrorMessage(error.message);
     }
   };
 
@@ -93,7 +106,7 @@ const LoginScreen = () => {
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 20,
+      marginBottom: 15,
       borderColor: colors.textPrimary,
       borderWidth: 1,
       borderRadius: 5,
@@ -157,7 +170,8 @@ const LoginScreen = () => {
     },
     forgotPasswordText: {
       color: colors.textPrimary,
-      marginTop: 10,
+      marginTop: 0,
+      marginBottom: 20,
       textDecorationLine: 'underline',
     },
   });
@@ -178,21 +192,23 @@ const LoginScreen = () => {
           <MaterialIcons name="email" size={24} color={colors.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Email Address"
+            placeholder="Email"
             placeholderTextColor={colors.iconColor}
             value={email}
             onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
         </View>
         <View style={styles.inputContainer}>
           <MaterialIcons name="lock" size={24} color={colors.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="Senha"
             placeholderTextColor={colors.iconColor}
             secureTextEntry={!showPassword}
             value={password}
-            onChangeText={handlePasswordChange}
+            onChangeText={setPassword}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <MaterialIcons
@@ -203,16 +219,16 @@ const LoginScreen = () => {
             />
           </TouchableOpacity>
         </View>
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         <TouchableOpacity onPress={() => navigation.navigate('Recoverpass')}>
           <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
         </TouchableOpacity>
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         <LinearGradient colors={[colors.secondary, colors.secondary]} style={styles.button}>
           <TouchableOpacity onPress={handleLogin}>
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
         </LinearGradient>
-        <Text style={styles.orText}>Ou Entre com</Text>
+        <Text style={styles.orText}>Ou entre com</Text>
         <View style={styles.socialButtons}>
           <TouchableOpacity style={[styles.socialButton, styles.googleButton]}>
             <AntDesign name="google" size={24} color="white" />
@@ -224,7 +240,7 @@ const LoginScreen = () => {
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-          <Text style={styles.link}>Não tem Conta? Crie uma Conta</Text>
+          <Text style={styles.link}>Não tem conta? Crie uma conta</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>

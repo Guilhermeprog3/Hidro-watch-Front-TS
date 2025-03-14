@@ -8,6 +8,7 @@ type ObjectContextProps = {
   postUserObject: (objectData: any) => Promise<void>;
   GetObjectforId: (objectId: string) => Promise<any>;
   markFavorite: (objectId: string) => Promise<void>;
+  DeleteObject: (objectId: string) => Promise<void>; // Nova função
 };
 
 export const ObjectContext = createContext<ObjectContextProps>({} as ObjectContextProps);
@@ -84,8 +85,28 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
+  async function DeleteObject(objectId: string) {
+    if (!user?.token.token) {
+      console.error('Usuário ou token não encontrados');
+      return;
+    }
+    try {
+      const token = user.token.token;
+      const response = await api.delete(`object/${objectId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Alert.alert('Objeto deletado com sucesso');
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao deletar objeto:', error);
+      Alert.alert('Erro ao deletar objeto');
+    }
+  }
+
   return (
-    <ObjectContext.Provider value={{ getUserObjects, postUserObject, GetObjectforId, markFavorite }}>
+    <ObjectContext.Provider
+      value={{ getUserObjects, postUserObject, GetObjectforId, markFavorite, DeleteObject }}
+    >
       {children}
     </ObjectContext.Provider>
   );

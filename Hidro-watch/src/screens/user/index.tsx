@@ -12,7 +12,6 @@ const UserPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, logout } = useContext(AuthContext);
   const { deleteUser } = useContext(UserContext);
-
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
 
@@ -139,12 +138,6 @@ const UserPage = () => {
         </View>
       </View>
       <View style={styles.menuContainer}>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Person')}>
-          <Ionicons name="person" size={24} color={colors.iconColor} />
-          <Text style={styles.menuItemText}>Informações</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
-        </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('settings')}>
           <Ionicons name="settings-outline" size={24} color={colors.iconColor} />
           <Text style={styles.menuItemText}>Configuração</Text>
@@ -155,6 +148,12 @@ const UserPage = () => {
           <Text style={styles.menuItemText}>Sobre</Text>
           <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
         </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('changepassword')}>
+          <Ionicons name="lock-closed-outline" size={24} color={colors.iconColor} />
+          <Text style={styles.menuItemText}>Alterar Senha</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.menuItem} onPress={confirmDeleteAccount}>
           <Ionicons name="trash-outline" size={24} color={colors.iconColor} />
           <Text style={styles.menuItemText}>Deletar Conta</Text>

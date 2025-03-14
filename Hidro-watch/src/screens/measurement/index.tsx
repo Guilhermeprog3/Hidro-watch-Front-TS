@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 import { useObject } from '../../hooks/Objectcontext';
 import { Measurementobject } from '../../hooks/measurements';
 
-// Defina uma interface para os parâmetros da rota
 interface RouteParams {
   deviceId: string;
 }
@@ -16,10 +24,9 @@ interface RouteParams {
 const MeasurementPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const route = useRoute();
-  // Use a interface RouteParams para tipar route.params
   const { deviceId } = route.params as RouteParams;
   const { getLatestMeasurement } = Measurementobject();
-  const { GetObjectforId } = useObject();
+  const { GetObjectforId, DeleteObject } = useObject();
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
   const [measurement, setMeasurement] = useState({
@@ -55,13 +62,11 @@ const MeasurementPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Busca o nome do objeto
         const objectData = await GetObjectforId(deviceId);
         if (objectData) {
           setObjectName(objectData.tittle);
         }
 
-        // Busca a medição mais recente
         const latestMeasurement = await getLatestMeasurement(deviceId);
         if (latestMeasurement) {
           setMeasurement({
@@ -71,7 +76,6 @@ const MeasurementPage = () => {
             averageMeasurement: latestMeasurement.averageMeasurement || 0,
           });
         } else {
-          // Se não houver medição, define os valores como 0
           setMeasurement({
             ph: 0,
             turbidity: 0,
@@ -88,6 +92,33 @@ const MeasurementPage = () => {
 
     fetchData();
   }, [deviceId]);
+
+  const handleMenuSelection = (value: string) => {
+    switch (value) {
+      case 'Detalhar':
+        navigation.navigate('Details', { deviceId });
+        break;
+      case 'Deletar':
+        Alert.alert(
+          'Deletar Objeto',
+          'Tem certeza que deseja deletar este objeto?',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Deletar',
+              style: 'destructive',
+              onPress: async () => {
+                await DeleteObject(deviceId);
+                navigation.goBack();
+              },
+            },
+          ],
+        );
+        break;
+      default:
+        break;
+    }
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -174,6 +205,26 @@ const MeasurementPage = () => {
       justifyContent: 'center',
       alignItems: 'center',
     },
+    menuOptions: {
+      backgroundColor: colors.navBarBackground,
+      borderRadius: 10,
+      padding: 10,
+    },
+    menuOptionsContainer: {
+      backgroundColor: colors.navBarBackground,
+      borderRadius: 10,
+      padding: 10,
+      width: 100,
+      marginTop: 40,
+    },
+    menuOptionText: {
+      color: colors.white,
+      fontSize: 10,
+      padding: 10,
+    },
+    menuTrigger: {
+      padding: 10,
+    },
   });
 
   if (loading) {
@@ -192,9 +243,25 @@ const MeasurementPage = () => {
             <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>VOLTAR</Text>
-          <TouchableOpacity onPress={() => console.log('More options')}>
-            <Ionicons name="ellipsis-vertical" size={24} color={colors.iconColor} />
-          </TouchableOpacity>
+          <Menu>
+            <MenuTrigger customStyles={{ triggerWrapper: styles.menuTrigger }}>
+              <Ionicons name="ellipsis-vertical" size={24} color={colors.iconColor} />
+            </MenuTrigger>
+            <MenuOptions customStyles={{optionsContainer: styles.menuOptionsContainer }}>
+              <MenuOption onSelect={() => handleMenuSelection('Detalhar')}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="information-circle" size={20} color={colors.iconColor} />
+                  <Text style={styles.menuOptionText}> Detalhar</Text>
+                </View>
+              </MenuOption>
+              <MenuOption onSelect={() => handleMenuSelection('Deletar')}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="trash" size={20} color="#FF4444" />
+                  <Text style={[styles.menuOptionText, { color: '#FF4444' }]}> Deletar</Text>
+                </View>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
         </View>
         <Text style={styles.headerText}>{objectName}</Text>
         <Text style={styles.headerSubText}>Max: 14   Min: 6</Text>
