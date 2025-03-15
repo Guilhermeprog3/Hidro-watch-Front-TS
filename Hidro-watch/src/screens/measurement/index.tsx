@@ -38,6 +38,7 @@ const MeasurementPage = () => {
   const [objectName, setObjectName] = useState('Carregando...');
   const [lastMeasurementDate, setLastMeasurementDate] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const loadMode = async () => {
@@ -66,6 +67,7 @@ const MeasurementPage = () => {
         const objectData = await GetObjectforId(deviceId);
         if (objectData) {
           setObjectName(objectData.tittle);
+          setIsConnected(objectData.connected); // Atualiza o estado de conexão
         }
 
         const latestMeasurement = await getLatestMeasurement(deviceId);
@@ -95,7 +97,6 @@ const MeasurementPage = () => {
     fetchData();
   }, [deviceId]);
 
-  // Função para arredondar a média de meio em meio
   const roundToNearestHalf = (value: number) => {
     return Math.round(value * 2) / 2;
   };
@@ -245,13 +246,11 @@ const MeasurementPage = () => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(0, 255, 0, 0.1)',
       padding: 15,
       borderRadius: 10,
       marginBottom: 20,
     },
     connectedText: {
-      color: 'green',
       fontSize: 18,
       fontWeight: 'bold',
       marginLeft: 10,
@@ -338,9 +337,11 @@ const MeasurementPage = () => {
             </View>
           </View>
 
-          <View style={styles.connectedContainer}>
-            <Ionicons name="wifi" size={24} color="green" />
-            <Text style={styles.connectedText}>DISPOSITIVO CONECTADO</Text>
+          <View style={[styles.connectedContainer, { backgroundColor: isConnected ? 'rgba(0, 255, 0, 0.1)' : 'rgba(255, 0, 0, 0.1)' }]}>
+            <Ionicons name="wifi" size={24} color={isConnected ? 'green' : 'red'} />
+            <Text style={[styles.connectedText, { color: isConnected ? 'green' : 'red' }]}>
+              {isConnected ? 'DISPOSITIVO CONECTADO' : 'DISPOSITIVO DESCONECTADO'}
+            </Text>
           </View>
 
           <View style={styles.lastMeasurementContainer}>
