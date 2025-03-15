@@ -18,15 +18,15 @@ const Week_page = () => {
   const { objectId } = route.params;
 
   const navigation = useNavigation<NavigationProp<any>>();
-  const { getWeeklyAverage } = useContext(MeasurementContext);
+  const { getWeeklyAverage, getLatestMeasurement } = useContext(MeasurementContext);
   const { GetObjectforId } = useContext(ObjectContext);
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [objectTitle, setObjectTitle] = useState<string>('Carregando...');
   const [currentStartDay, setCurrentStartDay] = useState(0);
-  const [weeklyAverage, setWeeklyAverage] = useState<number | null>(null);
   const [qualityStatus, setQualityStatus] = useState<string>('');
+  const [lastMeasurementDate, setLastMeasurementDate] = useState<string>('');
 
   useEffect(() => {
     const loadMode = async () => {
@@ -59,7 +59,14 @@ const Week_page = () => {
       const weeklyData = await getWeeklyAverage(objectId);
       if (weeklyData) {
         setWeeklyData(weeklyData);
-        calculateWeeklyAverage(weeklyData);
+      }
+
+      const latestMeasurement = await getLatestMeasurement(objectId);
+      if (latestMeasurement) {
+        const formattedDate = new Date(latestMeasurement.createdAt).toLocaleString();
+        setLastMeasurementDate(formattedDate);
+      } else {
+        setLastMeasurementDate('');
       }
     };
 
@@ -70,33 +77,12 @@ const Week_page = () => {
     return Math.round(value * 2) / 2;
   };
 
-  const calculateWeeklyAverage = (data: any[]) => {
-    const total = data.reduce((sum, day) => sum + day.average_measurement, 0);
-    const average = total / data.length;
-    setWeeklyAverage(average);
-    determineQualityStatus(average);
-  };
-
-  const determineQualityStatus = (average: number) => {
-    if (average >= 1 && average <= 5) {
-      setQualityStatus('Ruim');
-    } else if (average >= 6 && average <= 7) {
-      setQualityStatus('Mediana');
-    } else if (average >= 8 && average <= 9) {
-      setQualityStatus('Boa');
-    } else if (average >= 10) {
-      setQualityStatus('Ótima');
-    } else {
-      setQualityStatus('Desconhecida');
-    }
-  };
-
   const prevDay = () => {
     setCurrentStartDay((prev) => (prev === 0 ? 6 : prev - 1));
   };
 
   const nextDay = () => {
-    setCurrentStartDay((prev) => (prev === 6 ? 0 : prev + 1)); 
+    setCurrentStartDay((prev) => (prev === 6 ? 0 : prev + 1));
   };
 
   const getBackgroundColor = (result: number) => {
@@ -122,59 +108,7 @@ const Week_page = () => {
       </View>
     );
   };
-
-  return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
-      <View>
-        <View style={styles.header}>
-           <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center' }}>
-               <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
-               <Text style={styles.headerTitle}>VOLTAR</Text>
-            </TouchableOpacity>
-        </View>
-        <Text style={styles.headerText}>{objectTitle}</Text>
-        <Text style={styles.headerSubText}>Max: 14   Min: 7</Text>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.sectionTitle}>Resultados da Semana</Text>
-          <View style={styles.weekResults}>
-            <TouchableOpacity onPress={prevDay} style={styles.arrowButton}>
-              <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
-            </TouchableOpacity>
-
-            {[0, 1, 2, 3].map((index) => getDayResult(index))}
-
-            <TouchableOpacity onPress={nextDay} style={styles.arrowButton}>
-              <Ionicons name="arrow-forward" size={24} color={colors.iconColor} />
-            </TouchableOpacity>
-          </View>
-
-          <LinearGradient colors={[colors.primaryLight, colors.secondary]} style={styles.qualityCard}>
-            <Text style={styles.qualityText}>Média da Semana</Text>
-            <Text style={styles.qualityStatus}>{qualityStatus}</Text>
-            <TouchableOpacity  onPress={() => navigation.navigate('Measurement', { deviceId: objectId })}>
-              <Text style={styles.learnMore}>Saiba Mais {'>'}</Text>
-            </TouchableOpacity>
-          </LinearGradient>
-
-          <View style={styles.waterInfo}>
-            <LinearGradient colors={[colors.primaryLight, colors.secondary]} style={styles.infoBox}>
-              <Text style={styles.infoText}>0</Text>
-              <Text style={styles.infoLabel}>Ácida</Text>
-              <Text style={styles.infoDescription}>Água impura</Text>
-            </LinearGradient>
-
-            <LinearGradient colors={[colors.primaryLight, colors.secondary]} style={styles.infoBox}>
-              <Text style={styles.infoText}>14</Text>
-              <Text style={styles.infoLabel}>Alcalina</Text>
-              <Text style={styles.infoDescription}>Água adequada</Text>
-            </LinearGradient>
-          </View>
-        </ScrollView>
-      </View>
-    </LinearGradient>
-  );
-};
-
+  
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -251,15 +185,23 @@ const styles = StyleSheet.create({
     color: colors.buttonText,
     fontSize: 16,
   },
-  qualityStatus: {
-    color: '#FFD700',
+  lastMeasurementText: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    marginVertical: 10,
+    marginTop: 5,
+  },
+  noMeasurementText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 5,
+    fontStyle: 'italic',
   },
   learnMore: {
     color: colors.buttonText,
     fontSize: 14,
+    marginTop: 10,
   },
   waterInfo: {
     flexDirection: 'row',
@@ -289,5 +231,61 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+  return (
+    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+      <View>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+            <Text style={styles.headerTitle}>VOLTAR</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.headerText}>{objectTitle}</Text>
+        <Text style={styles.headerSubText}>Max: 14   Min: 7</Text>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={styles.sectionTitle}>Resultados da Semana</Text>
+          <View style={styles.weekResults}>
+            <TouchableOpacity onPress={prevDay} style={styles.arrowButton}>
+              <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+            </TouchableOpacity>
+
+            {[0, 1, 2, 3].map((index) => getDayResult(index))}
+
+            <TouchableOpacity onPress={nextDay} style={styles.arrowButton}>
+              <Ionicons name="arrow-forward" size={24} color={colors.iconColor} />
+            </TouchableOpacity>
+          </View>
+
+          <LinearGradient colors={[colors.primaryLight, colors.secondary]} style={styles.qualityCard}>
+            <Text style={styles.qualityText}>Última Medição</Text>
+            {lastMeasurementDate ? (
+              <Text style={styles.lastMeasurementText}>{lastMeasurementDate}</Text>
+            ) : (
+              <Text style={styles.noMeasurementText}>Sem histórico de medição</Text>
+            )}
+            <TouchableOpacity onPress={() => navigation.navigate('Measurement', { deviceId: objectId })}>
+              <Text style={styles.learnMore}>Saiba Mais {'>'}</Text>
+            </TouchableOpacity>
+          </LinearGradient>
+
+          <View style={styles.waterInfo}>
+            <LinearGradient colors={[colors.primaryLight, colors.secondary]} style={styles.infoBox}>
+              <Text style={styles.infoText}>0</Text>
+              <Text style={styles.infoLabel}>Ácida</Text>
+              <Text style={styles.infoDescription}>Água impura</Text>
+            </LinearGradient>
+
+            <LinearGradient colors={[colors.primaryLight, colors.secondary]} style={styles.infoBox}>
+              <Text style={styles.infoText}>14</Text>
+              <Text style={styles.infoLabel}>Alcalina</Text>
+              <Text style={styles.infoDescription}>Água adequada</Text>
+            </LinearGradient>
+          </View>
+        </ScrollView>
+      </View>
+    </LinearGradient>
+  );
+};
 
 export default Week_page;

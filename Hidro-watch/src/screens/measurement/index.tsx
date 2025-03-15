@@ -36,8 +36,7 @@ const MeasurementPage = () => {
     averageMeasurement: 0,
   });
   const [objectName, setObjectName] = useState('Carregando...');
-  const [lastMeasurementDate, setLastMeasurementDate] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [lastMeasurementDate, setLastMeasurementDate] = useState<string>('Nenhuma medição');
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
@@ -64,13 +63,16 @@ const MeasurementPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const objectData = await GetObjectforId(deviceId);
+        const [objectData, latestMeasurement] = await Promise.all([
+          GetObjectforId(deviceId),
+          getLatestMeasurement(deviceId),
+        ]);
+  
         if (objectData) {
           setObjectName(objectData.tittle);
-          setIsConnected(objectData.connected); // Atualiza o estado de conexão
+          setIsConnected(objectData.connected);
         }
-
-        const latestMeasurement = await getLatestMeasurement(deviceId);
+  
         if (latestMeasurement) {
           setMeasurement({
             ph: latestMeasurement.ph || 0,
@@ -86,14 +88,13 @@ const MeasurementPage = () => {
             temperature: 0,
             averageMeasurement: 0,
           });
+          setLastMeasurementDate('Nenhuma medição');
         }
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
-      } finally {
-        setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [deviceId]);
 
@@ -247,8 +248,9 @@ const MeasurementPage = () => {
       alignItems: 'center',
       justifyContent: 'center',
       padding: 15,
-      borderRadius: 10,
+      borderRadius: 30,
       marginBottom: 20,
+      marginTop: 20,
     },
     connectedText: {
       fontSize: 18,
@@ -260,24 +262,16 @@ const MeasurementPage = () => {
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      padding: 15,
-      borderRadius: 10,
+      padding: 18,
+      borderRadius: 30,
     },
     lastMeasurementText: {
       color: '#fff',
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: 'bold',
       marginLeft: 10,
     },
   });
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.iconColor} />
-      </View>
-    );
-  }
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
@@ -337,7 +331,7 @@ const MeasurementPage = () => {
             </View>
           </View>
 
-          <View style={[styles.connectedContainer, { backgroundColor: isConnected ? 'rgba(0, 255, 0, 0.1)' : 'rgba(255, 0, 0, 0.1)' }]}>
+          <View style={[styles.connectedContainer, { backgroundColor: isConnected ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)' }]}>
             <Ionicons name="wifi" size={24} color={isConnected ? 'green' : 'red'} />
             <Text style={[styles.connectedText, { color: isConnected ? 'green' : 'red' }]}>
               {isConnected ? 'DISPOSITIVO CONECTADO' : 'DISPOSITIVO DESCONECTADO'}

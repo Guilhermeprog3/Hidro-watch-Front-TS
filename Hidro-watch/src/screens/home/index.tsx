@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import { useObject } from '../../hooks/Objectcontext';
 import { Measurementobject } from '../../hooks/measurements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
+import * as Camera from 'expo-camera';
 
 type Device = {
   id: string;
@@ -29,6 +30,25 @@ const HomePage = () => {
 
   const [aboveAverage, setAboveAverage] = useState<number>(0);
   const [belowAverage, setBelowAverage] = useState<number>(0);
+
+  const [cameraPermission, requestPermission] = Camera.useCameraPermissions();
+
+  const requestCameraPermission = async () => {
+    if (cameraPermission?.granted) {
+      navigation.navigate('QRCode');
+    } else {
+      const { granted } = await requestPermission();
+      if (granted) {
+        navigation.navigate('QRCode');
+      } else {
+        Alert.alert(
+          'Permissão Negada',
+          'Você precisa permitir o acesso à câmera para adicionar um novo dispositivo.',
+          [{ text: 'OK', onPress: () => console.log('Permissão negada') }]
+        );
+      }
+    }
+  };
 
   useEffect(() => {
     const loadMode = async () => {
@@ -121,7 +141,7 @@ const HomePage = () => {
     },
     decorativeImage: {
       position: 'absolute',
-      width: '110%',
+      width: '115%',
       height: 180,
       resizeMode: 'cover',
       marginBottom: 200,
@@ -225,7 +245,7 @@ const HomePage = () => {
         </TouchableOpacity>
       </View>
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
-      <TouchableOpacity onPress={() => navigation.navigate('QRCode')} style={styles.addButton}>
+      <TouchableOpacity onPress={requestCameraPermission} style={styles.addButton}>
         <Text style={styles.addButtonText}>Adicionar um Novo Dispositivo</Text>
       </TouchableOpacity>
       <View style={styles.statsContainer}>

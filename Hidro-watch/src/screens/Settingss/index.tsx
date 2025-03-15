@@ -1,9 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Permissions from 'expo-permissions';
+import * as Notifications from 'expo-notifications';
+import * as MediaLibrary from 'expo-media-library';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 
 const SettingsPage = () => {
@@ -49,6 +52,37 @@ const SettingsPage = () => {
     setMode(newMode);
     updateColors(newMode);
     await AsyncStorage.setItem('userMode', newMode);
+  };
+
+
+  const requestCameraPermission = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    if (status === 'granted') {
+      setCameraEnabled(true);
+    } else {
+      setCameraEnabled(false);
+      Alert.alert('Permissão negada', 'Você precisa conceder permissão de câmera para usar este recurso.');
+    }
+  };
+
+  const requestPhotosPermission = async () => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status === 'granted') {
+      setPhotosEnabled(true);
+    } else {
+      setPhotosEnabled(false);
+      Alert.alert('Permissão negada', 'Você precisa conceder permissão de acesso à galeria para usar este recurso.');
+    }
+  };
+
+  const requestNotificationsPermission = async () => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status === 'granted') {
+      setNotificationsEnabled(true);
+    } else {
+      setNotificationsEnabled(false);
+      Alert.alert('Permissão negada', 'Você precisa conceder permissão de notificações para usar este recurso.');
+    }
   };
 
   const styles = StyleSheet.create({
@@ -99,12 +133,10 @@ const SettingsPage = () => {
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>VOLTAR</Text>
-      </View>
+      <Text style={styles.headerTitle}>VOLTAR</Text>
+      </TouchableOpacity>
 
       <View style={styles.menuContainer}>
         <Text style={styles.sectionTitle}>Modo</Text>
@@ -131,19 +163,9 @@ const SettingsPage = () => {
           <Text style={styles.menuItemText}>Notificações</Text>
           <Switch
             value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
+            onValueChange={requestNotificationsPermission}
             trackColor={{ false: "#767577", true: colors.iconColor }}
             thumbColor={notificationsEnabled ? "#f4f3f4" : "#f4f3f4"}
-          />
-        </View>
-        <View style={styles.menuItem}>
-          <Ionicons name="location-outline" size={24} color={colors.iconColor} />
-          <Text style={styles.menuItemText}>Localização</Text>
-          <Switch
-            value={locationEnabled}
-            onValueChange={setLocationEnabled}
-            trackColor={{ false: "#767577", true: colors.iconColor }}
-            thumbColor={locationEnabled ? "#f4f3f4" : "#f4f3f4"}
           />
         </View>
         <View style={styles.menuItem}>
@@ -151,17 +173,17 @@ const SettingsPage = () => {
           <Text style={styles.menuItemText}>Câmera</Text>
           <Switch
             value={cameraEnabled}
-            onValueChange={setCameraEnabled}
+            onValueChange={requestCameraPermission}
             trackColor={{ false: "#767577", true: colors.iconColor }}
             thumbColor={cameraEnabled ? "#f4f3f4" : "#f4f3f4"}
           />
         </View>
         <View style={styles.menuItem}>
-          <Ionicons name="camera-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="image-outline" size={24} color={colors.iconColor} />
           <Text style={styles.menuItemText}>Fotos e Vídeos</Text>
           <Switch
             value={photosEnabled}
-            onValueChange={setPhotosEnabled}
+            onValueChange={requestPhotosPermission}
             trackColor={{ false: "#767577", true: colors.iconColor }}
             thumbColor={photosEnabled ? "#f4f3f4" : "#f4f3f4"}
           />

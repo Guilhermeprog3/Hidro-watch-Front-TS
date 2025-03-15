@@ -93,7 +93,7 @@ const FavoritePage = () => {
     },
     decorativeImage: {
       position: 'absolute',
-      width: '110%',
+      width: '115%',
       height: 180,
       resizeMode: 'cover',
       marginBottom: 200,

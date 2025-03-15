@@ -8,7 +8,7 @@ type ObjectContextProps = {
   postUserObject: (objectData: any) => Promise<void>;
   GetObjectforId: (objectId: string) => Promise<any>;
   markFavorite: (objectId: string) => Promise<void>;
-  DeleteObject: (objectId: string) => Promise<void>; // Nova função
+  DeleteObject: (objectId: string) => Promise<void>;
 };
 
 export const ObjectContext = createContext<ObjectContextProps>({} as ObjectContextProps);
@@ -19,7 +19,7 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
 
   async function getUserObjects() {
     if (!user?.token.token) {
-      console.error('Usuário ou token não encontrados');
+      console.log('Usuário ou token não encontrados');
       return null;
     }
     try {
@@ -44,13 +44,13 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       );
       Alert.alert('Objeto criado com sucesso');
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }
 
   async function GetObjectforId(objectId: string) {
     if (!user?.token.token) {
-      console.error('Usuário ou token não encontrados');
+      console.log('Usuário ou token não encontrados');
       return null;
     }
     try {
@@ -61,15 +61,13 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       setObject(response.data);
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar dados do objeto:', error);
-      Alert.alert('Erro ao buscar dados do objeto');
       return null;
     }
   }
 
   async function markFavorite(objectId: string) {
     if (!user?.token.token) {
-      console.error('Usuário ou token não encontrados');
+      console.log('Usuário ou token não encontrados');
       return;
     }
     try {
@@ -81,13 +79,13 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       );
       return response.data;
     } catch (error) {
-      console.error('Erro ao marcar como favorito:', error);
+      console.log('Erro ao marcar como favorito:', error);
     }
   }
 
   async function DeleteObject(objectId: string) {
     if (!user?.token.token) {
-      console.error('Usuário ou token não encontrados');
+      console.log('Usuário ou token não encontrados');
       return;
     }
     try {
@@ -98,8 +96,7 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       Alert.alert('Objeto deletado com sucesso');
       return response.data;
     } catch (error) {
-      console.error('Erro ao deletar objeto:', error);
-      Alert.alert('Erro ao deletar objeto');
+      console.log('Erro ao deletar objeto:', error);
     }
   }
 
