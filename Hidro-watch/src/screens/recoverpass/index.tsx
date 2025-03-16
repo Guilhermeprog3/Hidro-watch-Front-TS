@@ -124,16 +124,20 @@ const RecoverPage = () => {
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ flexDirection: 'row', alignItems: 'center' }}
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+          <Text style={styles.headerTitle}>VOLTAR</Text>
+        </TouchableOpacity>
+      </View>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>VOLTAR</Text>
-        </View>
         <View style={styles.content}>
           <Text style={styles.title}>Esqueci a Senha</Text>
           <Text style={styles.subtitle}>Digite o email vinculado ao seu cadastro</Text>

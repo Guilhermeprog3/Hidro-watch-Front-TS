@@ -15,7 +15,6 @@ const Primary_theme = {
   iconColor: '#fff',
   navBarIconColor: '#fff',
 };
-
 const Secondary_theme = {
   primaryDark: '#ffffff',
   primaryLight: '#f5f5f5',
@@ -33,7 +32,6 @@ const Secondary_theme = {
   iconColor: '#007f5f',
   navBarIconColor: '#ffffff',
 };
-
 const Tertiary_theme = {
   primaryDark: '#121212',
   primaryLight: '#1d1d1d',
@@ -51,5 +49,4 @@ const Tertiary_theme = {
   iconColor: '#00bfa5',
   navBarIconColor: '#ffffff',
 };
-
 export { Primary_theme, Secondary_theme,Tertiary_theme };

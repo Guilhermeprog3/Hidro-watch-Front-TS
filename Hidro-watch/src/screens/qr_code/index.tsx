@@ -14,14 +14,12 @@ export default function QRCodeScanner() {
   const { postUserObject } = useObject();
 
   const pickImage = async () => {
-    // Solicita permissão para acessar a galeria
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permissão necessária', 'Precisamos da sua permissão para acessar a galeria.');
       return;
     }
 
-    // Abre a galeria para seleção de imagem
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -30,11 +28,8 @@ export default function QRCodeScanner() {
     });
 
     if (!result.canceled) {
-      // Aqui você pode adicionar a lógica para processar a imagem e extrair o QR Code
-      // Por exemplo, você pode usar uma biblioteca como `react-native-qrcode-scanner` para ler o QR Code da imagem
       console.log(result.assets[0].uri);
-      // Após processar a imagem, você pode chamar handleBarCodeScanned com os dados do QR Code
-      // handleBarCodeScanned({ data: 'Dados do QR Code' });
+
     }
   };
 
