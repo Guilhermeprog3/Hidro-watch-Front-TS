@@ -1,5 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -11,9 +19,10 @@ import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/col
 const UserPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, logout } = useContext(AuthContext);
-  const { deleteUser } = useContext(UserContext);
+  const { deleteUser, forgotPassword } = useContext(UserContext);
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loadMode = async () => {
@@ -38,36 +47,52 @@ const UserPage = () => {
 
   const confirmDeleteAccount = () => {
     Alert.alert(
-      "Confirmar Exclusão",
-      "Você tem certeza de que deseja deletar sua conta?",
+      'Confirmar Exclusão',
+      'Você tem certeza de que deseja deletar sua conta?',
       [
         {
-          text: "Cancelar",
-          style: "cancel"
+          text: 'Cancelar',
+          style: 'cancel',
         },
         {
-          text: "Confirmar",
-          onPress: deleteUser
-        }
-      ]
+          text: 'Confirmar',
+          onPress: deleteUser,
+        },
+      ],
     );
   };
 
   const confirmLogout = () => {
     Alert.alert(
-      "Confirmar Saída",
-      "Você tem certeza de que deseja sair?",
+      'Confirmar Saída',
+      'Você tem certeza de que deseja sair?',
       [
         {
-          text: "Cancelar",
-          style: "cancel"
+          text: 'Cancelar',
+          style: 'cancel',
         },
         {
-          text: "Confirmar",
-          onPress: logout
-        }
-      ]
+          text: 'Confirmar',
+          onPress: logout,
+        },
+      ],
     );
+  };
+
+  const handleForgotPassword = async () => {
+    if (user?.email) {
+      setIsLoading(true);
+      try {
+        await forgotPassword(user.email);
+        setIsLoading(false);
+        navigation.navigate('Codepass');
+      } catch (error) {
+        setIsLoading(false);
+        Alert.alert('Erro', 'Não foi possível enviar o e-mail de recuperação de senha.');
+      }
+    } else {
+      Alert.alert('Erro', 'E-mail do usuário não encontrado.');
+    }
   };
 
   const styles = StyleSheet.create({
@@ -113,6 +138,9 @@ const UserPage = () => {
       marginLeft: 10,
       flex: 1,
     },
+    disabledButton: {
+      opacity: 0.5,
+    },
     navBar: {
       flexDirection: 'row',
       justifyContent: 'space-around',
@@ -128,6 +156,7 @@ const UserPage = () => {
       alignItems: 'center',
     },
   });
+
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
@@ -148,12 +177,19 @@ const UserPage = () => {
           <Text style={styles.menuItemText}>Sobre</Text>
           <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('changepassword')}>
+        <TouchableOpacity
+          style={[styles.menuItem, isLoading && styles.disabledButton]}
+          onPress={handleForgotPassword}
+          disabled={isLoading}
+        >
           <Ionicons name="lock-closed-outline" size={24} color={colors.iconColor} />
           <Text style={styles.menuItemText}>Alterar Senha</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          {isLoading ? (
+            <ActivityIndicator size="small" color={colors.iconColor} />
+          ) : (
+            <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          )}
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.menuItem} onPress={confirmDeleteAccount}>
           <Ionicons name="trash-outline" size={24} color={colors.iconColor} />
           <Text style={styles.menuItemText}>Deletar Conta</Text>
@@ -184,4 +220,5 @@ const UserPage = () => {
     </LinearGradient>
   );
 };
+
 export default UserPage;

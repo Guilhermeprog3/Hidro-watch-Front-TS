@@ -10,8 +10,10 @@ import UserPage from '../screens/user';
 import MeasurementPage from '../screens/measurement';
 import Week_page from '../screens/week';
 import SettingsPage from '../screens/Settingss';
-import Chargepage from '../screens/charge';
 import QRCodeScanner from '../screens/qr_code';
+import RecoverPage from '../screens/recoverpass';
+import NewPassword from '../screens/newpassword';
+import CodePage from '../screens/codepass';
 
 
 const PrivateRoutes = () => {
@@ -28,8 +30,10 @@ const PrivateRoutes = () => {
             <Screen name="Week" component={Week_page} options={{ headerShown: false,animation: 'fade'}} />
             <Screen name="Measurement" component={MeasurementPage} options={{ headerShown: false,animation: 'fade'}} />
             <Screen name="settings" component={SettingsPage} options={{ headerShown: false,animation: 'fade'}} />
-            <Screen name="changepassword" component={Chargepage} options={{headerShown:false,animation: 'fade'}}/>
             <Screen name="QRCode" component={QRCodeScanner} options={{headerShown:false,animation: 'fade'}}/>
+            <Screen name="Recoverpass" component={RecoverPage} options={{ headerShown: false }} />
+            <Screen name="Codepass" component={CodePage} options={{ headerShown: false }} />
+            <Screen name="Newpassword" component={NewPassword} options={{ headerShown: false }} />
         </Navigator>
     );
 };

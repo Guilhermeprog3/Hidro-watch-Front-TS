@@ -43,8 +43,12 @@ const RecoverPage = () => {
         await forgotPassword(email);
         setError('');
         navigation.navigate('Codepass');
-      } catch (error) {
-        setError('Não foi possível enviar o código de recuperação.');
+      } catch (error:any) {
+        if (error.response && error.response.status === 404) {
+          setError('Este email não está associado a nenhuma conta.');
+        } else {
+          setError('Não foi possível enviar o código de recuperação.');
+        }
       }
     } else {
       setError('Por favor, insira seu endereço de e-mail.');

@@ -1,32 +1,29 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal } from 'react-native';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 import { UserContext } from '../../context/usercontext';
 
-type RootStackParamList = {
-  Login: undefined;
-  Newpassword: { code: string };
-};
-
-type NewPasswordRouteProp = RouteProp<RootStackParamList, 'Newpassword'>;
-
-const NewPassword = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList, 'Newpassword'>>();
-  const route = useRoute<NewPasswordRouteProp>();
+const CodePage = () => {
+  const navigation = useNavigation<NavigationProp<any>>();
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
-  const [password, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [digits, setDigits] = useState(['', '', '', '', '', '']);
+  const inputRefs = useRef<Array<TextInput | null>>([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const { resetPassword } = useContext(UserContext);
-  const { code } = route.params;
+  const { validateResetCode } = useContext(UserContext);
 
   useEffect(() => {
     const loadMode = async () => {
@@ -49,32 +46,44 @@ const NewPassword = () => {
     }
   };
 
-  const handleResetPassword = async () => {
-    if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
-      return;
+  const handleDigitChange = (index: number, value: string) => {
+    const newDigits = [...digits];
+    newDigits[index] = value;
+    setDigits(newDigits);
+
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
     }
 
-    try {
-      await resetPassword(code, password);
-      console.log(code, password);
-      setIsModalVisible(true);
-    } catch (error) {
-      Alert.alert('Erro', 'Não foi possível redefinir a senha.');
+    if (!value && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+
+    if (errorMessage) {
+      setErrorMessage('');
     }
   };
 
-  const handleCloseModal = () => {
-    setIsModalVisible(false);
-    navigation.navigate('Login');
+  const handleVerifyCode = async () => {
+    const code = digits.join('');
+    if (code.length === 6) {
+      try {
+        const isValid = await validateResetCode(code);
+        if (isValid) {
+          navigation.navigate('Newpassword', { code });
+        } else {
+          setErrorMessage('Código inválido ou expirado.');
+        }
+      } catch (error) {
+        setErrorMessage('Código inválido ou expirado.');
+      }
+    } else {
+      setErrorMessage('Por favor, digite um código válido de 6 dígitos.');
+    }
   };
 
-  const toggleShowNewPassword = () => {
-    setShowNewPassword(!showNewPassword);
-  };
-
-  const toggleShowConfirmPassword = () => {
-    setShowConfirmPassword(!showConfirmPassword);
+  const handleResendEmail = () => {
+    setErrorMessage('Um novo código de verificação foi enviado para o seu email.');
   };
 
   const styles = StyleSheet.create({
@@ -85,8 +94,6 @@ const NewPassword = () => {
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 20,
-      marginTop: 20,
       paddingHorizontal: 16,
     },
     headerTitle: {
@@ -113,32 +120,27 @@ const NewPassword = () => {
       marginBottom: 32,
       textAlign: 'center',
     },
+    emailText: {
+      fontSize: 16,
+      color: colors.textPrimary,
+      marginBottom: 32,
+      textAlign: 'center',
+      fontWeight: 'bold',
+    },
     inputContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
       marginBottom: 24,
     },
-    input: {
+    digitInput: {
+      width: 50,
       height: 50,
       borderWidth: 1,
       borderRadius: 8,
-      paddingHorizontal: 16,
+      textAlign: 'center',
+      fontSize: 18,
       color: colors.textPrimary,
-      marginBottom: 16,
-    },
-    passwordInputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderWidth: 1,
-      borderRadius: 8,
-      marginBottom: 16,
-    },
-    passwordInput: {
-      flex: 1,
-      height: 50,
-      paddingHorizontal: 16,
-      color: colors.textPrimary,
-    },
-    eyeIcon: {
-      padding: 10,
+      borderColor: colors.textSecondary,
     },
     button: {
       backgroundColor: colors.buttonBackground,
@@ -156,107 +158,67 @@ const NewPassword = () => {
       fontSize: 18,
       fontWeight: 'bold',
     },
-    modalContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-      backgroundColor: colors.gradientEnd,
-      padding: 20,
-      borderRadius: 10,
-      alignItems: 'center',
-      width: '80%',
-    },
-    modalText: {
-      fontSize: 18,
-      color: colors.textPrimary,
-      marginBottom: 20,
+    resendText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginTop: 16,
       textAlign: 'center',
     },
-    modalButton: {
-      backgroundColor: colors.buttonBackground,
-      padding: 10,
-      borderRadius: 8,
-      width: '50%',
-      alignItems: 'center',
-    },
-    modalButtonText: {
-      color: colors.buttonText,
-      fontSize: 16,
+    resendLink: {
+      color: colors.buttonBackground,
       fontWeight: 'bold',
+    },
+    errorText: {
+      fontSize: 14,
+      color: 'red',
+      marginBottom: 16,
+      textAlign: 'center',
     },
   });
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
-          <Text style={styles.headerTitle}>VOLTAR</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.content}>
-        <Text style={styles.title}>Redefinir Senha</Text>
-        <Text style={styles.subtitle}>Digite sua nova senha</Text>
-        <View style={styles.inputContainer}>
-          <View style={styles.passwordInputContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Nova Senha"
-              placeholderTextColor={colors.textSecondary}
-              value={password}
-              onChangeText={setNewPassword}
-              secureTextEntry={!showNewPassword}
-            />
-            <TouchableOpacity onPress={toggleShowNewPassword} style={styles.eyeIcon}>
-              <Ionicons
-                name={showNewPassword ? 'eye-off' : 'eye'}
-                size={24}
-                color={colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.passwordInputContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Confirmar Nova Senha"
-              placeholderTextColor={colors.textSecondary}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-            />
-            <TouchableOpacity onPress={toggleShowConfirmPassword} style={styles.eyeIcon}>
-              <Ionicons
-                name={showConfirmPassword ? 'eye-off' : 'eye'}
-                size={24}
-                color={colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+          >
+            <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+            <Text style={styles.headerTitle}>VOLTAR</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
-          <Text style={styles.buttonText}>Redefinir Senha</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Modal visible={isModalVisible} transparent animationType="fade">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Senha redefinida com sucesso!</Text>
-            <TouchableOpacity style={styles.modalButton} onPress={handleCloseModal}>
-              <Text style={styles.modalButtonText}>OK</Text>
-            </TouchableOpacity>
+        <View style={styles.content}>
+          <Text style={styles.title}>Olhe o seu email</Text>
+          <Text style={styles.subtitle}>Enviamos um código de confirmação</Text>
+          <Text style={styles.subtitle}>Digite o código de 6 dígitos enviado para o email</Text>
+          <View style={styles.inputContainer}>
+            {digits.map((digit, index) => (
+              <TextInput
+                key={index}
+                style={styles.digitInput}
+                placeholder="0"
+                placeholderTextColor={colors.textSecondary}
+                value={digit}
+                onChangeText={(value) => handleDigitChange(index, value)}
+                keyboardType="number-pad"
+                maxLength={1}
+                autoCapitalize="none"
+                ref={(ref) => (inputRefs.current[index] = ref)}
+              />
+            ))}
           </View>
+          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+          <TouchableOpacity style={styles.button} onPress={handleVerifyCode}>
+            <Text style={styles.buttonText}>Verificar Código</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 };
 
-export default NewPassword;
+export default CodePage;

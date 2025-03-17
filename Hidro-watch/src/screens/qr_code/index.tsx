@@ -29,7 +29,6 @@ export default function QRCodeScanner() {
 
     if (!result.canceled) {
       console.log(result.assets[0].uri);
-
     }
   };
 

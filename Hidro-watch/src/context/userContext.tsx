@@ -7,8 +7,8 @@ type UserContextProps = {
   GetUserforId: () => Promise<void>;
   Postuser: (name: string, email: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
-  validateResetCode: (code: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<{ success: boolean }>;
+  validateResetCode: (code: string) => Promise<boolean>;
   resetPassword: (code: string, newPassword: string) => Promise<void>;
 };
 
@@ -27,7 +27,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       const response = await api.get(`user/${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      Alert.alert('Dados do usuário atualizados com sucesso');
     } catch (error) {
       console.error('Erro ao buscar dados do usuário:', error);
       Alert.alert('Erro ao buscar dados do usuário');
@@ -37,7 +36,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
   async function Postuser(name: string, email: string, password: string) {
     try {
       const response = await api.post('user', { email, password, name });
-      Alert.alert('Usuário criado com sucesso');
     } catch (error) {
       Alert.alert('Erro ao criar usuário');
       console.error(error);
@@ -64,20 +62,28 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
   async function forgotPassword(email: string) {
     try {
       const response = await api.post('/password/reset-code', { email });
-      Alert.alert('Código de recuperação enviado para o e-mail');
+  
+      if (response.status === 200) {
+        return { success: true };
+      } else {
+        throw new Error('Erro ao enviar o código de recuperação');
+      }
     } catch (error) {
-      console.error('Erro ao solicitar código de recuperação:', error);
-      Alert.alert('Erro ao solicitar código de recuperação');
+      console.log('Erro ao solicitar código de recuperação:', error);
+      throw error;
     }
   }
 
   async function validateResetCode(code: string) {
     try {
       const response = await api.post('/password/validate-code', { code });
-      Alert.alert('Código válido');
+      if (response.data.message === 'Código válido') {
+        return true;
+      } else {
+        throw new Error('Código inválido ou expirado');
+      }
     } catch (error) {
-      console.error('Erro ao validar código:', error);
-      Alert.alert('Código inválido ou expirado');
+      throw error;
     }
   }
 

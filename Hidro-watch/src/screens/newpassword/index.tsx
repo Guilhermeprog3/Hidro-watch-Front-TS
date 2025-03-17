@@ -6,10 +6,12 @@ import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navig
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 import { UserContext } from '../../context/usercontext';
+import { AuthContext } from '../../context/authcontext';
 
 type RootStackParamList = {
   Login: undefined;
   Newpassword: { code: string };
+  User: undefined;
 };
 
 type NewPasswordRouteProp = RouteProp<RootStackParamList, 'Newpassword'>;
@@ -17,6 +19,7 @@ type NewPasswordRouteProp = RouteProp<RootStackParamList, 'Newpassword'>;
 const NewPassword = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'Newpassword'>>();
   const route = useRoute<NewPasswordRouteProp>();
+  const { user, logout } = useContext(AuthContext);
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
   const [password, setNewPassword] = useState('');
@@ -24,6 +27,10 @@ const NewPassword = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({
+    password: '',
+    confirmPassword: '',
+  });
 
   const { resetPassword } = useContext(UserContext);
   const { code } = route.params;
@@ -49,15 +56,38 @@ const NewPassword = () => {
     }
   };
 
+  const validateFields = () => {
+    let isValid = true;
+    const newErrors = { password: '', confirmPassword: '' };
+
+    if (!password) {
+      newErrors.password = 'A senha não pode estar vazia.';
+      isValid = false;
+    } else if (password.length < 8) {
+      newErrors.password = 'A senha deve ter no mínimo 8 caracteres.';
+      isValid = false;
+    }
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'A confirmação de senha não pode estar vazia.';
+      isValid = false;
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'As senhas não coincidem.';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleResetPassword = async () => {
-    if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
+    if (!validateFields()) {
       return;
     }
 
     try {
       await resetPassword(code, password);
-      console.log(code,password)
+      console.log(code, password);
       setIsModalVisible(true);
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível redefinir a senha.');
@@ -66,7 +96,17 @@ const NewPassword = () => {
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
-    navigation.navigate('Login');
+
+    const checkTokenAndRedirect = async () => {
+      const token = user?.token;
+      if (token) {
+        navigation.navigate('User');
+      } else {
+        navigation.navigate('Login');
+      }
+    };
+
+    checkTokenAndRedirect();
   };
 
   const toggleShowNewPassword = () => {
@@ -85,7 +125,6 @@ const NewPassword = () => {
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 20,
       marginTop: 20,
       paddingHorizontal: 16,
     },
@@ -187,15 +226,23 @@ const NewPassword = () => {
       fontSize: 16,
       fontWeight: 'bold',
     },
+    errorText: {
+      color: 'red',
+      fontSize: 14,
+      marginBottom: 8,
+    },
   });
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ flexDirection: 'row', alignItems: 'center' }}
+        >
           <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+          <Text style={styles.headerTitle}>VOLTAR</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>VOLTAR</Text>
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Redefinir Senha</Text>
@@ -218,6 +265,7 @@ const NewPassword = () => {
               />
             </TouchableOpacity>
           </View>
+          {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
 
           <View style={styles.passwordInputContainer}>
             <TextInput
@@ -236,6 +284,9 @@ const NewPassword = () => {
               />
             </TouchableOpacity>
           </View>
+          {errors.confirmPassword ? (
+            <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+          ) : null}
         </View>
         <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
           <Text style={styles.buttonText}>Redefinir Senha</Text>
