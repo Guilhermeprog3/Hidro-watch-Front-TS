@@ -10,20 +10,29 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 import { UserContext } from '../../context/usercontext';
 
+
+interface CodePageRouteParams {
+  email: string;
+}
+
 const CodePage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const route = useRoute<RouteProp<{ CodePage: CodePageRouteParams }, 'CodePage'>>();
+  const { email } = route.params; 
   const [mode, setMode] = useState('Light');
   const [colors, setColors] = useState(Secondary_theme);
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<Array<TextInput | null>>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isResendDisabled, setIsResendDisabled] = useState(false);
+  const [resendTimer, setResendTimer] = useState(60);
 
-  const { validateResetCode } = useContext(UserContext);
+  const { validateResetCode, forgotPassword } = useContext(UserContext);
 
   useEffect(() => {
     const loadMode = async () => {
@@ -35,6 +44,19 @@ const CodePage = () => {
     };
     loadMode();
   }, []);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isResendDisabled && resendTimer > 0) {
+      timer = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (resendTimer === 0) {
+      setIsResendDisabled(false);
+      setResendTimer(60);
+    }
+    return () => clearInterval(timer);
+  }, [isResendDisabled, resendTimer]);
 
   const updateColors = (mode: string) => {
     if (mode === 'Hidro') {
@@ -82,8 +104,16 @@ const CodePage = () => {
     }
   };
 
-  const handleResendEmail = () => {
-    setErrorMessage('Um novo código de verificação foi enviado para o seu email.');
+  const handleResendEmail = async () => {
+    if (email) {
+      setIsResendDisabled(true);
+      try {
+        await forgotPassword(email);
+        setErrorMessage('Um novo código de verificação foi enviado para o seu email.');
+      } catch (error) {
+        setErrorMessage('Erro ao reenviar o código. Tente novamente.');
+      }
+    }
   };
 
   const styles = StyleSheet.create({
@@ -174,6 +204,9 @@ const CodePage = () => {
       marginBottom: 16,
       textAlign: 'center',
     },
+    disabledResend: {
+      opacity: 0.5,
+    },
   });
 
   return (
@@ -194,7 +227,6 @@ const CodePage = () => {
         <View style={styles.content}>
           <Text style={styles.title}>Olhe o seu email</Text>
           <Text style={styles.subtitle}>Enviamos um código de confirmação</Text>
-          <Text style={styles.subtitle}>Digite o código de 6 dígitos enviado para o email</Text>
           <View style={styles.inputContainer}>
             {digits.map((digit, index) => (
               <TextInput
@@ -215,6 +247,13 @@ const CodePage = () => {
           <TouchableOpacity style={styles.button} onPress={handleVerifyCode}>
             <Text style={styles.buttonText}>Verificar Código</Text>
           </TouchableOpacity>
+          <Text style={styles.resendText}>
+            Não recebeu o código?{' '}
+          <Text
+            onPress={isResendDisabled ? undefined : handleResendEmail} style={[styles.resendLink,isResendDisabled && styles.disabledResend,]}>
+            {isResendDisabled ? `Reenviar em ${resendTimer}s` : 'Reenviar código'}
+          </Text>
+          </Text>
         </View>
       </KeyboardAvoidingView>
     </LinearGradient>

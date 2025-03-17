@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -13,6 +20,7 @@ const RecoverPage = () => {
   const [colors, setColors] = useState(Secondary_theme);
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const { forgotPassword } = useContext(UserContext);
 
@@ -39,16 +47,20 @@ const RecoverPage = () => {
 
   const handleResetPassword = async () => {
     if (email) {
+      setIsLoading(true);
+      setError('');
+
       try {
         await forgotPassword(email);
-        setError('');
-        navigation.navigate('Codepass');
-      } catch (error:any) {
+        navigation.navigate('Codepass', { email });
+      } catch (error: any) {
         if (error.response && error.response.status === 404) {
           setError('Este email não está associado a nenhuma conta.');
         } else {
           setError('Não foi possível enviar o código de recuperação.');
         }
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setError('Por favor, insira seu endereço de e-mail.');
@@ -112,11 +124,14 @@ const RecoverPage = () => {
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 4,
+      flexDirection: 'row',
+      justifyContent: 'center',
     },
     buttonText: {
       color: colors.buttonText,
       fontSize: 18,
       fontWeight: 'bold',
+      marginLeft: isLoading ? 8 : 0,
     },
     errorText: {
       color: 'red',
@@ -137,31 +152,32 @@ const RecoverPage = () => {
           <Text style={styles.headerTitle}>VOLTAR</Text>
         </TouchableOpacity>
       </View>
-
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <View style={styles.content}>
-          <Text style={styles.title}>Esqueci a Senha</Text>
-          <Text style={styles.subtitle}>Digite o email vinculado ao seu cadastro</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Seu Email"
-              placeholderTextColor={colors.textSecondary}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          </View>
-          <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
-            <Text style={styles.buttonText}>Alterar Senha</Text>
-          </TouchableOpacity>
+      <View style={styles.content}>
+        <Text style={styles.title}>Esqueci a Senha</Text>
+        <Text style={styles.subtitle}>Digite o email vinculado ao seu cadastro</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Seu Email"
+            placeholderTextColor={colors.textSecondary}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </View>
-      </KeyboardAvoidingView>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleResetPassword}
+          disabled={isLoading}
+        >
+          {isLoading && <ActivityIndicator color={colors.buttonText} />}
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Enviando...' : 'Alterar Senha'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 };

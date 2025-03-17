@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Switch, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -18,6 +18,7 @@ const SettingsPage = () => {
   const [photosEnabled, setPhotosEnabled] = useState(false);
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const loadMode = async () => {
@@ -40,20 +41,12 @@ const SettingsPage = () => {
     }
   };
 
-  const toggleMode = async () => {
-    let newMode;
-    if (mode === 'Hidro') {
-      newMode = 'Light';
-    } else if (mode === 'Light') {
-      newMode = 'Dark';
-    } else {
-      newMode = 'Hidro';
-    }
+  const toggleMode = async (newMode: string) => {
     setMode(newMode);
     updateColors(newMode);
     await AsyncStorage.setItem('userMode', newMode);
+    setModalVisible(false);
   };
-
 
   const requestCameraPermission = async () => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
@@ -129,29 +122,68 @@ const SettingsPage = () => {
       height: 1,
       marginVertical: 10,
     },
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+      width: '80%',
+      backgroundColor: colors.gradientEnd,
+      borderRadius: 15,
+      padding: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    modalOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 15,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.textSecondary,
+    },
+    modalOptionText: {
+      fontSize: 18,
+      color: colors.textPrimary,
+      marginLeft: 15,
+    },
+    modalHeader: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 20,
+      textAlign: 'center',
+    },
+    footer: {
+      position: 'absolute',
+      bottom: 20,
+      left: 0,
+      right: 0,
+      alignItems: 'center',
+    },
+    footerText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
   });
 
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
       <Text style={styles.headerTitle}>VOLTAR</Text>
       </TouchableOpacity>
-
+      </View>
       <View style={styles.menuContainer}>
-        <Text style={styles.sectionTitle}>Modo</Text>
-        <TouchableOpacity style={styles.menuItem} onPress={toggleMode}>
-          <Ionicons 
-            name={
-              mode === 'Hidro' ? 'sunny' :
-              mode === 'Light' ? 'moon' :
-              'water'
-            }
-            size={24}
-            color={colors.iconColor} 
-          />
+        <Text style={styles.sectionTitle}>Preferências</Text>
+        <TouchableOpacity style={styles.menuItem} onPress={() => setModalVisible(true)}>
           <Text style={styles.menuItemText}>
-            {mode === 'Hidro' ? 'Light Mode' : mode === 'Light' ? 'Dark Mode' : 'Hidro Mode'}
+            Tema
           </Text>
           <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
         </TouchableOpacity>
@@ -203,6 +235,37 @@ const SettingsPage = () => {
           <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
         </TouchableOpacity>
       </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Versão: 1.0</Text>
+      </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeader}>Selecione o Tema</Text>
+            <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Hidro')}>
+              <Ionicons name="water" size={24} color={colors.iconColor} />
+              <Text style={styles.modalOptionText}>Hidro Mode</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Light')}>
+              <Ionicons name="sunny" size={24} color={colors.iconColor} />
+              <Text style={styles.modalOptionText}>Light Mode</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Dark')}>
+              <Ionicons name="moon" size={24} color={colors.iconColor} />
+              <Text style={styles.modalOptionText}>Dark Mode</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 };

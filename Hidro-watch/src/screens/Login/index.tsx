@@ -234,10 +234,6 @@ const LoginScreen = () => {
             <AntDesign name="google" size={24} color="white" />
             <Text style={styles.socialButtonText}>Google</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.socialButton, styles.microsoftButton]}>
-            <FontAwesome name="windows" size={24} color="white" />
-            <Text style={styles.socialButtonText}>Microsoft</Text>
-          </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
           <Text style={styles.link}>Não tem conta? Crie uma conta</Text>

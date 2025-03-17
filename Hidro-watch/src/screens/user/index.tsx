@@ -85,13 +85,13 @@ const UserPage = () => {
       try {
         await forgotPassword(user.email);
         setIsLoading(false);
-        navigation.navigate('Codepass');
+        navigation.navigate('Codepass', { email: user.email });
       } catch (error) {
         setIsLoading(false);
-        Alert.alert('Erro', 'Não foi possível enviar o e-mail de recuperação de senha.');
+        Alert.alert( 'Não foi possível enviar o e-mail de recuperação de senha,tente novamente');
       }
     } else {
-      Alert.alert('Erro', 'E-mail do usuário não encontrado.');
+      Alert.alert('E-mail do usuário não encontrado.');
     }
   };
 

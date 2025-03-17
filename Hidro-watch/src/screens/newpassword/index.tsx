@@ -87,10 +87,10 @@ const NewPassword = () => {
 
     try {
       await resetPassword(code, password);
-      console.log(code, password);
       setIsModalVisible(true);
     } catch (error) {
-      Alert.alert('Erro', 'Não foi possível redefinir a senha.');
+      Alert.alert('Não foi possível redefinir a senha,reenvie o codigo de verificação');
+      navigation.goBack();
     }
   };
 

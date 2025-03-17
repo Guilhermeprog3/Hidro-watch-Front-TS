@@ -28,8 +28,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
-      console.error('Erro ao buscar dados do usuário:', error);
-      Alert.alert('Erro ao buscar dados do usuário');
+      console.log('Erro ao buscar dados do usuário:', error);
     }
   }
 
@@ -37,14 +36,13 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     try {
       const response = await api.post('user', { email, password, name });
     } catch (error) {
-      Alert.alert('Erro ao criar usuário');
-      console.error(error);
+      console.log(error);
     }
   }
 
   async function deleteUser() {
     if (!user?.id) {
-      console.error('Usuário ou ID não encontrado');
+      console.log('Usuário ou ID não encontrado');
       return;
     }
     try {
@@ -54,7 +52,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       });
       Alert.alert('Usuário deletado com sucesso');
     } catch (error) {
-      console.error('Erro ao deletar usuário:', error);
+      console.log('Erro ao deletar usuário:', error);
       Alert.alert('Erro ao deletar usuário');
     }
   }
@@ -87,13 +85,22 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
-  async function resetPassword(code: string, new_password: string) {
+  async function resetPassword(code: string, new_password: string): Promise<void> {
     try {
+      if (!code || !new_password) {
+        throw new Error('Código e nova senha são obrigatórios.');
+      }
+  
       const response = await api.patch('/password/reset', { code, new_password });
-      Alert.alert('Senha redefinida com sucesso');
+  
+      if (response.status === 200) {
+      } else {
+        throw new Error('Erro ao redefinir senha');
+      }
     } catch (error) {
-      console.error('Erro ao redefinir senha:', error);
-      Alert.alert('Erro ao redefinir senha');
+      console.log('Erro ao redefinir senha:', error);
+  
+      throw error;
     }
   }
 
