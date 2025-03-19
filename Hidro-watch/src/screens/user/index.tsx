@@ -13,37 +13,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authcontext';
 import { UserContext } from '../../context/usercontext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
+import { useTheme } from '../../context/themecontext';
 
 const UserPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, logout } = useContext(AuthContext);
   const { deleteUser, forgotPassword } = useContext(UserContext);
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
+  const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
 
   const confirmDeleteAccount = () => {
     Alert.alert(
@@ -88,10 +65,10 @@ const UserPage = () => {
         navigation.navigate('Codepass', { email: user.email });
       } catch (error) {
         setIsLoading(false);
-        Alert.alert( 'Não foi possível enviar o e-mail de recuperação de senha,tente novamente');
+        Alert.alert('Erro', 'Não foi possível enviar o e-mail de recuperação de senha. Tente novamente.');
       }
     } else {
-      Alert.alert('E-mail do usuário não encontrado.');
+      Alert.alert('Erro', 'E-mail do usuário não encontrado.');
     }
   };
 
@@ -116,11 +93,11 @@ const UserPage = () => {
     profileName: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
     },
     profileEmail: {
       fontSize: 16,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
     },
     menuContainer: {
       marginTop: 20,
@@ -134,7 +111,7 @@ const UserPage = () => {
     },
     menuItemText: {
       fontSize: 18,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginLeft: 10,
       flex: 1,
     },
@@ -145,7 +122,7 @@ const UserPage = () => {
       flexDirection: 'row',
       justifyContent: 'space-around',
       paddingVertical: 10,
-      backgroundColor: colors.navBarBackground,
+      backgroundColor: theme.navBarBackground,
       borderRadius: 0,
       position: 'absolute',
       bottom: 0,
@@ -158,7 +135,7 @@ const UserPage = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <View style={styles.profileSection}>
           <Image source={require('../../../assets/images/profilePicture.jpeg')} style={styles.profilePicture} />
@@ -168,53 +145,53 @@ const UserPage = () => {
       </View>
       <View style={styles.menuContainer}>
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('settings')}>
-          <Ionicons name="settings-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="settings-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Configuração</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Ionicons name="information-circle-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="information-circle-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Sobre</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.menuItem, isLoading && styles.disabledButton]}
           onPress={handleForgotPassword}
           disabled={isLoading}
         >
-          <Ionicons name="lock-closed-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="lock-closed-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Alterar Senha</Text>
           {isLoading ? (
-            <ActivityIndicator size="small" color={colors.iconColor} />
+            <ActivityIndicator size="small" color={theme.iconColor} />
           ) : (
-            <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+            <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
           )}
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={confirmDeleteAccount}>
-          <Ionicons name="trash-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="trash-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Deletar Conta</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={confirmLogout}>
-          <Ionicons name="exit-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="exit-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Sair</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
         </TouchableOpacity>
       </View>
       <View style={styles.navBar}>
         <View style={styles.navItem}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-            <Ionicons name="home" size={24} color={colors.navBarIconColor} />
+            <Ionicons name="home" size={24} color={theme.navBarIconColor} />
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Ionicons name="time" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="time" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-          <Ionicons name="heart" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="heart" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('User')}>
-          <Ionicons name="person" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="person" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
       </View>
     </LinearGradient>

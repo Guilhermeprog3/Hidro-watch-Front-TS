@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp, useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 import { useObject } from '../../hooks/Objectcontext';
 import { Measurementobject } from '../../hooks/measurements';
+import { useTheme } from '../../context/themecontext';
 
 interface RouteParams {
   deviceId: string;
@@ -27,8 +26,7 @@ const MeasurementPage = () => {
   const { deviceId } = route.params as RouteParams;
   const { getLatestMeasurement } = Measurementobject();
   const { GetObjectforId, DeleteObject } = useObject();
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
+  const { theme } = useTheme();
   const [measurement, setMeasurement] = useState({
     ph: 0,
     turbidity: 0,
@@ -38,27 +36,6 @@ const MeasurementPage = () => {
   const [objectName, setObjectName] = useState('Carregando...');
   const [lastMeasurementDate, setLastMeasurementDate] = useState<string>('Nenhuma medição');
   const [isConnected, setIsConnected] = useState(false);
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,7 +118,7 @@ const MeasurementPage = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#0A0F39',
+      backgroundColor: theme.gradientStart,
       paddingHorizontal: 20,
       paddingTop: 50,
     },
@@ -153,18 +130,18 @@ const MeasurementPage = () => {
       marginTop: 20,
     },
     headerTitle: {
-      color: colors.white,
+      color: theme.textPrimary,
       fontSize: 18,
       marginLeft: 8,
     },
     headerText: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       fontSize: 22,
       fontWeight: 'bold',
       textAlign: 'center',
     },
     headerSubText: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       fontSize: 20,
       marginTop: 8,
       textAlign: 'center',
@@ -174,19 +151,19 @@ const MeasurementPage = () => {
       width: 100,
       height: 100,
       borderRadius: 50,
-      backgroundColor: colors.navBarBackground,
+      backgroundColor: theme.navBarBackground,
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center',
       marginBottom: 20,
     },
     circleText: {
-      color: colors.white,
+      color: theme.textPrimary,
       fontSize: 24,
       fontWeight: 'bold',
     },
     sectionTitle: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       fontSize: 20,
       fontWeight: 'bold',
       marginBottom: 20,
@@ -208,13 +185,13 @@ const MeasurementPage = () => {
       alignItems: 'center',
     },
     measurementLabel: {
-      color: colors.white,
+      color: theme.textPrimary,
       fontSize: 13,
       fontWeight: 'bold',
       marginBottom: 5,
     },
     measurementValue: {
-      color: colors.white,
+      color: theme.textPrimary,
       fontSize: 18,
       fontWeight: 'bold',
     },
@@ -224,19 +201,19 @@ const MeasurementPage = () => {
       alignItems: 'center',
     },
     menuOptions: {
-      backgroundColor: colors.navBarBackground,
+      backgroundColor: theme.navBarBackground,
       borderRadius: 10,
       padding: 10,
     },
     menuOptionsContainer: {
-      backgroundColor: colors.navBarBackground,
+      backgroundColor: theme.navBarBackground,
       borderRadius: 10,
       padding: 10,
       width: 100,
       marginTop: 40,
     },
     menuOptionText: {
-      color: colors.white,
+      color: theme.textPrimary,
       fontSize: 10,
       padding: 10,
     },
@@ -266,7 +243,7 @@ const MeasurementPage = () => {
       borderRadius: 30,
     },
     lastMeasurementText: {
-      color: '#fff',
+      color: theme.textPrimary,
       fontSize: 15,
       fontWeight: 'bold',
       marginLeft: 10,
@@ -274,20 +251,20 @@ const MeasurementPage = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View>
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
-            <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+            <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
             <Text style={styles.headerTitle}>VOLTAR</Text>
           </TouchableOpacity>
 
           <Menu>
             <MenuTrigger customStyles={{ triggerWrapper: styles.menuTrigger }}>
-              <Ionicons name="ellipsis-vertical" size={24} color={colors.iconColor} />
+              <Ionicons name="ellipsis-vertical" size={24} color={theme.iconColor} />
             </MenuTrigger>
             <MenuOptions customStyles={{ optionsContainer: styles.menuOptionsContainer }}>
               <MenuOption onSelect={() => handleMenuSelection('Deletar')}>

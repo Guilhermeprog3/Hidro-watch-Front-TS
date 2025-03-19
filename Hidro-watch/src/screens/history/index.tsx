@@ -4,36 +4,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
+import { useTheme } from '../../context/themecontext';
 
 const HistoryPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { getUserObjects} = useObject();
+  const { getUserObjects } = useObject();
   const [devices, setDevices] = useState<any[]>([]);
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
+  const { theme } = useTheme();
 
   useEffect(() => {
     async function fetchDevices() {
@@ -68,7 +45,7 @@ const HistoryPage = () => {
       zIndex: 0,
     },
     sectionTitle: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       fontSize: 18,
       fontWeight: 'bold',
       marginBottom: 10,
@@ -86,26 +63,26 @@ const HistoryPage = () => {
     deviceName: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
     },
     deviceLocation: {
       fontSize: 14,
-      color: colors.textSecondary,
+      color: theme.textSecondary,
     },
     detailsButton: {
-      backgroundColor: colors.buttonBackground,
+      backgroundColor: theme.buttonBackground,
       padding: 10,
       borderRadius: 5,
     },
     detailsButtonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontSize: 14,
     },
     navBar: {
       flexDirection: 'row',
       justifyContent: 'space-around',
       paddingVertical: 10,
-      backgroundColor: colors.navBarBackground,
+      backgroundColor: theme.navBarBackground,
       borderRadius: 0,
       position: 'absolute',
       bottom: 0,
@@ -118,10 +95,10 @@ const HistoryPage = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Search_history')}>
-          <Ionicons name="search" size={24} color={colors.white} />
+          <Ionicons name="search" size={24} color={theme.iconColor} />
         </TouchableOpacity>
       </View>
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
@@ -145,17 +122,17 @@ const HistoryPage = () => {
       <View style={styles.navBar}>
         <View style={styles.navItem}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-            <Ionicons name="home" size={24} color={colors.navBarIconColor} />
+            <Ionicons name="home" size={24} color={theme.navBarIconColor} />
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Ionicons name="time" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="time" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-          <Ionicons name="heart" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="heart" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('User')}>
-          <Ionicons name="person" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="person" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
       </View>
     </LinearGradient>

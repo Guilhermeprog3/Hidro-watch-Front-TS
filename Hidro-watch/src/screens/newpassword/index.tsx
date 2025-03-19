@@ -3,10 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal } fro
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 import { UserContext } from '../../context/usercontext';
 import { AuthContext } from '../../context/authcontext';
+import { useTheme } from '../../context/themecontext';
 
 type RootStackParamList = {
   Login: undefined;
@@ -20,8 +19,7 @@ const NewPassword = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'Newpassword'>>();
   const route = useRoute<NewPasswordRouteProp>();
   const { user, logout } = useContext(AuthContext);
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
+  const { theme } = useTheme(); // Usando o tema do contexto
   const [password, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -34,27 +32,6 @@ const NewPassword = () => {
 
   const { resetPassword } = useContext(UserContext);
   const { code } = route.params;
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
 
   const validateFields = () => {
     let isValid = true;
@@ -89,7 +66,7 @@ const NewPassword = () => {
       await resetPassword(code, password);
       setIsModalVisible(true);
     } catch (error) {
-      Alert.alert('Não foi possível redefinir a senha,reenvie o codigo de verificação');
+      Alert.alert('Não foi possível redefinir a senha, reenvie o código de verificação');
       navigation.goBack();
     }
   };
@@ -129,7 +106,7 @@ const NewPassword = () => {
       paddingHorizontal: 16,
     },
     headerTitle: {
-      color: colors.iconColor,
+      color: theme.iconColor,
       fontSize: 18,
       marginLeft: 10,
       fontWeight: 'bold',
@@ -142,13 +119,13 @@ const NewPassword = () => {
     title: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 16,
       textAlign: 'center',
     },
     subtitle: {
       fontSize: 16,
-      color: colors.textSecondary,
+      color: theme.textSecondary,
       marginBottom: 32,
       textAlign: 'center',
     },
@@ -160,7 +137,7 @@ const NewPassword = () => {
       borderWidth: 1,
       borderRadius: 8,
       paddingHorizontal: 16,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 16,
     },
     passwordInputContainer: {
@@ -174,13 +151,13 @@ const NewPassword = () => {
       flex: 1,
       height: 50,
       paddingHorizontal: 16,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
     },
     eyeIcon: {
       padding: 10,
     },
     button: {
-      backgroundColor: colors.buttonBackground,
+      backgroundColor: theme.buttonBackground,
       padding: 16,
       borderRadius: 8,
       alignItems: 'center',
@@ -191,7 +168,7 @@ const NewPassword = () => {
       shadowRadius: 4,
     },
     buttonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontSize: 18,
       fontWeight: 'bold',
     },
@@ -202,7 +179,7 @@ const NewPassword = () => {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
-      backgroundColor: colors.gradientEnd,
+      backgroundColor: theme.gradientEnd,
       padding: 20,
       borderRadius: 10,
       alignItems: 'center',
@@ -210,19 +187,19 @@ const NewPassword = () => {
     },
     modalText: {
       fontSize: 18,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 20,
       textAlign: 'center',
     },
     modalButton: {
-      backgroundColor: colors.buttonBackground,
+      backgroundColor: theme.buttonBackground,
       padding: 10,
       borderRadius: 8,
       width: '50%',
       alignItems: 'center',
     },
     modalButtonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontSize: 16,
       fontWeight: 'bold',
     },
@@ -234,13 +211,13 @@ const NewPassword = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={{ flexDirection: 'row', alignItems: 'center' }}
         >
-          <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+          <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
           <Text style={styles.headerTitle}>VOLTAR</Text>
         </TouchableOpacity>
       </View>
@@ -252,7 +229,7 @@ const NewPassword = () => {
             <TextInput
               style={styles.passwordInput}
               placeholder="Nova Senha"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={theme.textSecondary}
               value={password}
               onChangeText={setNewPassword}
               secureTextEntry={!showNewPassword}
@@ -261,7 +238,7 @@ const NewPassword = () => {
               <Ionicons
                 name={showNewPassword ? 'eye-off' : 'eye'}
                 size={24}
-                color={colors.textSecondary}
+                color={theme.textSecondary}
               />
             </TouchableOpacity>
           </View>
@@ -271,7 +248,7 @@ const NewPassword = () => {
             <TextInput
               style={styles.passwordInput}
               placeholder="Confirmar Nova Senha"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={theme.textSecondary}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
@@ -280,7 +257,7 @@ const NewPassword = () => {
               <Ionicons
                 name={showConfirmPassword ? 'eye-off' : 'eye'}
                 size={24}
-                color={colors.textSecondary}
+                color={theme.textSecondary}
               />
             </TouchableOpacity>
           </View>

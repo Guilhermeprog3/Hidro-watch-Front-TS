@@ -4,38 +4,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
+import { useTheme } from '../../context/themecontext';
 
 const SearchFavoritePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { getUserObjects, markFavorite } = useObject();
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
+  const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp<any>>();
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
 
   useEffect(() => {
     async function fetchDevices() {
@@ -70,7 +47,6 @@ const SearchFavoritePage = () => {
     device.tittle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -80,22 +56,22 @@ const SearchFavoritePage = () => {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: colors.gradientEnd,
+      backgroundColor: theme.gradientEnd,
     },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
       marginBottom: 20,
-      backgroundColor: colors.gradientStart,
+      backgroundColor: theme.gradientStart,
       borderRadius: 10,
       padding: 5,
     },
     searchBar: {
-      backgroundColor: colors.white,
+      backgroundColor: theme.white,
       borderRadius: 10,
       padding: 10,
       flex: 1,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginLeft: 10,
       marginRight: 10,
     },
@@ -111,11 +87,11 @@ const SearchFavoritePage = () => {
     deviceName: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
     },
     deviceLocation: {
       fontSize: 14,
-      color: colors.textSecondary,
+      color: theme.textSecondary,
     },
     buttonContainer: {
       flexDirection: 'row',
@@ -127,19 +103,19 @@ const SearchFavoritePage = () => {
       marginRight: 10,
     },
     detailsButton: {
-      backgroundColor: colors.buttonBackground,
+      backgroundColor: theme.buttonBackground,
       padding: 10,
       borderRadius: 5,
     },
     detailsButtonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontWeight: 'bold',
     },
     navBar: {
       flexDirection: 'row',
       justifyContent: 'space-around',
       paddingVertical: 10,
-      backgroundColor: colors.navBarBackground,
+      backgroundColor: theme.navBarBackground,
       borderRadius: 0,
       position: 'absolute',
       bottom: 0,
@@ -152,15 +128,15 @@ const SearchFavoritePage = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+          <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
         </TouchableOpacity>
         <TextInput
           style={styles.searchBar}
           placeholder="Pesquisar"
-          placeholderTextColor={colors.textSecondary}
+          placeholderTextColor={theme.textSecondary}
           value={searchQuery}
           onChangeText={text => setSearchQuery(text)}
         />
@@ -182,7 +158,7 @@ const SearchFavoritePage = () => {
                 <Ionicons
                   name={item.isFavorite ? "heart-outline" : "heart"}
                   size={24}
-                  color={item.isFavorite ? colors.white : colors.red}
+                  color={item.isFavorite ? theme.white : theme.red}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate('Measurement', { deviceId: item.id })} style={styles.detailsButton}>
@@ -194,16 +170,16 @@ const SearchFavoritePage = () => {
       />
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Ionicons name="home" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="home" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Ionicons name="time" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="time" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-          <Ionicons name="heart" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="heart" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="person" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="person" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
       </View>
     </LinearGradient>

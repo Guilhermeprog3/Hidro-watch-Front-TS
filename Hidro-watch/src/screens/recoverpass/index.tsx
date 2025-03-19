@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -10,40 +10,17 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 import { UserContext } from '../../context/usercontext';
+import { useTheme } from '../../context/themecontext';
 
 const RecoverPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const { forgotPassword } = useContext(UserContext);
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
 
   const handleResetPassword = async () => {
     if (email) {
@@ -80,7 +57,7 @@ const RecoverPage = () => {
       paddingHorizontal: 16,
     },
     headerTitle: {
-      color: colors.iconColor,
+      color: theme.iconColor,
       fontSize: 18,
       marginLeft: 10,
       fontWeight: 'bold',
@@ -93,13 +70,13 @@ const RecoverPage = () => {
     title: {
       fontSize: 28,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 16,
       textAlign: 'center',
     },
     subtitle: {
       fontSize: 16,
-      color: colors.textSecondary,
+      color: theme.textSecondary,
       marginBottom: 32,
       textAlign: 'center',
     },
@@ -111,11 +88,11 @@ const RecoverPage = () => {
       borderWidth: 1,
       borderRadius: 8,
       paddingHorizontal: 16,
-      color: colors.textPrimary,
-      borderColor: error ? 'red' : colors.textSecondary,
+      color: theme.textPrimary,
+      borderColor: error ? 'red' : theme.textSecondary,
     },
     button: {
-      backgroundColor: colors.buttonBackground,
+      backgroundColor: theme.buttonBackground,
       padding: 16,
       borderRadius: 8,
       alignItems: 'center',
@@ -128,7 +105,7 @@ const RecoverPage = () => {
       justifyContent: 'center',
     },
     buttonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontSize: 18,
       fontWeight: 'bold',
       marginLeft: isLoading ? 8 : 0,
@@ -142,13 +119,13 @@ const RecoverPage = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={{ flexDirection: 'row', alignItems: 'center' }}
         >
-          <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+          <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
           <Text style={styles.headerTitle}>VOLTAR</Text>
         </TouchableOpacity>
       </View>
@@ -159,7 +136,7 @@ const RecoverPage = () => {
           <TextInput
             style={styles.input}
             placeholder="Seu Email"
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={theme.textSecondary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -172,7 +149,7 @@ const RecoverPage = () => {
           onPress={handleResetPassword}
           disabled={isLoading}
         >
-          {isLoading && <ActivityIndicator color={colors.buttonText} />}
+          {isLoading && <ActivityIndicator color={theme.buttonText} />}
           <Text style={styles.buttonText}>
             {isLoading ? 'Enviando...' : 'Alterar Senha'}
           </Text>

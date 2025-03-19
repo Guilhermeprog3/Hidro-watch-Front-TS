@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
+import { useTheme } from '../../context/themecontext';
 
 type Device = {
   id: string;
@@ -18,30 +17,8 @@ const FavoritePage = () => {
   const { getUserObjects, markFavorite } = useObject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
+  const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp<any>>();
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
 
   const fetchDevices = async () => {
     const userDevices = await getUserObjects();
@@ -101,7 +78,7 @@ const FavoritePage = () => {
       zIndex: 0,
     },
     sectionTitle: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       fontSize: 18,
       fontWeight: 'bold',
       marginBottom: 10,
@@ -119,11 +96,11 @@ const FavoritePage = () => {
     deviceName: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
     },
     deviceLocation: {
       fontSize: 14,
-      color: colors.textSecondary,
+      color: theme.textSecondary,
     },
     buttonContainer: {
       flexDirection: 'row',
@@ -133,19 +110,19 @@ const FavoritePage = () => {
       marginRight: 10,
     },
     detailsButton: {
-      backgroundColor: colors.buttonBackground,
+      backgroundColor: theme.buttonBackground,
       padding: 10,
       borderRadius: 5,
     },
     detailsButtonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontWeight: 'bold',
     },
     navBar: {
       flexDirection: 'row',
       justifyContent: 'space-around',
       paddingVertical: 10,
-      backgroundColor: colors.navBarBackground,
+      backgroundColor: theme.navBarBackground,
       borderRadius: 0,
       position: 'absolute',
       bottom: 0,
@@ -158,10 +135,10 @@ const FavoritePage = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Search_favorite')}>
-          <Ionicons name="search" size={24} color={colors.white} />
+          <Ionicons name="search" size={24} color={theme.iconColor} />
         </TouchableOpacity>
       </View>
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
@@ -184,7 +161,7 @@ const FavoritePage = () => {
                 <Ionicons
                   name={favorites.includes(item.id) ? "heart" : "heart-outline"}
                   size={24}
-                  color={favorites.includes(item.id) ? colors.red : colors.white}
+                  color={favorites.includes(item.id) ? theme.red : theme.iconColor}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate('Measurement', { deviceId: item.id })} style={styles.detailsButton}>
@@ -197,17 +174,17 @@ const FavoritePage = () => {
       <View style={styles.navBar}>
         <View style={styles.navItem}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-            <Ionicons name="home" size={24} color={colors.navBarIconColor} />
+            <Ionicons name="home" size={24} color={theme.navBarIconColor} />
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Ionicons name="time" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="time" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-          <Ionicons name="heart" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="heart" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('User')}>
-          <Ionicons name="person" size={24} color={colors.navBarIconColor} />
+          <Ionicons name="person" size={24} color={theme.navBarIconColor} />
         </TouchableOpacity>
       </View>
     </LinearGradient>

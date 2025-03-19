@@ -7,6 +7,7 @@ type UserContextProps = {
   GetUserforId: () => Promise<void>;
   Postuser: (name: string, email: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
+  validateemail: (email: string) => Promise<{ success: boolean }>;
   forgotPassword: (email: string) => Promise<{ success: boolean }>;
   validateResetCode: (code: string) => Promise<boolean>;
   resetPassword: (code: string, newPassword: string) => Promise<void>;
@@ -72,6 +73,21 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
+  async function validateemail(email: string) {
+    try {
+      const response = await api.post('/password/validate-email', { email });
+  
+      if (response.status === 200) {
+        return { success: true };
+      } else {
+        throw new Error('Erro ao enviar o código de validação');
+      }
+    } catch (error) {
+      console.log('Erro ao solicitar código de validação:', error);
+      throw error;
+    }
+  }
+
   async function validateResetCode(code: string) {
     try {
       const response = await api.post('/password/validate-code', { code });
@@ -110,6 +126,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
         GetUserforId,
         Postuser,
         deleteUser,
+        validateemail,
         forgotPassword,
         validateResetCode,
         resetPassword,

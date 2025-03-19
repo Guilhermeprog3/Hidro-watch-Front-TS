@@ -4,8 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
+import { useTheme } from '../../context/themecontext';
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -14,30 +13,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
-
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
+  const { theme } = useTheme();
 
   const validateEmail = (email: string) => {
     return email.includes('@');
@@ -85,29 +61,29 @@ const LoginScreen = () => {
     title: {
       fontSize: 36,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginLeft: 10,
     },
     subtitle: {
       fontSize: 16,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 20,
       marginLeft: 30,
     },
     heading: {
       fontSize: 24,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 20,
     },
     errorText: {
-      color: colors.red,
+      color: theme.red,
       marginBottom: 20,
     },
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       marginBottom: 15,
-      borderColor: colors.textPrimary,
+      borderColor: theme.textPrimary,
       borderWidth: 1,
       borderRadius: 5,
       paddingHorizontal: 10,
@@ -118,7 +94,7 @@ const LoginScreen = () => {
     input: {
       flex: 1,
       height: 40,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
     },
     showPasswordIcon: {
       marginLeft: 10,
@@ -132,16 +108,16 @@ const LoginScreen = () => {
       marginBottom: 20,
     },
     buttonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontWeight: 'bold',
     },
     orText: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginVertical: 10,
     },
     socialButtons: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
       width: '100%',
       marginBottom: 20,
     },
@@ -149,27 +125,25 @@ const LoginScreen = () => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '48%',
+      width: '70%',
       height: 40,
       borderRadius: 5,
+      marginHorizontal: 10,
     },
     googleButton: {
       backgroundColor: '#DB4437',
     },
-    microsoftButton: {
-      backgroundColor: '#0078D4',
-    },
     socialButtonText: {
-      color: colors.buttonText,
+      color: 'white',
       marginLeft: 10,
       fontWeight: 'bold',
     },
     link: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginTop: 20,
     },
     forgotPasswordText: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginTop: 0,
       marginBottom: 20,
       textDecorationLine: 'underline',
@@ -177,7 +151,7 @@ const LoginScreen = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
           <Image
@@ -189,11 +163,11 @@ const LoginScreen = () => {
         <Text style={styles.subtitle}>Porque cada gota importa</Text>
         <Text style={styles.heading}>Entrar</Text>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="email" size={24} color={colors.iconColor} style={styles.inputIcon} />
+          <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor={colors.iconColor}
+            placeholderTextColor={theme.iconColor}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -201,11 +175,11 @@ const LoginScreen = () => {
           />
         </View>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="lock" size={24} color={colors.iconColor} style={styles.inputIcon} />
+          <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Senha"
-            placeholderTextColor={colors.iconColor}
+            placeholderTextColor={theme.iconColor}
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
@@ -214,7 +188,7 @@ const LoginScreen = () => {
             <MaterialIcons
               name={showPassword ? 'visibility' : 'visibility-off'}
               size={24}
-              color={colors.iconColor}
+              color={theme.iconColor}
               style={styles.showPasswordIcon}
             />
           </TouchableOpacity>
@@ -223,7 +197,7 @@ const LoginScreen = () => {
         <TouchableOpacity onPress={() => navigation.navigate('Recoverpass')}>
           <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
         </TouchableOpacity>
-        <LinearGradient colors={[colors.secondary, colors.secondary]} style={styles.button}>
+        <LinearGradient colors={[theme.secondary, theme.secondary]} style={styles.button}>
           <TouchableOpacity onPress={handleLogin}>
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>

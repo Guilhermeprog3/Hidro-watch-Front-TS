@@ -7,13 +7,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Permissions from 'expo-permissions';
 import * as Notifications from 'expo-notifications';
 import * as MediaLibrary from 'expo-media-library';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
+import { useTheme } from '../../context/themecontext';
+
+type ThemeMode = 'Hidro' | 'Light' | 'Dark';
 
 const SettingsPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
+  const { theme, toggleTheme } = useTheme();
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [photosEnabled, setPhotosEnabled] = useState(false);
   const [cameraEnabled, setCameraEnabled] = useState(false);
@@ -24,32 +24,35 @@ const SettingsPage = () => {
     const loadMode = async () => {
       const savedMode = await AsyncStorage.getItem('userMode');
       if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
+        toggleMode(savedMode as ThemeMode);
       }
     };
     loadMode();
   }, []);
 
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const cameraStatus = await Permissions.getAsync(Permissions.CAMERA);
+      setCameraEnabled(cameraStatus.status === 'granted');
 
-  const toggleMode = async (newMode: string) => {
-    setMode(newMode);
-    updateColors(newMode);
+      const mediaStatus = await MediaLibrary.getPermissionsAsync();
+      setPhotosEnabled(mediaStatus.status === 'granted');
+
+      const notificationStatus = await Notifications.getPermissionsAsync();
+      setNotificationsEnabled(notificationStatus.status === 'granted');
+    };
+
+    checkPermissions();
+  }, []);
+
+  const toggleMode = async (newMode: ThemeMode) => {
+    toggleTheme(newMode);
     await AsyncStorage.setItem('userMode', newMode);
     setModalVisible(false);
   };
 
   const requestCameraPermission = async () => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    
     if (status === 'granted') {
       setCameraEnabled(true);
     } else {
@@ -91,7 +94,7 @@ const SettingsPage = () => {
       paddingHorizontal: 16,
     },
     headerTitle: {
-      color: colors.iconColor,
+      color: theme.textPrimary,
       fontSize: 18,
       marginLeft: 10,
     },
@@ -101,7 +104,7 @@ const SettingsPage = () => {
     sectionTitle: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       paddingHorizontal: 16,
       paddingVertical: 10,
     },
@@ -110,16 +113,18 @@ const SettingsPage = () => {
       alignItems: 'center',
       padding: 15,
       borderBottomWidth: 1,
+      borderBottomColor: theme.textSecondary,
       paddingHorizontal: 16,
     },
     menuItemText: {
       fontSize: 18,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginLeft: 10,
       flex: 1,
     },
     separator: {
       height: 1,
+      backgroundColor: theme.textSecondary,
       marginVertical: 10,
     },
     modalContainer: {
@@ -130,7 +135,7 @@ const SettingsPage = () => {
     },
     modalContent: {
       width: '80%',
-      backgroundColor: colors.gradientEnd,
+      backgroundColor: theme.primaryLight,
       borderRadius: 15,
       padding: 20,
       shadowColor: '#000',
@@ -144,17 +149,17 @@ const SettingsPage = () => {
       alignItems: 'center',
       padding: 15,
       borderBottomWidth: 1,
-      borderBottomColor: colors.textSecondary,
+      borderBottomColor: theme.textSecondary,
     },
     modalOptionText: {
       fontSize: 18,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginLeft: 15,
     },
     modalHeader: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 20,
       textAlign: 'center',
     },
@@ -167,72 +172,69 @@ const SettingsPage = () => {
     },
     footerText: {
       fontSize: 14,
-      color: colors.textSecondary,
+      color: theme.textSecondary,
     },
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
-      <Text style={styles.headerTitle}>VOLTAR</Text>
-      </TouchableOpacity>
+          <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
+          <Text style={styles.headerTitle}>VOLTAR</Text>
+        </TouchableOpacity>
       </View>
+
       <View style={styles.menuContainer}>
         <Text style={styles.sectionTitle}>Preferências</Text>
         <TouchableOpacity style={styles.menuItem} onPress={() => setModalVisible(true)}>
-          <Text style={styles.menuItemText}>
-            Tema
-          </Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          <Text style={styles.menuItemText}>Tema</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
         </TouchableOpacity>
-        <View style={styles.separator} />
+    
 
         <Text style={styles.sectionTitle}>Permissões</Text>
         <View style={styles.menuItem}>
-          <Ionicons name="notifications-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="notifications-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Notificações</Text>
           <Switch
             value={notificationsEnabled}
             onValueChange={requestNotificationsPermission}
-            trackColor={{ false: "#767577", true: colors.iconColor }}
+            trackColor={{ false: "#767577", true: theme.iconColor }}
             thumbColor={notificationsEnabled ? "#f4f3f4" : "#f4f3f4"}
           />
         </View>
         <View style={styles.menuItem}>
-          <Ionicons name="camera-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="camera-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Câmera</Text>
           <Switch
             value={cameraEnabled}
             onValueChange={requestCameraPermission}
-            trackColor={{ false: "#767577", true: colors.iconColor }}
+            trackColor={{ false: "#767577", true: theme.iconColor }}
             thumbColor={cameraEnabled ? "#f4f3f4" : "#f4f3f4"}
           />
         </View>
         <View style={styles.menuItem}>
-          <Ionicons name="image-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="image-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Fotos e Vídeos</Text>
           <Switch
             value={photosEnabled}
             onValueChange={requestPhotosPermission}
-            trackColor={{ false: "#767577", true: colors.iconColor }}
+            trackColor={{ false: "#767577", true: theme.iconColor }}
             thumbColor={photosEnabled ? "#f4f3f4" : "#f4f3f4"}
           />
         </View>
 
-        <View style={styles.separator} />
-
         <Text style={styles.sectionTitle}>Sobre</Text>
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Ionicons name="document-text-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="document-text-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Termo de Uso</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Ionicons name="shield-checkmark-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="shield-checkmark-outline" size={24} color={theme.iconColor} />
           <Text style={styles.menuItemText}>Política de Privacidade</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={colors.iconColor} />
+          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
         </TouchableOpacity>
       </View>
 
@@ -244,23 +246,21 @@ const SettingsPage = () => {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
+        onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeader}>Selecione o Tema</Text>
             <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Hidro')}>
-              <Ionicons name="water" size={24} color={colors.iconColor} />
+              <Ionicons name="water" size={24} color={theme.iconColor} />
               <Text style={styles.modalOptionText}>Hidro Mode</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Light')}>
-              <Ionicons name="sunny" size={24} color={colors.iconColor} />
+              <Ionicons name="sunny" size={24} color={theme.iconColor} />
               <Text style={styles.modalOptionText}>Light Mode</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Dark')}>
-              <Ionicons name="moon" size={24} color={colors.iconColor} />
+              <Ionicons name="moon" size={24} color={theme.iconColor} />
               <Text style={styles.modalOptionText}>Dark Mode</Text>
             </TouchableOpacity>
           </View>

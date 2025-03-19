@@ -5,42 +5,19 @@ import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authcontext';
 import { UserContext } from '../../context/usercontext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Secondary_theme, Primary_theme, Tertiary_theme } from '../../colors/color';
+import { useTheme } from '../../context/themecontext';
 
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { login } = useContext(AuthContext);
-  const {Postuser} = useContext(UserContext);
+  const { Postuser } = useContext(UserContext);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
+  const { theme } = useTheme();
 
   const handlePasswordChange = (password: string) => {
     setPassword(password);
@@ -81,34 +58,34 @@ const SignUpScreen = () => {
     title: {
       fontSize: 36,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginLeft: 10,
     },
     subtitle: {
       fontSize: 16,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 20,
       marginLeft: 30,
     },
     heading: {
       fontSize: 24,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 20,
     },
     errorText: {
-      color: colors.red,
+      color: theme.red,
       marginBottom: 20,
     },
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       marginBottom: 20,
-      borderColor: colors.textPrimary,
+      borderColor: theme.textPrimary,
       borderWidth: 1,
       borderRadius: 5,
       paddingHorizontal: 20,
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      shadowColor: colors.secondary,
+      shadowColor: theme.secondary,
       shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 0.8,
       shadowRadius: 10,
@@ -119,7 +96,7 @@ const SignUpScreen = () => {
     input: {
       flex: 1,
       height: 40,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
     },
     showPasswordIcon: {
       marginLeft: 10,
@@ -133,16 +110,16 @@ const SignUpScreen = () => {
       marginBottom: 20,
     },
     buttonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontWeight: 'bold',
     },
     orText: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginVertical: 10,
     },
     socialButtons: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
       width: '100%',
       marginBottom: 20,
     },
@@ -153,26 +130,21 @@ const SignUpScreen = () => {
       width: '48%',
       height: 40,
       borderRadius: 5,
-    },
-    googleButton: {
-      backgroundColor: '#DB4437',
-    },
-    microsoftButton: {
-      backgroundColor: '#0078D4',
+      backgroundColor: '#DB4437', // Cor do Google
     },
     socialButtonText: {
-      color: colors.buttonText,
+      color: 'white',
       marginLeft: 10,
       fontWeight: 'bold',
     },
     link: {
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginTop: 20,
     },
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
           <Image
@@ -184,21 +156,21 @@ const SignUpScreen = () => {
         <Text style={styles.subtitle}>Porque cada gota importa</Text>
         <Text style={styles.heading}>Criar Conta</Text>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="email" size={24} color={colors.iconColor} style={styles.inputIcon} />
+          <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Email Address"
-            placeholderTextColor={colors.textPrimary}
+            placeholderTextColor={theme.textPrimary}
             value={email}
             onChangeText={setEmail}
           />
         </View>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="lock" size={24} color={colors.iconColor} style={styles.inputIcon} />
+          <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor={colors.iconColor}
+            placeholderTextColor={theme.iconColor}
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={handlePasswordChange}
@@ -207,17 +179,17 @@ const SignUpScreen = () => {
             <MaterialIcons
               name={showPassword ? 'visibility' : 'visibility-off'}
               size={24}
-              color={colors.iconColor}
+              color={theme.iconColor}
               style={styles.showPasswordIcon}
             />
           </TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="lock" size={24} color={colors.iconColor} style={styles.inputIcon} />
+          <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Confirm Password"
-            placeholderTextColor={colors.iconColor}
+            placeholderTextColor={theme.iconColor}
             secureTextEntry={!showPassword}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
@@ -226,36 +198,32 @@ const SignUpScreen = () => {
             <MaterialIcons
               name={showPassword ? 'visibility' : 'visibility-off'}
               size={24}
-              color={colors.iconColor}
+              color={theme.iconColor}
               style={styles.showPasswordIcon}
             />
           </TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
-          <MaterialIcons name="person" size={24} color={colors.iconColor} style={styles.inputIcon} />
+          <MaterialIcons name="person" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Your Name"
-            placeholderTextColor={colors.textPrimary}
+            placeholderTextColor={theme.textPrimary}
             value={name}
             onChangeText={setName}
           />
         </View>
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-        <LinearGradient colors={[colors.secondary, colors.secondary]} style={styles.button}>
+        <LinearGradient colors={[theme.secondary, theme.secondary]} style={styles.button}>
           <TouchableOpacity onPress={handleSignUp}>
             <Text style={styles.buttonText}>Criar Conta</Text>
           </TouchableOpacity>
         </LinearGradient>
         <Text style={styles.orText}>Ou Entre com</Text>
         <View style={styles.socialButtons}>
-          <TouchableOpacity style={[styles.socialButton, styles.googleButton]}>
+          <TouchableOpacity style={styles.socialButton}>
             <AntDesign name="google" size={24} color="white" />
             <Text style={styles.socialButtonText}>Google</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.socialButton, styles.microsoftButton]}>
-            <FontAwesome name="windows" size={24} color="white" />
-            <Text style={styles.socialButtonText}>Microsoft</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>

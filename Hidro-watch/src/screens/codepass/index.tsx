@@ -11,10 +11,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../../colors/color';
 import { UserContext } from '../../context/usercontext';
-
+import { useTheme } from '../../context/themecontext';
 
 interface CodePageRouteParams {
   email: string;
@@ -23,9 +21,8 @@ interface CodePageRouteParams {
 const CodePage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const route = useRoute<RouteProp<{ CodePage: CodePageRouteParams }, 'CodePage'>>();
-  const { email } = route.params; 
-  const [mode, setMode] = useState('Light');
-  const [colors, setColors] = useState(Secondary_theme);
+  const { email } = route.params;
+  const { theme } = useTheme();
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<Array<TextInput | null>>([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -33,17 +30,6 @@ const CodePage = () => {
   const [resendTimer, setResendTimer] = useState(60);
 
   const { validateResetCode, forgotPassword } = useContext(UserContext);
-
-  useEffect(() => {
-    const loadMode = async () => {
-      const savedMode = await AsyncStorage.getItem('userMode');
-      if (savedMode) {
-        setMode(savedMode);
-        updateColors(savedMode);
-      }
-    };
-    loadMode();
-  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -57,16 +43,6 @@ const CodePage = () => {
     }
     return () => clearInterval(timer);
   }, [isResendDisabled, resendTimer]);
-
-  const updateColors = (mode: string) => {
-    if (mode === 'Hidro') {
-      setColors(Primary_theme);
-    } else if (mode === 'Light') {
-      setColors(Secondary_theme);
-    } else {
-      setColors(Tertiary_theme);
-    }
-  };
 
   const handleDigitChange = (index: number, value: string) => {
     const newDigits = [...digits];
@@ -127,7 +103,7 @@ const CodePage = () => {
       paddingHorizontal: 16,
     },
     headerTitle: {
-      color: colors.iconColor,
+      color: theme.iconColor,
       fontSize: 18,
       marginLeft: 10,
       fontWeight: 'bold',
@@ -140,19 +116,19 @@ const CodePage = () => {
     title: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 16,
       textAlign: 'center',
     },
     subtitle: {
       fontSize: 16,
-      color: colors.textSecondary,
+      color: theme.textSecondary,
       marginBottom: 32,
       textAlign: 'center',
     },
     emailText: {
       fontSize: 16,
-      color: colors.textPrimary,
+      color: theme.textPrimary,
       marginBottom: 32,
       textAlign: 'center',
       fontWeight: 'bold',
@@ -169,11 +145,11 @@ const CodePage = () => {
       borderRadius: 8,
       textAlign: 'center',
       fontSize: 18,
-      color: colors.textPrimary,
-      borderColor: colors.textSecondary,
+      color: theme.textPrimary,
+      borderColor: theme.textSecondary,
     },
     button: {
-      backgroundColor: colors.buttonBackground,
+      backgroundColor: theme.buttonBackground,
       padding: 16,
       borderRadius: 8,
       alignItems: 'center',
@@ -184,18 +160,18 @@ const CodePage = () => {
       shadowRadius: 4,
     },
     buttonText: {
-      color: colors.buttonText,
+      color: theme.buttonText,
       fontSize: 18,
       fontWeight: 'bold',
     },
     resendText: {
       fontSize: 16,
-      color: colors.textSecondary,
+      color: theme.textSecondary,
       marginTop: 16,
       textAlign: 'center',
     },
     resendLink: {
-      color: colors.buttonBackground,
+      color: theme.buttonBackground,
       fontWeight: 'bold',
     },
     errorText: {
@@ -210,7 +186,7 @@ const CodePage = () => {
   });
 
   return (
-    <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -220,7 +196,7 @@ const CodePage = () => {
             onPress={() => navigation.goBack()}
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
-            <Ionicons name="arrow-back" size={24} color={colors.iconColor} />
+            <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
             <Text style={styles.headerTitle}>VOLTAR</Text>
           </TouchableOpacity>
         </View>
@@ -233,7 +209,7 @@ const CodePage = () => {
                 key={index}
                 style={styles.digitInput}
                 placeholder="0"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={theme.textSecondary}
                 value={digit}
                 onChangeText={(value) => handleDigitChange(index, value)}
                 keyboardType="number-pad"
@@ -249,10 +225,12 @@ const CodePage = () => {
           </TouchableOpacity>
           <Text style={styles.resendText}>
             Não recebeu o código?{' '}
-          <Text
-            onPress={isResendDisabled ? undefined : handleResendEmail} style={[styles.resendLink,isResendDisabled && styles.disabledResend,]}>
-            {isResendDisabled ? `Reenviar em ${resendTimer}s` : 'Reenviar código'}
-          </Text>
+            <Text
+              onPress={isResendDisabled ? undefined : handleResendEmail}
+              style={[styles.resendLink, isResendDisabled && styles.disabledResend]}
+            >
+              {isResendDisabled ? `Reenviar em ${resendTimer}s` : 'Reenviar código'}
+            </Text>
           </Text>
         </View>
       </KeyboardAvoidingView>
