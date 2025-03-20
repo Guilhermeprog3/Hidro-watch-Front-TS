@@ -130,7 +130,7 @@ const LoginScreen = () => {
   });
 
   return (
-    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientstartlogin, theme.gradientendlogin]} style={styles.container}>
       <View style={styles.content}>
         <HeaderLogin />
         <Text style={styles.heading}>Entrar</Text>
@@ -139,7 +139,7 @@ const LoginScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor={theme.iconColor}
+            placeholderTextColor={theme.textPrimary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -151,7 +151,7 @@ const LoginScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Senha"
-            placeholderTextColor={theme.iconColor}
+            placeholderTextColor={theme.textPrimary}
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}

@@ -30,7 +30,7 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ isConnected, lastMeasurementDat
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      backgroundColor: 'rgba(4, 4, 4, 0.1)',
       padding: 18,
       borderRadius: 30,
     },

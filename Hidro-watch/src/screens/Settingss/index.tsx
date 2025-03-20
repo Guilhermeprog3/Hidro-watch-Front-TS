@@ -104,6 +104,14 @@ const SettingsPage = () => {
       shadowOpacity: 0.25,
       shadowRadius: 4,
       elevation: 5,
+      position: 'relative', // Para posicionar o ícone de fechar
+    },
+    modalHeader: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: theme.textPrimary,
+      marginBottom: 20,
+      textAlign: 'center',
     },
     modalOption: {
       flexDirection: 'row',
@@ -117,12 +125,11 @@ const SettingsPage = () => {
       color: theme.textPrimary,
       marginLeft: 15,
     },
-    modalHeader: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: theme.textPrimary,
-      marginBottom: 20,
-      textAlign: 'center',
+    closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      padding: 10,
     },
     footer: {
       position: 'absolute',
@@ -162,6 +169,14 @@ const SettingsPage = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+            {/* Ícone de fechar */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Ionicons name="close" size={24} color={theme.textPrimary} />
+            </TouchableOpacity>
+
             <Text style={styles.modalHeader}>Selecione o Tema</Text>
             <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Hidro')}>
               <Ionicons name="water" size={24} color={theme.iconColor} />

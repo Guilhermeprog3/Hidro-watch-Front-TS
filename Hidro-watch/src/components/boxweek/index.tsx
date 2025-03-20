@@ -72,7 +72,7 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ lastMeasurementDate, onLearnMore 
 
   return (
     <View>
-      <LinearGradient colors={[theme.primaryLight, theme.secondary]} style={styles.qualityCard}>
+      <LinearGradient colors={[theme.navBarBackground, theme.navBarBackground]} style={styles.qualityCard}>
         <Text style={styles.qualityText}>Última Medição</Text>
         {lastMeasurementDate ? (
           <Text style={styles.lastMeasurementText}>{lastMeasurementDate}</Text>
@@ -85,13 +85,13 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ lastMeasurementDate, onLearnMore 
       </LinearGradient>
 
       <View style={styles.waterInfo}>
-        <LinearGradient colors={[theme.primaryLight, theme.secondary]} style={styles.infoBox}>
+        <LinearGradient colors={[theme.navBarBackground, theme.navBarBackground]} style={styles.infoBox}>
           <Text style={styles.infoText}>0</Text>
           <Text style={styles.infoLabel}>Ácida</Text>
           <Text style={styles.infoDescription}>Água impura</Text>
         </LinearGradient>
 
-        <LinearGradient colors={[theme.primaryLight, theme.secondary]} style={styles.infoBox}>
+        <LinearGradient colors={[theme.navBarBackground, theme.navBarBackground]} style={styles.infoBox}>
           <Text style={styles.infoText}>14</Text>
           <Text style={styles.infoLabel}>Alcalina</Text>
           <Text style={styles.infoDescription}>Água adequada</Text>

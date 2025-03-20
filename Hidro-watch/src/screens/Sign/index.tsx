@@ -123,7 +123,7 @@ const SignUpScreen = () => {
     },
   });
   return (
-    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientstartlogin, theme.gradientendlogin]} style={styles.container}>
       <View style={styles.content}>
         <HeaderHidro/>
         <Text style={styles.heading}>Criar Conta</Text>
@@ -132,7 +132,7 @@ const SignUpScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor={theme.iconColor}
+            placeholderTextColor={theme.textPrimary}
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={handlePasswordChange}
@@ -151,7 +151,7 @@ const SignUpScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Confirm Password"
-            placeholderTextColor={theme.iconColor}
+            placeholderTextColor={theme.textPrimary}
             secureTextEntry={!showPassword}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
