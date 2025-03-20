@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { useTheme } from '../../context/themecontext';
+import NavBar from '../../components/Navbar';
 
 const SearchHistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -54,7 +55,7 @@ const SearchHistoryPage = () => {
       borderRadius: 10,
       padding: 10,
       flex: 1,
-      color: theme.textPrimary,
+      color: 'black',
       marginLeft: 10,
       marginRight: 10,
     },
@@ -84,17 +85,6 @@ const SearchHistoryPage = () => {
     detailsButtonText: {
       color: theme.buttonText,
       fontSize: 14,
-    },
-    navBar: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingVertical: 10,
-      backgroundColor: theme.navBarBackground,
-      borderRadius: 0,
-      position: 'absolute',
-      bottom: 0,
-      width: '110%',
-      alignSelf: 'center',
     },
   });
 
@@ -127,20 +117,7 @@ const SearchHistoryPage = () => {
           </View>
         )}
       />
-      <View style={styles.navBar}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Ionicons name="home" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Ionicons name="time" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-          <Ionicons name="heart" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="person" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-      </View>
+      <NavBar/>
     </LinearGradient>
   );
 };

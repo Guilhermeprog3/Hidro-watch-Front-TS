@@ -2,8 +2,24 @@ import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/themecontext';
+import { NavigationProp } from '@react-navigation/native';
 
-const DeviceList = ({ devices, favorites, toggleFavorite, navigation }) => {
+type Device = {
+  id: string;
+  tittle: string;
+  location: string;
+  favorite: boolean;
+  averageMeasurement?: number;
+};
+
+type DeviceListProps = {
+  devices: Device[];
+  favorites: string[];
+  toggleFavorite: (deviceId: string) => void;
+  navigation: NavigationProp<any>;
+};
+
+const DeviceListHome: React.FC<DeviceListProps> = ({ devices, favorites, toggleFavorite, navigation }) => {
   const { theme } = useTheme();
 
   const styles = StyleSheet.create({
@@ -77,4 +93,4 @@ const DeviceList = ({ devices, favorites, toggleFavorite, navigation }) => {
   );
 };
 
-export default DeviceList;
+export default DeviceListHome;

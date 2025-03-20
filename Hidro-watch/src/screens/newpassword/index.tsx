@@ -6,6 +6,7 @@ import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navig
 import { UserContext } from '../../context/usercontext';
 import { AuthContext } from '../../context/authcontext';
 import { useTheme } from '../../context/themecontext';
+import HeaderBack from '../../components/headerBack';
 
 type RootStackParamList = {
   Login: undefined;
@@ -19,7 +20,7 @@ const NewPassword = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'Newpassword'>>();
   const route = useRoute<NewPasswordRouteProp>();
   const { user, logout } = useContext(AuthContext);
-  const { theme } = useTheme(); // Usando o tema do contexto
+  const { theme } = useTheme();
   const [password, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -98,18 +99,7 @@ const NewPassword = () => {
     container: {
       flex: 1,
       paddingTop: 50,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 20,
-      paddingHorizontal: 16,
-    },
-    headerTitle: {
-      color: theme.iconColor,
-      fontSize: 18,
-      marginLeft: 10,
-      fontWeight: 'bold',
+      padding:20
     },
     content: {
       flex: 1,
@@ -212,15 +202,7 @@ const NewPassword = () => {
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
-        >
-          <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
-          <Text style={styles.headerTitle}>VOLTAR</Text>
-        </TouchableOpacity>
-      </View>
+      <HeaderBack onBackPress={() => navigation.goBack()} />
       <View style={styles.content}>
         <Text style={styles.title}>Redefinir Senha</Text>
         <Text style={styles.subtitle}>Digite sua nova senha</Text>

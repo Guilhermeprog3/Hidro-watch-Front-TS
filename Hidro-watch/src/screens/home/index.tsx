@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, Alert, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { Measurementobject } from '../../hooks/measurements';
 import * as Camera from 'expo-camera';
 import { useTheme } from '../../context/themecontext';
-import Header from '../../components/headerhome';
-import AddDeviceButton from '../../components/AddDeviceButton';
-import StatsComponent from '../../components/StatsComponent';
-import DeviceList from '../../components/List';
+import HeaderHome from '../../components/headerhome';
+import StatsHome from '../../components/StatsHome';
+import DeviceListHome from '../../components/ListHome';
 import NavBar from '../../components/Navbar';
 
 type Device = {
@@ -20,7 +19,7 @@ type Device = {
   averageMeasurement?: number;
 };
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   const [devices, setDevices] = useState<Device[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const { theme } = useTheme();
@@ -34,17 +33,28 @@ const HomePage = () => {
   const requestCameraPermission = async () => {
     if (cameraPermission?.granted) {
       navigation.navigate('QRCode');
-    } else {
-      const { granted } = await requestPermission();
-      if (granted) {
-        navigation.navigate('QRCode');
-      } else {
-        Alert.alert(
-          'Permissão Negada',
-          'Você precisa permitir o acesso à câmera para adicionar um novo dispositivo.',
-          [{ text: 'OK', onPress: () => console.log('Permissão negada') }]
-        );
-      }
+      return;
+    }
+
+    const { granted, canAskAgain } = await requestPermission();
+
+    if (granted) {
+      navigation.navigate('QRCode');
+    } else if (!canAskAgain) {
+      Alert.alert(
+        'Permissão de Câmera Negada',
+        'Você negou a permissão de câmera permanentemente. Para usar esta funcionalidade, habilite a permissão manualmente nas configurações do dispositivo.',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Abrir Configurações',
+            onPress: () => Linking.openSettings(),
+          },
+        ]
+      );
     }
   };
 
@@ -128,12 +138,11 @@ const HomePage = () => {
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-      <Header />
+      <HeaderHome onPressAddButton={requestCameraPermission} />
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
-      <AddDeviceButton onPress={requestCameraPermission} />
-      <StatsComponent aboveAverage={aboveAverage} belowAverage={belowAverage} devicesCount={devices.length} />
+      <StatsHome aboveAverage={aboveAverage} belowAverage={belowAverage} devicesCount={devices.length} />
       <Text style={styles.sectionTitle}>Dispositivos Registrados</Text>
-      <DeviceList devices={devices} favorites={favorites} toggleFavorite={toggleFavorite} navigation={navigation} />
+      <DeviceListHome devices={devices} favorites={favorites} toggleFavorite={toggleFavorite} navigation={navigation} />
       <NavBar />
     </LinearGradient>
   );

@@ -2,7 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../context/themecontext';
 
-const StatsComponent = ({ aboveAverage, belowAverage, devicesCount }) => {
+type StatsComponentProps = {
+  aboveAverage: number;
+  belowAverage: number;
+  devicesCount: number;
+};
+
+const StatsHome: React.FC<StatsComponentProps> = ({ aboveAverage, belowAverage, devicesCount }) => {
   const { theme } = useTheme();
 
   const styles = StyleSheet.create({
@@ -46,4 +52,4 @@ const StatsComponent = ({ aboveAverage, belowAverage, devicesCount }) => {
   );
 };
 
-export default StatsComponent;
+export default StatsHome;

@@ -1,31 +1,24 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet,Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { useTheme } from '../../context/themecontext';
-
-type Device = {
-  id: string;
-  tittle: string;
-  location: string;
-  favorite: boolean;
-};
+import HeaderLike from '../../components/headerLike';
+import ListLike from '../../components/ListLike';
+import NavBar from '../../components/Navbar';
 
 const FavoritePage = () => {
   const { getUserObjects, markFavorite } = useObject();
-  const [devices, setDevices] = useState<Device[]>([]);
+  const [devices, setDevices] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const { theme } = useTheme();
-  const navigation = useNavigation<NavigationProp<any>>();
 
   const fetchDevices = async () => {
     const userDevices = await getUserObjects();
     if (userDevices) {
-      const favoriteDevices = userDevices.filter((device: Device) => device.favorite);
+      const favoriteDevices = userDevices.filter((device: any) => device.favorite);
       setDevices(favoriteDevices);
-      setFavorites(favoriteDevices.map((device: Device) => device.id));
+      setFavorites(favoriteDevices.map((device: any) => device.id));
     }
   };
 
@@ -61,13 +54,6 @@ const FavoritePage = () => {
       flex: 1,
       padding: 20,
     },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      marginBottom: 20,
-      zIndex: 1,
-    },
     decorativeImage: {
       position: 'absolute',
       width: '115%',
@@ -77,116 +63,14 @@ const FavoritePage = () => {
       padding: 0,
       zIndex: 0,
     },
-    sectionTitle: {
-      color: theme.textPrimary,
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginBottom: 10,
-      marginTop: 140,
-    },
-    deviceContainer: {
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      padding: 15,
-      borderRadius: 10,
-      marginBottom: 10,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    deviceName: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      color: theme.textPrimary,
-    },
-    deviceLocation: {
-      fontSize: 14,
-      color: theme.textSecondary,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    favoriteButton: {
-      marginRight: 10,
-    },
-    detailsButton: {
-      backgroundColor: theme.buttonBackground,
-      padding: 10,
-      borderRadius: 5,
-    },
-    detailsButtonText: {
-      color: theme.buttonText,
-      fontWeight: 'bold',
-    },
-    navBar: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingVertical: 10,
-      backgroundColor: theme.navBarBackground,
-      borderRadius: 0,
-      position: 'absolute',
-      bottom: 0,
-      width: '110%',
-      alignSelf: 'center',
-    },
-    navItem: {
-      alignItems: 'center',
-    },
   });
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Search_favorite')}>
-          <Ionicons name="search" size={24} color={theme.iconColor} />
-        </TouchableOpacity>
-      </View>
-      <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
-
-      <Text style={styles.sectionTitle}>Dispositivos Favoritos</Text>
-      <FlatList
-        data={devices}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.deviceContainer}>
-            <View>
-              <Text style={styles.deviceName}>{item.tittle}</Text>
-              <Text style={styles.deviceLocation}>{item.location}</Text>
-            </View>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.favoriteButton}
-                onPress={() => toggleFavorite(item.id)}
-              >
-                <Ionicons
-                  name={favorites.includes(item.id) ? "heart" : "heart-outline"}
-                  size={24}
-                  color={favorites.includes(item.id) ? theme.red : theme.iconColor}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('Measurement', { deviceId: item.id })} style={styles.detailsButton}>
-                <Text style={styles.detailsButtonText}>Detalhes</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
-      <View style={styles.navBar}>
-        <View style={styles.navItem}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-            <Ionicons name="home" size={24} color={theme.navBarIconColor} />
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Ionicons name="time" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-          <Ionicons name="heart" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('User')}>
-          <Ionicons name="person" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-      </View>
+       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
+      <HeaderLike />
+      <ListLike devices={devices} favorites={favorites} toggleFavorite={toggleFavorite} />
+      <NavBar />
     </LinearGradient>
   );
 };

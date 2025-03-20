@@ -5,39 +5,49 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { useTheme } from '../../context/themecontext';
+import NavBar from '../../components/Navbar';
 
 const SearchFavoritePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { getUserObjects, markFavorite } = useObject();
   const [devices, setDevices] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp<any>>();
 
-  useEffect(() => {
-    async function fetchDevices() {
-      const response = await getUserObjects();
-      if (response) {
-        const favoriteDevices = response.filter((device: any) => device.favorite);
-        setDevices(favoriteDevices);
-      }
-      setLoading(false);
+  const fetchDevices = async () => {
+    const response = await getUserObjects();
+    if (response) {
+      const favoriteDevices = response.filter((device: any) => device.favorite);
+      setDevices(favoriteDevices);
+      setFavorites(favoriteDevices.map((device: any) => device.id));
     }
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchDevices();
   }, []);
 
   const toggleFavorite = async (deviceId: string) => {
     const updatedDevices = devices.map((device) => {
       if (device.id === deviceId) {
-        device.isFavorite = !device.isFavorite;
+        device.favorite = !device.favorite;
       }
       return device;
     });
     setDevices(updatedDevices);
 
+    if (favorites.includes(deviceId)) {
+      setFavorites((prevFavorites) => prevFavorites.filter((id) => id !== deviceId));
+    } else {
+      setFavorites((prevFavorites) => [...prevFavorites, deviceId]);
+    }
+
     try {
       await markFavorite(deviceId);
+      fetchDevices();
     } catch (error) {
       console.error('Erro ao marcar como favorito:', error);
     }
@@ -111,20 +121,6 @@ const SearchFavoritePage = () => {
       color: theme.buttonText,
       fontWeight: 'bold',
     },
-    navBar: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingVertical: 10,
-      backgroundColor: theme.navBarBackground,
-      borderRadius: 0,
-      position: 'absolute',
-      bottom: 0,
-      width: '110%',
-      alignSelf: 'center',
-    },
-    navItem: {
-      alignItems: 'center',
-    },
   });
 
   return (
@@ -156,9 +152,9 @@ const SearchFavoritePage = () => {
                 onPress={() => toggleFavorite(item.id)}
               >
                 <Ionicons
-                  name={item.isFavorite ? "heart-outline" : "heart"}
+                  name={item.favorite ? "heart" : "heart-outline"}
                   size={24}
-                  color={item.isFavorite ? theme.white : theme.red}
+                  color={item.favorite ? theme.red : theme.iconColor}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate('Measurement', { deviceId: item.id })} style={styles.detailsButton}>
@@ -168,22 +164,8 @@ const SearchFavoritePage = () => {
           </View>
         )}
       />
-      <View style={styles.navBar}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Ionicons name="home" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Ionicons name="time" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Like')}>
-          <Ionicons name="heart" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="person" size={24} color={theme.navBarIconColor} />
-        </TouchableOpacity>
-      </View>
+      <NavBar />
     </LinearGradient>
   );
 };
-
 export default SearchFavoritePage;

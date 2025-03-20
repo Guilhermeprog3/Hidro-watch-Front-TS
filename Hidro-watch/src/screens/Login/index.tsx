@@ -1,10 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
+import HeaderLogin from '../../components/headerhidro';
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -33,7 +34,6 @@ const LoginScreen = () => {
     try {
       await login(email, password);
       setErrorMessage('');
-      navigation.navigate('Home');
     } catch (error: any) {
       setErrorMessage(error.message);
     }
@@ -48,27 +48,6 @@ const LoginScreen = () => {
     content: {
       width: '80%',
       alignItems: 'center',
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 0,
-    },
-    logo: {
-      width: 50,
-      height: 50,
-    },
-    title: {
-      fontSize: 36,
-      fontWeight: 'bold',
-      color: theme.textPrimary,
-      marginLeft: 10,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: theme.textPrimary,
-      marginBottom: 20,
-      marginLeft: 30,
     },
     heading: {
       fontSize: 24,
@@ -153,14 +132,7 @@ const LoginScreen = () => {
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.header}>
-          <Image
-            source={require('../../../assets/images/logo_hidro.png')}
-            style={styles.logo}
-          />
-          <Text style={styles.title}>HYDROWATCH</Text>
-        </View>
-        <Text style={styles.subtitle}>Porque cada gota importa</Text>
+        <HeaderLogin />
         <Text style={styles.heading}>Entrar</Text>
         <View style={styles.inputContainer}>
           <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
@@ -216,5 +188,4 @@ const LoginScreen = () => {
     </LinearGradient>
   );
 };
-
 export default LoginScreen;

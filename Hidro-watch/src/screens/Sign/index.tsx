@@ -6,6 +6,7 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authcontext';
 import { UserContext } from '../../context/usercontext';
 import { useTheme } from '../../context/themecontext';
+import HeaderHidro from '../../components/headerhidro';
 
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -22,7 +23,6 @@ const SignUpScreen = () => {
   const handlePasswordChange = (password: string) => {
     setPassword(password);
   };
-
   const handleSignUp = async () => {
     if (name && email && password && confirmPassword) {
       if (password === confirmPassword) {
@@ -35,7 +35,7 @@ const SignUpScreen = () => {
       setErrorMessage('Por favor, preencha todos os campos.');
     }
   };
-
+  
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -46,27 +46,7 @@ const SignUpScreen = () => {
       width: '80%',
       alignItems: 'center',
     },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 0,
-    },
-    logo: {
-      width: 50,
-      height: 50,
-    },
-    title: {
-      fontSize: 36,
-      fontWeight: 'bold',
-      color: theme.textPrimary,
-      marginLeft: 10,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: theme.textPrimary,
-      marginBottom: 20,
-      marginLeft: 30,
-    },
+    
     heading: {
       fontSize: 24,
       color: theme.textPrimary,
@@ -130,7 +110,7 @@ const SignUpScreen = () => {
       width: '48%',
       height: 40,
       borderRadius: 5,
-      backgroundColor: '#DB4437', // Cor do Google
+      backgroundColor: '#DB4437',
     },
     socialButtonText: {
       color: 'white',
@@ -142,29 +122,11 @@ const SignUpScreen = () => {
       marginTop: 20,
     },
   });
-
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.header}>
-          <Image
-            source={require('../../../assets/images/logo_hidro.png')}
-            style={styles.logo}
-          />
-          <Text style={styles.title}>HYDROWATCH</Text>
-        </View>
-        <Text style={styles.subtitle}>Porque cada gota importa</Text>
+        <HeaderHidro/>
         <Text style={styles.heading}>Criar Conta</Text>
-        <View style={styles.inputContainer}>
-          <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Email Address"
-            placeholderTextColor={theme.textPrimary}
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
         <View style={styles.inputContainer}>
           <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
@@ -233,5 +195,4 @@ const SignUpScreen = () => {
     </LinearGradient>
   );
 };
-
 export default SignUpScreen;

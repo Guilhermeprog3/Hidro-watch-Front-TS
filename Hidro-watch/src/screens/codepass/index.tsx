@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
 import { UserContext } from '../../context/usercontext';
 import { useTheme } from '../../context/themecontext';
+import HeaderBack from '../../components/headerBack';
 
 interface CodePageRouteParams {
   email: string;
@@ -97,17 +98,6 @@ const CodePage = () => {
       flex: 1,
       paddingTop: 50,
     },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 16,
-    },
-    headerTitle: {
-      color: theme.iconColor,
-      fontSize: 18,
-      marginLeft: 10,
-      fontWeight: 'bold',
-    },
     content: {
       flex: 1,
       justifyContent: 'center',
@@ -187,19 +177,7 @@ const CodePage = () => {
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{ flexDirection: 'row', alignItems: 'center' }}
-          >
-            <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
-            <Text style={styles.headerTitle}>VOLTAR</Text>
-          </TouchableOpacity>
-        </View>
+      <HeaderBack onBackPress={() => navigation.goBack()} />
         <View style={styles.content}>
           <Text style={styles.title}>Olhe o seu email</Text>
           <Text style={styles.subtitle}>Enviamos um código de confirmação</Text>
@@ -233,7 +211,6 @@ const CodePage = () => {
             </Text>
           </Text>
         </View>
-      </KeyboardAvoidingView>
     </LinearGradient>
   );
 };

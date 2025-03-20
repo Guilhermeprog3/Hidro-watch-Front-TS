@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Switch, Modal } from 'react-native';
+import { View, Text, Modal, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Permissions from 'expo-permissions';
 import * as Notifications from 'expo-notifications';
 import * as MediaLibrary from 'expo-media-library';
 import { useTheme } from '../../context/themecontext';
+import HeaderBack from '../../components/headerBack';
+import MenuOptionsConfig from '../../components/menuoptionsconfig';
+import { Ionicons } from '@expo/vector-icons';
 
 type ThemeMode = 'Hidro' | 'Light' | 'Dark';
 
@@ -24,7 +26,7 @@ const SettingsPage = () => {
     const loadMode = async () => {
       const savedMode = await AsyncStorage.getItem('userMode');
       if (savedMode) {
-        toggleMode(savedMode as ThemeMode);
+        toggleTheme(savedMode as ThemeMode);
       }
     };
     loadMode();
@@ -52,7 +54,7 @@ const SettingsPage = () => {
   };
 
   const requestCameraPermission = async () => {
-    
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
     if (status === 'granted') {
       setCameraEnabled(true);
     } else {
@@ -85,47 +87,6 @@ const SettingsPage = () => {
     container: {
       flex: 1,
       paddingTop: 50,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 20,
-      marginTop: 20,
-      paddingHorizontal: 16,
-    },
-    headerTitle: {
-      color: theme.textPrimary,
-      fontSize: 18,
-      marginLeft: 10,
-    },
-    menuContainer: {
-      marginTop: 20,
-    },
-    sectionTitle: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      color: theme.textPrimary,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-    },
-    menuItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.textSecondary,
-      paddingHorizontal: 16,
-    },
-    menuItemText: {
-      fontSize: 18,
-      color: theme.textPrimary,
-      marginLeft: 10,
-      flex: 1,
-    },
-    separator: {
-      height: 1,
-      backgroundColor: theme.textSecondary,
-      marginVertical: 10,
     },
     modalContainer: {
       flex: 1,
@@ -178,65 +139,16 @@ const SettingsPage = () => {
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
-          <Text style={styles.headerTitle}>VOLTAR</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.menuContainer}>
-        <Text style={styles.sectionTitle}>Preferências</Text>
-        <TouchableOpacity style={styles.menuItem} onPress={() => setModalVisible(true)}>
-          <Text style={styles.menuItemText}>Tema</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
-        </TouchableOpacity>
-    
-
-        <Text style={styles.sectionTitle}>Permissões</Text>
-        <View style={styles.menuItem}>
-          <Ionicons name="notifications-outline" size={24} color={theme.iconColor} />
-          <Text style={styles.menuItemText}>Notificações</Text>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={requestNotificationsPermission}
-            trackColor={{ false: "#767577", true: theme.iconColor }}
-            thumbColor={notificationsEnabled ? "#f4f3f4" : "#f4f3f4"}
-          />
-        </View>
-        <View style={styles.menuItem}>
-          <Ionicons name="camera-outline" size={24} color={theme.iconColor} />
-          <Text style={styles.menuItemText}>Câmera</Text>
-          <Switch
-            value={cameraEnabled}
-            onValueChange={requestCameraPermission}
-            trackColor={{ false: "#767577", true: theme.iconColor }}
-            thumbColor={cameraEnabled ? "#f4f3f4" : "#f4f3f4"}
-          />
-        </View>
-        <View style={styles.menuItem}>
-          <Ionicons name="image-outline" size={24} color={theme.iconColor} />
-          <Text style={styles.menuItemText}>Fotos e Vídeos</Text>
-          <Switch
-            value={photosEnabled}
-            onValueChange={requestPhotosPermission}
-            trackColor={{ false: "#767577", true: theme.iconColor }}
-            thumbColor={photosEnabled ? "#f4f3f4" : "#f4f3f4"}
-          />
-        </View>
-
-        <Text style={styles.sectionTitle}>Sobre</Text>
-        <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Ionicons name="document-text-outline" size={24} color={theme.iconColor} />
-          <Text style={styles.menuItemText}>Termo de Uso</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Ionicons name="shield-checkmark-outline" size={24} color={theme.iconColor} />
-          <Text style={styles.menuItemText}>Política de Privacidade</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
-        </TouchableOpacity>
-      </View>
+      <HeaderBack onBackPress={() => navigation.goBack()} />
+      <MenuOptionsConfig
+        onThemePress={() => setModalVisible(true)}
+        onNotificationsToggle={requestNotificationsPermission}
+        onCameraToggle={requestCameraPermission}
+        onPhotosToggle={requestPhotosPermission}
+        notificationsEnabled={notificationsEnabled}
+        cameraEnabled={cameraEnabled}
+        photosEnabled={photosEnabled}
+      />
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Versão: 1.0</Text>

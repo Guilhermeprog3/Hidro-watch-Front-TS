@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { UserContext } from '../../context/usercontext';
 import { useTheme } from '../../context/themecontext';
+import HeaderBack from '../../components/headerBack';
 
 const RecoverPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -48,20 +49,9 @@ const RecoverPage = () => {
     container: {
       flex: 1,
       paddingTop: 50,
+      padding:20
     },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 20,
-      marginTop: 20,
-      paddingHorizontal: 16,
-    },
-    headerTitle: {
-      color: theme.iconColor,
-      fontSize: 18,
-      marginLeft: 10,
-      fontWeight: 'bold',
-    },
+    
     content: {
       flex: 1,
       justifyContent: 'center',
@@ -120,15 +110,7 @@ const RecoverPage = () => {
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
-        >
-          <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
-          <Text style={styles.headerTitle}>VOLTAR</Text>
-        </TouchableOpacity>
-      </View>
+      <HeaderBack onBackPress={() => navigation.goBack()} />
       <View style={styles.content}>
         <Text style={styles.title}>Esqueci a Senha</Text>
         <Text style={styles.subtitle}>Digite o email vinculado ao seu cadastro</Text>
