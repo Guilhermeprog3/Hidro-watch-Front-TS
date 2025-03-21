@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet,Image } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useFocusEffect } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { useTheme } from '../../context/themecontext';
 import HeaderLike from '../../components/headerLike';
@@ -22,9 +23,11 @@ const FavoritePage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchDevices();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchDevices();
+    }, [])
+  );
 
   const toggleFavorite = async (deviceId: string) => {
     const updatedDevices = devices.map((device) => {
@@ -67,7 +70,7 @@ const FavoritePage = () => {
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
+      <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
       <HeaderLike />
       <ListLike devices={devices} favorites={favorites} toggleFavorite={toggleFavorite} />
       <NavBar />

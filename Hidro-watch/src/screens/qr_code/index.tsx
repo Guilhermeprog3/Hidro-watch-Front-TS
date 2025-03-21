@@ -57,11 +57,10 @@ export default function QRCodeScanner() {
 
       postUserObject({ Tittle: qrData.Tittle, Location: qrData.Location })
         .then(() => {
-        navigation.goBack();
+          navigation.goBack();
         })
         .catch((error) => {
           console.log('Erro ao criar objeto:', error);
-          Alert.alert('Erro', 'Não foi possível criar o objeto.');
         });
     } catch (error) {
       console.log('Erro ao processar QR Code:', error);
@@ -105,7 +104,7 @@ export default function QRCodeScanner() {
       </CameraView>
 
       <TouchableOpacity style={styles.galleryButton} onPress={pickImage}>
-        <Text style={styles.galleryButtonText}>Abrir Galeria</Text>
+        <Ionicons name="images" size={30} color="white" />
       </TouchableOpacity>
     </View>
   );
@@ -170,9 +169,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 15,
     borderRadius: 25,
-  },
-  galleryButtonText: {
-    color: 'white',
-    fontSize: 16,
   },
 });

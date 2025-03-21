@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, Alert, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { Measurementobject } from '../../hooks/measurements';
 import * as Camera from 'expo-camera';
@@ -30,6 +31,43 @@ const HomePage: React.FC = () => {
   const [belowAverage, setBelowAverage] = useState<number>(0);
   const [cameraPermission, requestPermission] = Camera.useCameraPermissions();
 
+  const fetchDevices = async () => {
+    const userDevices = await getUserObjects();
+    if (userDevices) {
+      const devicesWithAverage = await Promise.all(
+        userDevices.map(async (device: Device) => {
+          const latestMeasurement = await getLatestMeasurement(device.id);
+          const averageMeasurement = latestMeasurement?.averageMeasurement || 0;
+          return { ...device, averageMeasurement };
+        })
+      );
+
+      setDevices(devicesWithAverage);
+
+      const aboveAverageCount = devicesWithAverage.filter(
+        (device) => device.averageMeasurement! > 10
+      ).length;
+      const belowAverageCount = devicesWithAverage.filter(
+        (device) => device.averageMeasurement! <= 10
+      ).length;
+
+      setAboveAverage(aboveAverageCount);
+      setBelowAverage(belowAverageCount);
+
+      setFavorites(
+        devicesWithAverage
+          .filter((device: Device) => device.favorite)
+          .map((device: Device) => device.id)
+      );
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDevices();
+    }, [])
+  );
+
   const requestCameraPermission = async () => {
     if (cameraPermission?.granted) {
       navigation.navigate('QRCode');
@@ -57,40 +95,6 @@ const HomePage: React.FC = () => {
       );
     }
   };
-
-  useEffect(() => {
-    async function fetchDevices() {
-      const userDevices = await getUserObjects();
-      if (userDevices) {
-        const devicesWithAverage = await Promise.all(
-          userDevices.map(async (device: Device) => {
-            const latestMeasurement = await getLatestMeasurement(device.id);
-            const averageMeasurement = latestMeasurement?.averageMeasurement || 0;
-            return { ...device, averageMeasurement };
-          })
-        );
-
-        setDevices(devicesWithAverage);
-
-        const aboveAverageCount = devicesWithAverage.filter(
-          (device) => device.averageMeasurement! > 10
-        ).length;
-        const belowAverageCount = devicesWithAverage.filter(
-          (device) => device.averageMeasurement! <= 10
-        ).length;
-
-        setAboveAverage(aboveAverageCount);
-        setBelowAverage(belowAverageCount);
-
-        setFavorites(
-          devicesWithAverage
-            .filter((device: Device) => device.favorite)
-            .map((device: Device) => device.id)
-        );
-      }
-    }
-    fetchDevices();
-  }, []);
 
   const toggleFavorite = async (deviceId: string) => {
     const updatedDevices = devices.map((device) => {
@@ -142,7 +146,12 @@ const HomePage: React.FC = () => {
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
       <StatsHome aboveAverage={aboveAverage} belowAverage={belowAverage} devicesCount={devices.length} />
       <Text style={styles.sectionTitle}>Dispositivos Registrados</Text>
-      <DeviceListHome devices={devices} favorites={favorites} toggleFavorite={toggleFavorite} navigation={navigation} />
+      <DeviceListHome
+        devices={devices}
+        favorites={favorites}
+        toggleFavorite={toggleFavorite}
+        navigation={navigation}
+      />
       <NavBar />
     </LinearGradient>
   );

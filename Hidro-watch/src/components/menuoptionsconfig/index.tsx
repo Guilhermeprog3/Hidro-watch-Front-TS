@@ -5,24 +5,16 @@ import { useTheme } from '../../context/themecontext';
 
 interface MenuOptionsProps {
   onThemePress: () => void;
-  onNotificationsToggle: (value: boolean) => void;
-  onCameraToggle: (value: boolean) => void;
-  onPhotosToggle: (value: boolean) => void;
-  notificationsEnabled: boolean;
-  cameraEnabled: boolean;
-  photosEnabled: boolean;
 }
 
 const MenuOptionsConfig: React.FC<MenuOptionsProps> = ({
   onThemePress,
-  onNotificationsToggle,
-  onCameraToggle,
-  onPhotosToggle,
-  notificationsEnabled,
-  cameraEnabled,
-  photosEnabled,
 }) => {
   const { theme } = useTheme();
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [photosEnabled, setPhotosEnabled] = useState(false);
 
   const styles = StyleSheet.create({
     menuContainer: {
@@ -64,13 +56,13 @@ const MenuOptionsConfig: React.FC<MenuOptionsProps> = ({
         <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
       </TouchableOpacity>
 
-      <Text style={styles.sectionTitle}>Permissões</Text>
+      <Text style={styles.sectionTitle}>Configurações</Text>
       <View style={styles.menuItem}>
         <Ionicons name="notifications-outline" size={24} color={theme.iconColor} />
         <Text style={styles.menuItemText}>Notificações</Text>
         <Switch
           value={notificationsEnabled}
-          onValueChange={onNotificationsToggle}
+          onValueChange={(value) => setNotificationsEnabled(value)}
           trackColor={{ false: "#767577", true: theme.iconColor }}
           thumbColor={notificationsEnabled ? "#f4f3f4" : "#f4f3f4"}
         />
@@ -80,7 +72,7 @@ const MenuOptionsConfig: React.FC<MenuOptionsProps> = ({
         <Text style={styles.menuItemText}>Câmera</Text>
         <Switch
           value={cameraEnabled}
-          onValueChange={onCameraToggle}
+          onValueChange={(value) => setCameraEnabled(value)}
           trackColor={{ false: "#767577", true: theme.iconColor }}
           thumbColor={cameraEnabled ? "#f4f3f4" : "#f4f3f4"}
         />
@@ -90,7 +82,7 @@ const MenuOptionsConfig: React.FC<MenuOptionsProps> = ({
         <Text style={styles.menuItemText}>Fotos e Vídeos</Text>
         <Switch
           value={photosEnabled}
-          onValueChange={onPhotosToggle}
+          onValueChange={(value) => setPhotosEnabled(value)}
           trackColor={{ false: "#767577", true: theme.iconColor }}
           thumbColor={photosEnabled ? "#f4f3f4" : "#f4f3f4"}
         />

@@ -42,7 +42,7 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
         { tittle: objectData.Tittle, location: objectData.Location },
         { headers: { Authorization: `Bearer ${user.token.token}` } }
       );
-      Alert.alert('Objeto criado com sucesso');
+      console.log('Objeto criado com sucesso');
     } catch (error) {
       console.log(error);
     }
@@ -93,7 +93,7 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       const response = await api.delete(`object/${objectId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      Alert.alert('Objeto deletado com sucesso');
+      console.log('Objeto deletado com sucesso');
       return response.data;
     } catch (error) {
       console.log('Erro ao deletar objeto:', error);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute } from '@react-navigation/native';
 import { Measurementobject } from '../../hooks/measurements';
 import { useObject } from '../../hooks/Objectcontext';
 import { useTheme } from '../../context/themecontext';
@@ -14,7 +14,7 @@ interface RouteParams {
 }
 
 const MeasurementPage = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
   const route = useRoute();
   const { deviceId } = route.params as RouteParams;
   const { getLatestMeasurement } = Measurementobject();
@@ -69,8 +69,23 @@ const MeasurementPage = () => {
   }, [deviceId]);
 
   const handleDelete = async () => {
-    await DeleteObject(deviceId);
-    navigation.goBack();
+    Alert.alert(
+      "Deletar Objeto",
+      "Tem certeza que deseja deletar este objeto?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        { 
+          text: "Deletar", 
+          onPress: async () => {
+            await DeleteObject(deviceId);
+            navigation.navigate('Home');
+          }
+        }
+      ]
+    );
   };
 
   const styles = StyleSheet.create({
