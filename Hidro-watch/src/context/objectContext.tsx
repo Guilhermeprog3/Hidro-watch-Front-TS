@@ -102,7 +102,13 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <ObjectContext.Provider
-      value={{ getUserObjects, postUserObject, GetObjectforId, markFavorite, DeleteObject }}
+      value={{ 
+        getUserObjects,
+        postUserObject,
+        GetObjectforId,
+        markFavorite,
+        DeleteObject
+       }}
     >
       {children}
     </ObjectContext.Provider>

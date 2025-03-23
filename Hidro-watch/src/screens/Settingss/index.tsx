@@ -3,8 +3,6 @@ import { View, Text, Modal, StyleSheet, Alert, TouchableOpacity } from 'react-na
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
-import * as MediaLibrary from 'expo-media-library';
 import { useTheme } from '../../context/themecontext';
 import HeaderBack from '../../components/headerBack';
 import MenuOptionsConfig from '../../components/menuoptionsconfig';

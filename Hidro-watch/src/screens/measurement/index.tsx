@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { ScrollView, StyleSheet, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, NavigationProp, useRoute } from '@react-navigation/native';
 import { Measurementobject } from '../../hooks/measurements';

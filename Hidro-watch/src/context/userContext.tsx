@@ -7,7 +7,6 @@ type UserContextProps = {
   GetUserforId: () => Promise<void>;
   Postuser: (name: string, email: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
-  validateemail: (email: string) => Promise<{ success: boolean }>;
   forgotPassword: (email: string) => Promise<{ success: boolean }>;
   validateResetCode: (code: string) => Promise<boolean>;
   resetPassword: (code: string, newPassword: string) => Promise<void>;
@@ -51,7 +50,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       const response = await api.delete(`user/${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      Alert.alert('Usuário deletado com sucesso');
     } catch (error) {
       console.log('Erro ao deletar usuário:', error);
       Alert.alert('Erro ao deletar usuário');
@@ -69,21 +67,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       }
     } catch (error) {
       console.log('Erro ao solicitar código de recuperação:', error);
-      throw error;
-    }
-  }
-
-  async function validateemail(email: string) {
-    try {
-      const response = await api.post('/password/validate-email', { email });
-  
-      if (response.status === 200) {
-        return { success: true };
-      } else {
-        throw new Error('Erro ao enviar o código de validação');
-      }
-    } catch (error) {
-      console.log('Erro ao solicitar código de validação:', error);
       throw error;
     }
   }
@@ -126,7 +109,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
         GetUserforId,
         Postuser,
         deleteUser,
-        validateemail,
         forgotPassword,
         validateResetCode,
         resetPassword,

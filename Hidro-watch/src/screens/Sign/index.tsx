@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authcontext';
 import { UserContext } from '../../context/usercontext';
@@ -23,6 +23,7 @@ const SignUpScreen = () => {
   const handlePasswordChange = (password: string) => {
     setPassword(password);
   };
+
   const handleSignUp = async () => {
     if (name && email && password && confirmPassword) {
       if (password === confirmPassword) {
@@ -35,7 +36,7 @@ const SignUpScreen = () => {
       setErrorMessage('Por favor, preencha todos os campos.');
     }
   };
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -46,7 +47,6 @@ const SignUpScreen = () => {
       width: '80%',
       alignItems: 'center',
     },
-    
     heading: {
       fontSize: 24,
       color: theme.textPrimary,
@@ -122,11 +122,37 @@ const SignUpScreen = () => {
       marginTop: 20,
     },
   });
+
   return (
     <LinearGradient colors={[theme.gradientstartlogin, theme.gradientendlogin]} style={styles.container}>
       <View style={styles.content}>
-        <HeaderHidro/>
+        <HeaderHidro />
         <Text style={styles.heading}>Criar Conta</Text>
+
+        <View style={styles.inputContainer}>
+          <MaterialIcons name="person" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Your Name"
+            placeholderTextColor={theme.textPrimary}
+            value={name}
+            onChangeText={setName}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={theme.textPrimary}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+
         <View style={styles.inputContainer}>
           <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
@@ -146,6 +172,7 @@ const SignUpScreen = () => {
             />
           </TouchableOpacity>
         </View>
+
         <View style={styles.inputContainer}>
           <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
@@ -165,22 +192,15 @@ const SignUpScreen = () => {
             />
           </TouchableOpacity>
         </View>
-        <View style={styles.inputContainer}>
-          <MaterialIcons name="person" size={24} color={theme.iconColor} style={styles.inputIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Your Name"
-            placeholderTextColor={theme.textPrimary}
-            value={name}
-            onChangeText={setName}
-          />
-        </View>
+
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
         <LinearGradient colors={[theme.secondary, theme.secondary]} style={styles.button}>
           <TouchableOpacity onPress={handleSignUp}>
             <Text style={styles.buttonText}>Criar Conta</Text>
           </TouchableOpacity>
         </LinearGradient>
+
         <Text style={styles.orText}>Ou Entre com</Text>
         <View style={styles.socialButtons}>
           <TouchableOpacity style={styles.socialButton}>
@@ -188,6 +208,7 @@ const SignUpScreen = () => {
             <Text style={styles.socialButtonText}>Google</Text>
           </TouchableOpacity>
         </View>
+
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={styles.link}>Já tem Conta? Entre com Sua Conta</Text>
         </TouchableOpacity>
@@ -195,4 +216,5 @@ const SignUpScreen = () => {
     </LinearGradient>
   );
 };
+
 export default SignUpScreen;

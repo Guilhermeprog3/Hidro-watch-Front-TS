@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { UserContext } from '../../context/usercontext';
 import { useTheme } from '../../context/themecontext';

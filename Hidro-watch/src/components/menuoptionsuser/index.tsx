@@ -31,7 +31,14 @@ const MenuOptions: React.FC<MenuOptionsProps> = ({ user, logout, deleteUser, for
         },
         {
           text: 'Confirmar',
-          onPress: deleteUser,
+          onPress: async () => {
+            try {
+              await deleteUser();
+              logout();
+            } catch (error) {
+              Alert.alert('Erro', 'Ocorreu um erro ao deletar a conta.');
+            }
+          },
         },
       ],
     );
@@ -55,7 +62,7 @@ const MenuOptions: React.FC<MenuOptionsProps> = ({ user, logout, deleteUser, for
   };
 
   const handleForgotPassword = async () => {
-    if (user?.email) { 
+    if (user?.email) {
       setIsLoading(true);
       try {
         const result = await forgotPassword(user.email);
