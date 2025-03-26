@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
+import { useObject } from '../../hooks/Objectcontext';
 
 type Device = {
   id: string;
@@ -11,15 +12,49 @@ type Device = {
   favorite: boolean;
 };
 
-type ListLikeProps = {
-  devices: Device[];
-  favorites: string[];
-  toggleFavorite: (deviceId: string) => void;
-};
-
-const ListLike: React.FC<ListLikeProps> = ({ devices, favorites, toggleFavorite }) => {
+const ListLike: React.FC = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
+  const { getUserObjects, markFavorite } = useObject();
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  const fetchDevices = async () => {
+    const userDevices = await getUserObjects();
+    if (userDevices) {
+      const favoriteDevices = userDevices.filter((device: Device) => device.favorite);
+      setDevices(favoriteDevices);
+      setFavorites(favoriteDevices.map((device: Device) => device.id));
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDevices();
+    }, [])
+  );
+
+  const toggleFavorite = async (deviceId: string) => {
+    try {
+      await markFavorite(deviceId);
+      
+      setDevices(prevDevices => 
+        prevDevices.map(device => 
+          device.id === deviceId 
+            ? { ...device, favorite: !device.favorite } 
+            : device
+        ).filter(device => device.favorite)
+      );
+      
+      setFavorites(prevFavorites => 
+        prevFavorites.includes(deviceId)
+          ? prevFavorites.filter(id => id !== deviceId)
+          : [...prevFavorites, deviceId]
+      );
+    } catch (error) {
+      console.error('Erro ao marcar como favorito:', error);
+    }
+  };
 
   const styles = StyleSheet.create({
     sectionTitle: {

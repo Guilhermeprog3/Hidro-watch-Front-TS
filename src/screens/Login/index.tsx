@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
@@ -10,19 +10,20 @@ import HeaderLogin from '../../components/headerhidro';
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { login } = useAuth();
+  const { theme } = useTheme();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const { theme } = useTheme();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const validateEmail = (email: string) => {
     return email.includes('@');
   };
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setErrorMessage('Por favor, preencha todos os campos.');
+    if (!email) {
+      setErrorMessage('Por favor, insira seu endereço de e-mail.');
       return;
     }
 
@@ -31,11 +32,20 @@ const LoginScreen = () => {
       return;
     }
 
+    if (!password) {
+      setErrorMessage('Por favor, insira sua senha.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
     try {
       await login(email, password);
-      setErrorMessage('');
     } catch (error: any) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.message || 'Erro ao fazer login. Verifique suas credenciais.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,26 +63,31 @@ const LoginScreen = () => {
       fontSize: 24,
       color: theme.textPrimary,
       marginBottom: 20,
+      fontWeight: 'bold',
+      textAlign: 'center',
     },
     errorText: {
       color: theme.red,
-      marginBottom: 20,
+      fontSize: 14,
+      marginBottom: 16,
+      textAlign: 'center',
     },
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 15,
-      borderColor: theme.textPrimary,
+      width: '100%',
+      height: 50,
       borderWidth: 1,
-      borderRadius: 5,
-      paddingHorizontal: 10,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      marginBottom: 16,
+      borderColor: errorMessage ? theme.red : theme.textSecondary,
     },
     inputIcon: {
       marginRight: 10,
     },
     input: {
       flex: 1,
-      height: 40,
       color: theme.textPrimary,
     },
     showPasswordIcon: {
@@ -80,18 +95,27 @@ const LoginScreen = () => {
     },
     button: {
       width: '100%',
-      height: 40,
-      justifyContent: 'center',
+      backgroundColor: theme.buttonBackground,
+      padding: 8,
+      borderRadius: 8,
       alignItems: 'center',
-      borderRadius: 5,
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      flexDirection: 'row',
+      justifyContent: 'center',
       marginBottom: 20,
     },
     buttonText: {
       color: theme.buttonText,
+      fontSize: 18,
       fontWeight: 'bold',
+      marginLeft: isLoading ? 8 : 0,
     },
     orText: {
-      color: theme.textPrimary,
+      color: theme.textSecondary,
       marginVertical: 10,
     },
     socialButtons: {
@@ -134,24 +158,26 @@ const LoginScreen = () => {
       <View style={styles.content}>
         <HeaderLogin />
         <Text style={styles.heading}>Entrar</Text>
+
         <View style={styles.inputContainer}>
           <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Email"
-            placeholderTextColor={theme.textPrimary}
+            placeholder="Seu Email"
+            placeholderTextColor={theme.textSecondary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
           />
         </View>
+
         <View style={styles.inputContainer}>
           <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Senha"
-            placeholderTextColor={theme.textPrimary}
+            placeholder="Sua Senha"
+            placeholderTextColor={theme.textSecondary}
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
@@ -165,22 +191,33 @@ const LoginScreen = () => {
             />
           </TouchableOpacity>
         </View>
+
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
         <TouchableOpacity onPress={() => navigation.navigate('Recoverpass')}>
           <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
         </TouchableOpacity>
-        <LinearGradient colors={[theme.secondary, theme.secondary]} style={styles.button}>
-          <TouchableOpacity onPress={handleLogin}>
-            <Text style={styles.buttonText}>Entrar</Text>
-          </TouchableOpacity>
-        </LinearGradient>
+
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          {isLoading && <ActivityIndicator color={theme.buttonText} />}
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Entrando...' : 'Entrar'}
+          </Text>
+        </TouchableOpacity>
+
         <Text style={styles.orText}>Ou entre com</Text>
+        
         <View style={styles.socialButtons}>
           <TouchableOpacity style={[styles.socialButton, styles.googleButton]}>
             <AntDesign name="google" size={24} color="white" />
             <Text style={styles.socialButtonText}>Google</Text>
           </TouchableOpacity>
         </View>
+
         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
           <Text style={styles.link}>Não tem conta? Crie uma conta</Text>
         </TouchableOpacity>
@@ -188,4 +225,5 @@ const LoginScreen = () => {
     </LinearGradient>
   );
 };
+
 export default LoginScreen;

@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
@@ -26,36 +26,27 @@ const NewPassword = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState({
-    password: '',
-    confirmPassword: '',
-  });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const { resetPassword } = useContext(UserContext);
   const { code } = route.params;
 
   const validateFields = () => {
-    let isValid = true;
-    const newErrors = { password: '', confirmPassword: '' };
-
-    if (!password) {
-      newErrors.password = 'A senha não pode estar vazia.';
-      isValid = false;
+    if (!password || !confirmPassword) {
+      setErrorMessage('A senha não pode estar vazia.');
+      return false;
     } else if (password.length < 8) {
-      newErrors.password = 'A senha deve ter no mínimo 8 caracteres.';
-      isValid = false;
+      setErrorMessage('A senha deve ter no mínimo 8 caracteres.');
+      return false;
+    } 
+     else if (password !== confirmPassword) {
+      setErrorMessage('As senhas não coincidem.');
+      return false;
     }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = 'A confirmação de senha não pode estar vazia.';
-      isValid = false;
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'As senhas não coincidem.';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
+    
+    setErrorMessage('');
+    return true;
   };
 
   const handleResetPassword = async () => {
@@ -63,28 +54,22 @@ const NewPassword = () => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
       await resetPassword(code, password);
       setIsModalVisible(true);
-    } catch (error) {
-      Alert.alert('Não foi possível redefinir a senha, reenvie o código de verificação');
-      navigation.goBack();
+    } catch (error: any) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
-
-    const checkTokenAndRedirect = async () => {
-      const token = user?.token;
-      if (token) {
-        navigation.navigate('User');
-      } else {
-        navigation.navigate('Login');
-      }
-    };
-
-    checkTokenAndRedirect();
+    const token = user?.token;
+    navigation.navigate(token ? 'User' : 'Login');
   };
 
   const toggleShowNewPassword = () => {
@@ -98,7 +83,7 @@ const NewPassword = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      padding:20
+      padding: 20
     },
     content: {
       flex: 1,
@@ -121,26 +106,27 @@ const NewPassword = () => {
     inputContainer: {
       marginBottom: 24,
     },
-    input: {
-      height: 50,
-      borderWidth: 1,
-      borderRadius: 8,
-      paddingHorizontal: 16,
-      color: theme.textPrimary,
-      marginBottom: 16,
-    },
     passwordInputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       borderWidth: 1,
       borderRadius: 8,
-      marginBottom: 16,
+      marginBottom: 8,
+      borderColor: errorMessage ? theme.red : theme.textSecondary,
     },
     passwordInput: {
       flex: 1,
       height: 50,
       paddingHorizontal: 16,
       color: theme.textPrimary,
+    },
+    confirmPasswordInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderRadius: 8,
+      marginBottom: 8,
+      borderColor: errorMessage ? theme.red : theme.textSecondary,
     },
     eyeIcon: {
       padding: 10,
@@ -155,11 +141,14 @@ const NewPassword = () => {
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 4,
+      flexDirection: 'row',
+      justifyContent: 'center',
     },
     buttonText: {
       color: theme.buttonText,
       fontSize: 18,
       fontWeight: 'bold',
+      marginLeft: isLoading ? 8 : 0,
     },
     modalContainer: {
       flex: 1,
@@ -193,9 +182,10 @@ const NewPassword = () => {
       fontWeight: 'bold',
     },
     errorText: {
-      color: 'red',
+      color: theme.red,
       fontSize: 14,
-      marginBottom: 8,
+      marginBottom: 16,
+      textAlign: 'center',
     },
   });
 
@@ -205,6 +195,7 @@ const NewPassword = () => {
       <View style={styles.content}>
         <Text style={styles.title}>Redefinir Senha</Text>
         <Text style={styles.subtitle}>Digite sua nova senha</Text>
+        
         <View style={styles.inputContainer}>
           <View style={styles.passwordInputContainer}>
             <TextInput
@@ -223,9 +214,8 @@ const NewPassword = () => {
               />
             </TouchableOpacity>
           </View>
-          {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
 
-          <View style={styles.passwordInputContainer}>
+          <View style={styles.confirmPasswordInputContainer}>
             <TextInput
               style={styles.passwordInput}
               placeholder="Confirmar Nova Senha"
@@ -242,12 +232,19 @@ const NewPassword = () => {
               />
             </TouchableOpacity>
           </View>
-          {errors.confirmPassword ? (
-            <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-          ) : null}
+          
+          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
-          <Text style={styles.buttonText}>Redefinir Senha</Text>
+
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleResetPassword}
+          disabled={isLoading}
+        >
+          {isLoading && <ActivityIndicator color={theme.buttonText} />}
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Redefinindo...' : 'Redefinir Senha'}
+          </Text>
         </TouchableOpacity>
       </View>
 

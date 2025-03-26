@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
+import { useObject } from '../../hooks/Objectcontext';
 
 type Device = {
   id: string;
@@ -9,13 +10,28 @@ type Device = {
   location: string;
 };
 
-type ListHistoricoProps = {
-  devices: Device[];
-};
-
-const ListHistorico: React.FC<ListHistoricoProps> = ({ devices }) => {
+const ListHistorico: React.FC = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
+  const { getUserObjects } = useObject();
+  const [devices, setDevices] = useState<Device[]>([]);
+
+  const fetchDevices = useCallback(async () => {
+    try {
+      const response = await getUserObjects();
+      if (response) {
+        setDevices(response);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dispositivos:', error);
+    }
+  }, [getUserObjects]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDevices();
+    }, [fetchDevices])
+  );
 
   const styles = StyleSheet.create({
     sectionTitle: {

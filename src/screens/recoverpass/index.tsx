@@ -17,39 +17,44 @@ const RecoverPage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
   const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const { forgotPassword } = useContext(UserContext);
 
-  const handleResetPassword = async () => {
-    if (email) {
-      setIsLoading(true);
-      setError('');
+  const validateEmail = (email: string) => {
+    return email.includes('@');
+  };
 
-      try {
-        await forgotPassword(email);
-        navigation.navigate('Codepass', { email });
-      } catch (error: any) {
-        if (error.response && error.response.status === 404) {
-          setError('Este email não está associado a nenhuma conta.');
-        } else {
-          setError('Não foi possível enviar o código de recuperação.');
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      setError('Por favor, insira seu endereço de e-mail.');
+  const handleResetPassword = async () => {
+    if (!email) {
+      setErrorMessage('Por favor, insira seu endereço de e-mail.');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setErrorMessage('Por favor, insira um email válido.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      await forgotPassword(email);
+      navigation.navigate('Codepass', { email });
+    } catch (error: any) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      padding:20
+      padding: 20
     },
-    
     content: {
       flex: 1,
       justifyContent: 'center',
@@ -69,7 +74,7 @@ const RecoverPage = () => {
       textAlign: 'center',
     },
     inputContainer: {
-      marginBottom: 24,
+      marginBottom: 10,
     },
     input: {
       height: 50,
@@ -77,7 +82,7 @@ const RecoverPage = () => {
       borderRadius: 8,
       paddingHorizontal: 16,
       color: theme.textPrimary,
-      borderColor: error ? 'red' : theme.textSecondary,
+      borderColor: errorMessage ? theme.red : theme.textSecondary,
     },
     button: {
       backgroundColor: theme.buttonBackground,
@@ -99,9 +104,9 @@ const RecoverPage = () => {
       marginLeft: isLoading ? 8 : 0,
     },
     errorText: {
-      color: 'red',
+      color: theme.red,
       fontSize: 14,
-      marginTop: 8,
+      marginBottom: 16,
       textAlign: 'center',
     },
   });
@@ -112,6 +117,7 @@ const RecoverPage = () => {
       <View style={styles.content}>
         <Text style={styles.title}>Esqueci a Senha</Text>
         <Text style={styles.subtitle}>Digite o email vinculado ao seu cadastro</Text>
+        
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
@@ -122,8 +128,10 @@ const RecoverPage = () => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </View>
+        
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+        
         <TouchableOpacity
           style={styles.button}
           onPress={handleResetPassword}
@@ -131,7 +139,7 @@ const RecoverPage = () => {
         >
           {isLoading && <ActivityIndicator color={theme.buttonText} />}
           <Text style={styles.buttonText}>
-            {isLoading ? 'Enviando...' : 'Alterar Senha'}
+            {isLoading ? 'Enviando...' : 'Enviar Código'}
           </Text>
         </TouchableOpacity>
       </View>

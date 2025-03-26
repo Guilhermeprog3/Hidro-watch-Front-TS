@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -12,28 +12,53 @@ const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { login } = useContext(AuthContext);
   const { Postuser } = useContext(UserContext);
+  const { theme } = useTheme();
+  
+  const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [name, setName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const { theme } = useTheme();
-
-  const handlePasswordChange = (password: string) => {
-    setPassword(password);
-  };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSignUp = async () => {
-    if (name && email && password && confirmPassword) {
-      if (password === confirmPassword) {
-        await Postuser(name, email, password);
-        await login(email, password);
-      } else {
-        setErrorMessage('As senhas não coincidem.');
-      }
-    } else {
-      setErrorMessage('Por favor, preencha todos os campos.');
+    if (!name) {
+      setErrorMessage('Por favor, insira seu nome.');
+      return;
+    }
+
+    if (!email) {
+      setErrorMessage('Por favor, insira seu endereço de e-mail.');
+      return;
+    } else if (!email.includes('@')) {
+      setErrorMessage('Por favor, insira um e-mail válido.');
+      return;
+    }
+
+    if (!password) {
+      setErrorMessage('Por favor, insira sua senha.');
+      return;
+    } else if (password.length < 8) {
+      setErrorMessage('A senha deve ter no mínimo 8 caracteres.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage('As senhas não coincidem.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      await Postuser(name, email, password);
+      await login(email, password);
+    } catch (error: any) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,31 +76,31 @@ const SignUpScreen = () => {
       fontSize: 24,
       color: theme.textPrimary,
       marginBottom: 20,
+      fontWeight: 'bold',
+      textAlign: 'center',
     },
     errorText: {
       color: theme.red,
-      marginBottom: 20,
+      fontSize: 14,
+      marginBottom: 16,
+      textAlign: 'center',
     },
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 20,
-      borderColor: theme.textPrimary,
+      width: '100%',
+      height: 50,
       borderWidth: 1,
-      borderRadius: 5,
-      paddingHorizontal: 20,
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      shadowColor: theme.secondary,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0.8,
-      shadowRadius: 10,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      marginBottom: 16,
+      borderColor: errorMessage ? theme.red : theme.textSecondary,
     },
     inputIcon: {
       marginRight: 10,
     },
     input: {
       flex: 1,
-      height: 40,
       color: theme.textPrimary,
     },
     showPasswordIcon: {
@@ -83,18 +108,27 @@ const SignUpScreen = () => {
     },
     button: {
       width: '100%',
-      height: 40,
-      justifyContent: 'center',
+      backgroundColor: theme.buttonBackground,
+      padding: 8,
+      borderRadius: 8,
       alignItems: 'center',
-      borderRadius: 5,
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      flexDirection: 'row',
+      justifyContent: 'center',
       marginBottom: 20,
     },
     buttonText: {
       color: theme.buttonText,
+      fontSize: 18,
       fontWeight: 'bold',
+      marginLeft: isLoading ? 8 : 0,
     },
     orText: {
-      color: theme.textPrimary,
+      color: theme.textSecondary,
       marginVertical: 10,
     },
     socialButtons: {
@@ -133,8 +167,8 @@ const SignUpScreen = () => {
           <MaterialIcons name="person" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Your Name"
-            placeholderTextColor={theme.textPrimary}
+            placeholder="Seu Nome"
+            placeholderTextColor={theme.textSecondary}
             value={name}
             onChangeText={setName}
           />
@@ -144,8 +178,8 @@ const SignUpScreen = () => {
           <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Email"
-            placeholderTextColor={theme.textPrimary}
+            placeholder="Seu Email"
+            placeholderTextColor={theme.textSecondary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -157,11 +191,11 @@ const SignUpScreen = () => {
           <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Password"
-            placeholderTextColor={theme.textPrimary}
+            placeholder="Sua Senha"
+            placeholderTextColor={theme.textSecondary}
             secureTextEntry={!showPassword}
             value={password}
-            onChangeText={handlePasswordChange}
+            onChangeText={setPassword}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <MaterialIcons
@@ -177,8 +211,8 @@ const SignUpScreen = () => {
           <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Confirm Password"
-            placeholderTextColor={theme.textPrimary}
+            placeholder="Confirme sua Senha"
+            placeholderTextColor={theme.textSecondary}
             secureTextEntry={!showPassword}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
@@ -195,11 +229,16 @@ const SignUpScreen = () => {
 
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-        <LinearGradient colors={[theme.secondary, theme.secondary]} style={styles.button}>
-          <TouchableOpacity onPress={handleSignUp}>
-            <Text style={styles.buttonText}>Criar Conta</Text>
-          </TouchableOpacity>
-        </LinearGradient>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleSignUp}
+          disabled={isLoading}
+        >
+          {isLoading && <ActivityIndicator color={theme.buttonText} />}
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Criando...' : 'Criar Conta'}
+          </Text>
+        </TouchableOpacity>
 
         <Text style={styles.orText}>Ou Entre com</Text>
         <View style={styles.socialButtons}>

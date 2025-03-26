@@ -39,7 +39,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   async function login(email: string, password: string) {
     try {
       const response = await api.post('session', { email, password });
-  
 
       if (response.data && response.data.token) {
         await AsyncStorage.setItem('@token-hidrowatch!2', JSON.stringify(response.data));
@@ -49,24 +48,16 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       }
     } catch (error: any) {
       if (error.response) {
-        console.log(error)
         if (error.response.status === 400) {
           throw new Error('Nenhum usuário vinculado a essa conta.');
         } else if (error.response.status === 401) {
           throw new Error('Credenciais inválidas. Verifique seu email e senha.');
-        } else if (error.response.status === 500) {
-          throw new Error('Falha no servidor. Tente novamente mais tarde.');
         } else {
           throw new Error('Falha na conexão. Tente novamente mais tarde.');
         }
-      } else if (error.request) {
-        throw new Error('Falha na conexão. Verifique sua conexão com a internet.');
-      } else {
-        throw new Error('Ocorreu um erro inesperado. Tente novamente.');
       }
     }
   }
-
   async function logout() {
     await AsyncStorage.removeItem('@token-hidrowatch!2');
     setUser(null);
