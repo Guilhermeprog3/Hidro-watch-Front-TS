@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/themecontext';
-import { NavigationProp, useFocusEffect } from '@react-navigation/native';
+import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { Measurementobject } from '../../hooks/measurements';
 import StatsHome from '../StatsHome';
@@ -12,15 +12,10 @@ type Device = {
   tittle: string;
   location: string;
   favorite: boolean;
-  averageMeasurement?: number;
+  averageMeasurement: number;
 };
 
-type DeviceListProps = {
-  navigation: NavigationProp<any>;
-  StatsComponent?: React.ReactNode;
-};
-
-const DeviceListHome: React.FC<DeviceListProps> = ({ navigation, StatsComponent }) => {
+const DeviceListHome = () => {
   const { theme } = useTheme();
   const { getUserObjects, markFavorite } = useObject();
   const { getLatestMeasurement } = Measurementobject();
@@ -28,23 +23,25 @@ const DeviceListHome: React.FC<DeviceListProps> = ({ navigation, StatsComponent 
   const [favorites, setFavorites] = useState<string[]>([]);
   const [aboveAverage, setAboveAverage] = useState<number>(0);
   const [belowAverage, setBelowAverage] = useState<number>(0);
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const fetchDevices = async () => {
     const userDevices = await getUserObjects();
     if (userDevices) {
-      const devicesWithAverage = await Promise.all(
+      const devicesWithMeasurements = await Promise.all(
         userDevices.map(async (device: Device) => {
           const latestMeasurement = await getLatestMeasurement(device.id);
-          const averageMeasurement = latestMeasurement?.averageMeasurement || 0;
-          return { ...device, averageMeasurement };
+          return { 
+            ...device, 
+            averageMeasurement: latestMeasurement?.average_measurement || 0 
+          };
         })
       );
-
-      setDevices(devicesWithAverage);
-      setFavorites(devicesWithAverage.filter(d => d.favorite).map(d => d.id));
-
-      const above = devicesWithAverage.filter(d => d.averageMeasurement! > 10).length;
-      const below = devicesWithAverage.filter(d => d.averageMeasurement! <= 10).length;
+  
+      setDevices(devicesWithMeasurements);
+      setFavorites(devicesWithMeasurements.filter(d => d.favorite).map(d => d.id));
+      const above = devicesWithMeasurements.filter(d => d.averageMeasurement > 10).length;
+      const below = devicesWithMeasurements.filter(d => d.averageMeasurement <= 10).length;
       setAboveAverage(above);
       setBelowAverage(below);
     }
@@ -69,6 +66,10 @@ const DeviceListHome: React.FC<DeviceListProps> = ({ navigation, StatsComponent 
       console.error('Erro ao marcar como favorito:', error);
       setFavorites(favorites);
     }
+  };
+
+  const handleDevicePress = (deviceId: string) => {
+    navigation.navigate('Measurement', { deviceId });
   };
 
   const styles = StyleSheet.create({
@@ -119,13 +120,11 @@ const DeviceListHome: React.FC<DeviceListProps> = ({ navigation, StatsComponent 
 
   return (
     <View style={styles.contentContainer}>
-      {StatsComponent || (
-        <StatsHome 
-          aboveAverage={aboveAverage} 
-          belowAverage={belowAverage} 
-          devicesCount={devices.length} 
-        />
-      )}
+      <StatsHome 
+        aboveAverage={aboveAverage} 
+        belowAverage={belowAverage} 
+        devicesCount={devices.length} 
+      />
       
       <Text style={styles.sectionTitle}>Dispositivos Registrados</Text>
       
@@ -150,7 +149,7 @@ const DeviceListHome: React.FC<DeviceListProps> = ({ navigation, StatsComponent 
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('Measurement', { deviceId: item.id })}
+                onPress={() => handleDevicePress(item.id)}
                 style={styles.detailsButton}
               >
                 <Text style={styles.detailsButtonText}>Detalhes</Text>

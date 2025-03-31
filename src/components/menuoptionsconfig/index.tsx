@@ -1,34 +1,29 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useContext } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  Modal,
+  TouchableWithoutFeedback
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/themecontext';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-interface User {
-  email?: string;
-}
-
-interface MenuOptionsConfigProps {
-  user: User | null;
-  deleteUser: () => void;
-  forgotPassword: (email: string) => Promise<{ success: boolean }>;
-  logout: () => void;
-}
+import { AuthContext } from '../../context/authcontext';
+import { UserContext } from '../../context/usercontext';
 
 type ThemeMode = 'Hidro' | 'Light' | 'Dark';
 
-const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
-  user,
-  deleteUser,
-  forgotPassword,
-  logout,
-}) => {
+const MenuOptionsConfig = () => {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useContext(AuthContext);
+  const { deleteUser, forgotPassword } = useContext(UserContext);
+
   const [isLoading, setIsLoading] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [cameraEnabled, setCameraEnabled] = useState(false);
-  const [photosEnabled, setPhotosEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation<NavigationProp<any>>();
 
@@ -41,101 +36,99 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
   const confirmDeleteAccount = () => {
     Alert.alert(
       'Confirmar Exclusão',
-      'Você tem certeza de que deseja deletar sua conta?',
+      'Você tem certeza de que deseja deletar sua conta? Esta ação não pode ser desfeita.',
       [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
+        { 
+          text: 'Cancelar', 
+          style: 'cancel' 
         },
-        {
-          text: 'Confirmar',
+        { 
+          text: 'Deletar', 
+          style: 'destructive',
           onPress: async () => {
             try {
               await deleteUser();
               logout();
               navigation.navigate('Login');
             } catch (error) {
-              Alert.alert('Erro', 'Ocorreu um erro ao deletar a conta.');
+              Alert.alert('Erro', 'Ocorreu um erro ao deletar a conta. Por favor, tente novamente.');
             }
           },
         },
       ],
+      { cancelable: true }
     );
   };
 
   const handleForgotPassword = async () => {
-    if (user?.email) {
-      setIsLoading(true);
-      try {
-        const result = await forgotPassword(user.email);
-        setIsLoading(false);
-        if (result.success) {
-          navigation.navigate('Codepass', { email: user.email });
-        } else {
-          Alert.alert('Erro', 'Não foi possível enviar o e-mail de recuperação de senha.');
-        }
-      } catch (error) {
-        setIsLoading(false);
-        Alert.alert('Erro', 'Ocorreu um erro ao tentar enviar o e-mail de recuperação de senha.');
-      }
-    } else {
-      Alert.alert('Erro', 'E-mail do usuário não encontrado.');
+    if (!user?.email) {
+      Alert.alert('Erro', 'Nenhum e-mail associado à conta.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await forgotPassword(user.email);
+      navigation.navigate('Codepass', { email: user.email });
+    } catch (error) {
+      Alert.alert(
+        'Erro', 
+        'Falha ao enviar e-mail de recuperação. Verifique sua conexão e tente novamente.'
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const styles = StyleSheet.create({
     menuContainer: {
       marginTop: 20,
+      paddingBottom: 30,
     },
     sectionTitle: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: theme.textPrimary,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
+      color: theme.textSecondary,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
     },
     menuItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.textSecondary,
-      paddingHorizontal: 16,
+      paddingVertical: 16,
+      paddingHorizontal: 20,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.secondary,
     },
     menuItemText: {
-      fontSize: 18,
+      fontSize: 16,
       color: theme.textPrimary,
-      marginLeft: 10,
+      marginLeft: 16,
       flex: 1,
     },
-    separator: {
-      height: 1,
-      backgroundColor: theme.textSecondary,
-      marginVertical: 10,
-    },
     disabledButton: {
-      opacity: 0.5,
+      opacity: 0.6,
     },
     modalContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
-      width: '80%',
-      backgroundColor: theme.primaryLight,
-      borderRadius: 15,
+      width: '85%',
+      backgroundColor: theme.gradientStart,
+      borderRadius: 12,
       padding: 20,
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
       elevation: 5,
-      position: 'relative',
     },
     modalHeader: {
-      fontSize: 20,
+      fontSize: 18,
       fontWeight: 'bold',
       color: theme.textPrimary,
       marginBottom: 20,
@@ -144,50 +137,76 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
     modalOption: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.textSecondary,
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.secondary,
     },
     modalOptionText: {
-      fontSize: 18,
+      fontSize: 16,
       color: theme.textPrimary,
-      marginLeft: 15,
+      marginLeft: 16,
     },
     closeButton: {
       position: 'absolute',
-      top: 10,
-      right: 10,
-      padding: 10,
+      top: 12,
+      right: 12,
+      padding: 8,
+      zIndex: 1,
+    },
+    iconContainer: {
+      width: 24,
+      alignItems: 'center',
     },
   });
 
   return (
     <View style={styles.menuContainer}>
       <Text style={styles.sectionTitle}>Preferências</Text>
-      <TouchableOpacity style={styles.menuItem} onPress={() => setModalVisible(true)}>
-        <Text style={styles.menuItemText}>Tema</Text>
-        <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
+      
+      <TouchableOpacity 
+        style={styles.menuItem} 
+        onPress={() => setModalVisible(true)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.iconContainer}>
+          <Ionicons name="color-palette-outline" size={22} color={theme.iconColor} />
+        </View>
+        <Text style={styles.menuItemText}>Tema do Aplicativo</Text>
+        <Ionicons name="chevron-forward-outline" size={20} color={theme.secondary} />
       </TouchableOpacity>
 
       <Text style={styles.sectionTitle}>Conta</Text>
+      
       <TouchableOpacity
         style={[styles.menuItem, isLoading && styles.disabledButton]}
         onPress={handleForgotPassword}
         disabled={isLoading}
+        activeOpacity={0.7}
       >
-        <Ionicons name="lock-closed-outline" size={24} color={theme.iconColor} />
+        <View style={styles.iconContainer}>
+          <Ionicons name="lock-closed-outline" size={22} color={theme.iconColor} />
+        </View>
         <Text style={styles.menuItemText}>Alterar Senha</Text>
         {isLoading ? (
           <ActivityIndicator size="small" color={theme.iconColor} />
         ) : (
-          <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
+          <Ionicons name="chevron-forward-outline" size={20} color={theme.secondary} />
         )}
       </TouchableOpacity>
-      <TouchableOpacity style={styles.menuItem} onPress={confirmDeleteAccount}>
-        <Ionicons name="trash-outline" size={24} color={theme.iconColor} />
-        <Text style={styles.menuItemText}>Deletar Conta</Text>
-        <Ionicons name="chevron-forward-outline" size={24} color={theme.iconColor} />
+
+      <TouchableOpacity 
+        style={styles.menuItem}
+        onPress={confirmDeleteAccount}
+        activeOpacity={0.7}
+      >
+        <View style={styles.iconContainer}>
+          <Ionicons name="trash-outline" size={22} color="#ff3b30" />
+        </View>
+        <Text style={[styles.menuItemText, { color: '#ff3b30' }]}>Deletar Conta</Text>
+        <Ionicons name="chevron-forward-outline" size={20} color={theme.secondary} />
       </TouchableOpacity>
+
       <Modal
         animationType="fade"
         transparent={true}
@@ -202,20 +221,32 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
                   style={styles.closeButton}
                   onPress={() => setModalVisible(false)}
                 >
-                  <Ionicons name="close" size={24} color={theme.textPrimary} />
+                  <Ionicons name="close" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
 
                 <Text style={styles.modalHeader}>Selecione o Tema</Text>
-                <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Hidro')}>
-                  <Ionicons name="water" size={24} color={theme.iconColor} />
+                
+                <TouchableOpacity 
+                  style={styles.modalOption} 
+                  onPress={() => toggleMode('Hidro')}
+                >
+                  <Ionicons name="water-outline" size={22} color="#2d9cdb" />
                   <Text style={styles.modalOptionText}>Hidro Mode</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Light')}>
-                  <Ionicons name="sunny" size={24} color={theme.iconColor} />
+                
+                <TouchableOpacity 
+                  style={styles.modalOption} 
+                  onPress={() => toggleMode('Light')}
+                >
+                  <Ionicons name="sunny-outline" size={22} color="#f2c94c" />
                   <Text style={styles.modalOptionText}>Light Mode</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.modalOption} onPress={() => toggleMode('Dark')}>
-                  <Ionicons name="moon" size={24} color={theme.iconColor} />
+                
+                <TouchableOpacity 
+                  style={styles.modalOption} 
+                  onPress={() => toggleMode('Dark')}
+                >
+                  <Ionicons name="moon-outline" size={22} color="#bb86fc" />
                   <Text style={styles.modalOptionText}>Dark Mode</Text>
                 </TouchableOpacity>
               </View>
@@ -223,7 +254,6 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-
     </View>
   );
 };

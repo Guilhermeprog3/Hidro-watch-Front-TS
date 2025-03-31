@@ -27,7 +27,7 @@ const UserPage: React.FC = () => {
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <View style={styles.content}>
-        <HeaderUser user={user} />
+        <HeaderUser />
         <MenuOptions
           user={user}
           logout={logout}

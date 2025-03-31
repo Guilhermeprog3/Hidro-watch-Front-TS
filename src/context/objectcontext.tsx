@@ -19,7 +19,6 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
 
   async function getUserObjects() {
     if (!user?.token.token) {
-      console.log('Usuário ou token não encontrados');
       return null;
     }
     try {
@@ -42,9 +41,8 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
         { tittle: objectData.Tittle, location: objectData.Location },
         { headers: { Authorization: `Bearer ${user.token.token}` } }
       );
-      console.log('Objeto criado com sucesso');
     } catch (error) {
-      console.log(error);
+
     }
   }
 

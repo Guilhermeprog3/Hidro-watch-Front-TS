@@ -1,16 +1,36 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, Linking, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
+import * as Camera from 'expo-camera';
 
-type HeaderWithAddButtonProps = {
-  onPressAddButton: () => void;
-};
-
-const HeaderHome: React.FC<HeaderWithAddButtonProps> = ({ onPressAddButton }) => {
+const HeaderHome = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
+  const [cameraPermission, requestPermission] = Camera.useCameraPermissions();
+
+  const handleAddDevicePress = async () => {
+    if (cameraPermission?.granted) {
+      navigation.navigate('QRCode');
+      return;
+    }
+
+    const { granted, canAskAgain } = await requestPermission();
+
+    if (granted) {
+      navigation.navigate('QRCode');
+    } else if (!canAskAgain) {
+      Alert.alert(
+        'Permissão de Câmera Negada',
+        'Você negou a permissão de câmera permanentemente. Para usar esta funcionalidade, habilite a permissão manualmente nas configurações do dispositivo.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Abrir Configurações', onPress: () => Linking.openSettings() }
+        ]
+      );
+    }
+  };
 
   const styles = StyleSheet.create({
     header: {
@@ -21,7 +41,7 @@ const HeaderHome: React.FC<HeaderWithAddButtonProps> = ({ onPressAddButton }) =>
       zIndex: 1,
     },
     addButton: {
-      zIndex:1,
+      zIndex: 1,
       backgroundColor: theme.buttonBackground,
       padding: 15,
       borderRadius: 40,
@@ -43,7 +63,7 @@ const HeaderHome: React.FC<HeaderWithAddButtonProps> = ({ onPressAddButton }) =>
           <Ionicons name="search" size={24} color={theme.iconColor} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={onPressAddButton} style={styles.addButton}>
+      <TouchableOpacity onPress={handleAddDevicePress} style={styles.addButton}>
         <Text style={styles.addButtonText}>Adicionar um Novo Dispositivo</Text>
       </TouchableOpacity>
     </View>

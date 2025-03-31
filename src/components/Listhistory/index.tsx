@@ -1,31 +1,43 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
 import { useObject } from '../../hooks/Objectcontext';
+import { Measurementobject } from '../../hooks/measurements';
 
 type Device = {
   id: string;
   tittle: string;
   location: string;
+  favorite: boolean;
+  averageMeasurement?: number;
 };
 
-const ListHistorico: React.FC = () => {
+const ListHistorico = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
-  const { getUserObjects } = useObject();
+  const { getUserObjects, markFavorite } = useObject();
+  const { getLatestMeasurement } = Measurementobject();
   const [devices, setDevices] = useState<Device[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   const fetchDevices = useCallback(async () => {
     try {
-      const response = await getUserObjects();
-      if (response) {
-        setDevices(response);
+      const userDevices = await getUserObjects();
+      if (userDevices) {
+        const devicesWithMeasurements = await Promise.all(
+          userDevices.map(async (device: Device) => {
+            const latestMeasurement = await getLatestMeasurement(device.id);
+          })
+        );
+        setDevices(devicesWithMeasurements);
+        setFavorites(devicesWithMeasurements.filter(d => d.favorite).map(d => d.id));
       }
     } catch (error) {
       console.error('Erro ao buscar dispositivos:', error);
     }
-  }, [getUserObjects]);
+  }, [getUserObjects, getLatestMeasurement]);
 
   useFocusEffect(
     useCallback(() => {
@@ -33,13 +45,31 @@ const ListHistorico: React.FC = () => {
     }, [fetchDevices])
   );
 
+  const toggleFavorite = async (deviceId: string) => {
+    const updatedFavorites = favorites.includes(deviceId)
+      ? favorites.filter(id => id !== deviceId)
+      : [...favorites, deviceId];
+    
+    setFavorites(updatedFavorites);
+    
+    try {
+      await markFavorite(deviceId);
+    } catch (error) {
+      console.error('Erro ao marcar como favorito:', error);
+      setFavorites(favorites);
+    }
+  };
+
   const styles = StyleSheet.create({
+    contentContainer: {
+      flex: 1,
+    },
     sectionTitle: {
       color: theme.textPrimary,
       fontSize: 18,
       fontWeight: 'bold',
       marginBottom: 10,
-      marginTop: 140,
+      marginTop: 20,
     },
     deviceContainer: {
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -59,6 +89,13 @@ const ListHistorico: React.FC = () => {
       fontSize: 14,
       color: theme.textSecondary,
     },
+    buttonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    favoriteButton: {
+      marginRight: 10,
+    },
     detailsButton: {
       backgroundColor: theme.buttonBackground,
       padding: 10,
@@ -71,7 +108,7 @@ const ListHistorico: React.FC = () => {
   });
 
   return (
-    <View>
+    <View style={styles.contentContainer}>
       <Text style={styles.sectionTitle}>Dispositivos Registrados</Text>
       <FlatList
         data={devices}
@@ -82,12 +119,24 @@ const ListHistorico: React.FC = () => {
               <Text style={styles.deviceName}>{item.tittle}</Text>
               <Text style={styles.deviceLocation}>{item.location}</Text>
             </View>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Week', { objectId: item.id })}
-              style={styles.detailsButton}
-            >
-              <Text style={styles.detailsButtonText}>Histórico</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite(item.id)}
+              >
+                <Ionicons
+                  name={favorites.includes(item.id) ? "heart" : "heart-outline"}
+                  size={24}
+                  color={favorites.includes(item.id) ? theme.red : theme.iconColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Week', { objectId: item.id })}
+                style={styles.detailsButton}
+              >
+                <Text style={styles.detailsButtonText}>Histórico</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />

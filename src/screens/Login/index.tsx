@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
-import HeaderLogin from '../../components/headerhidro';
+import HeaderHidro from '../../components/headerhidro';
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -43,7 +43,7 @@ const LoginScreen = () => {
     try {
       await login(email, password);
     } catch (error: any) {
-      setErrorMessage(error.message || 'Erro ao fazer login. Verifique suas credenciais.');
+      setErrorMessage(error.message || 'Erro Desconhecido');
     } finally {
       setIsLoading(false);
     }
@@ -134,7 +134,7 @@ const LoginScreen = () => {
       marginHorizontal: 10,
     },
     googleButton: {
-      backgroundColor: '#DB4437',
+      backgroundColor: theme.red,
     },
     socialButtonText: {
       color: 'white',
@@ -156,11 +156,11 @@ const LoginScreen = () => {
   return (
     <LinearGradient colors={[theme.gradientstartlogin, theme.gradientendlogin]} style={styles.container}>
       <View style={styles.content}>
-        <HeaderLogin />
+        <HeaderHidro />
         <Text style={styles.heading}>Entrar</Text>
 
         <View style={styles.inputContainer}>
-          <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <Ionicons name="mail-outline" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Seu Email"
@@ -173,7 +173,7 @@ const LoginScreen = () => {
         </View>
 
         <View style={styles.inputContainer}>
-          <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <Ionicons name="lock-closed-outline" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Sua Senha"
@@ -183,8 +183,8 @@ const LoginScreen = () => {
             onChangeText={setPassword}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <MaterialIcons
-              name={showPassword ? 'visibility' : 'visibility-off'}
+            <Ionicons
+              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
               size={24}
               color={theme.iconColor}
               style={styles.showPasswordIcon}

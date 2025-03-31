@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
 
-const NavBar: React.FC = () => {
+const NavBar = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
 

@@ -12,7 +12,7 @@ type Device = {
   favorite: boolean;
 };
 
-const ListLike: React.FC = () => {
+const ListLike = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
   const { getUserObjects, markFavorite } = useObject();

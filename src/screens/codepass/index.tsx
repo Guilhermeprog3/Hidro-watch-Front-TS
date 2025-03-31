@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
 import { UserContext } from '../../context/usercontext';
 import { useTheme } from '../../context/themecontext';
+import { useCountdown } from 'usehooks-ts';
 import HeaderBack from '../../components/headerBack';
 
 interface CodePageRouteParams {
@@ -19,30 +20,26 @@ interface CodePageRouteParams {
 
 const CodePage = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const route = useRoute<RouteProp<{ CodePage: CodePageRouteParams }, 'CodePage'>>();
+  const route = useRoute<RouteProp<{ CodePage: CodePageRouteParams }, 'CodePage'>>(); 
   const { email } = route.params;
   const { theme } = useTheme();
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<Array<TextInput | null>>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isResendDisabled, setIsResendDisabled] = useState(false);
-  const [resendTimer, setResendTimer] = useState(60);
   const [isLoading, setIsLoading] = useState(false);
 
   const { validateResetCode, forgotPassword } = useContext(UserContext);
 
+  const [count, { startCountdown, resetCountdown }] = useCountdown({
+    countStart: 60,
+    intervalMs: 1000,
+  });
+
+  const [isSendingCode, setIsSendingCode] = useState(false);
+
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isResendDisabled && resendTimer > 0) {
-      timer = setInterval(() => {
-        setResendTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (resendTimer === 0) {
-      setIsResendDisabled(false);
-      setResendTimer(60);
-    }
-    return () => clearInterval(timer);
-  }, [isResendDisabled, resendTimer]);
+    startCountdown();
+  }, []);
 
   const handleDigitChange = (index: number, value: string) => {
     const newDigits = [...digits];
@@ -83,16 +80,19 @@ const CodePage = () => {
   };
 
   const handleResendEmail = async () => {
-    if (!email || isResendDisabled) return;
+    if (!email || count > 0 || isSendingCode) return;
 
-    setIsResendDisabled(true);
-    setErrorMessage('');
+    setIsSendingCode(true);
 
     try {
       await forgotPassword(email);
-      setErrorMessage('Um novo código foi enviado para seu email.');
+      
+      resetCountdown();
+      startCountdown();
     } catch (error: any) {
       setErrorMessage(error.message);
+    } finally {
+      setIsSendingCode(false);
     }
   };
 
@@ -190,49 +190,44 @@ const CodePage = () => {
         <Text style={styles.title}>Olhe o seu email</Text>
         <Text style={styles.subtitle}>Enviamos um código de confirmação</Text>
         <Text style={styles.emailText}>{email}</Text>
-        
+
         <View style={styles.inputContainer}>
           {digits.map((digit, index) => (
             <TextInput
               key={index}
-              style={[
-                styles.digitInput,
-                errorMessage && styles.digitInputError
-              ]}
-              placeholder="0"
-              placeholderTextColor={theme.textSecondary}
+              style={[styles.digitInput, errorMessage && !isSendingCode ? styles.digitInputError : null]}
+              maxLength={1}
+              keyboardType="number-pad"
               value={digit}
               onChangeText={(value) => handleDigitChange(index, value)}
-              keyboardType="number-pad"
-              maxLength={1}
-              autoCapitalize="none"
-              ref={(ref) => (inputRefs.current[index] = ref)}
+              ref={(el) => (inputRefs.current[index] = el)}
             />
           ))}
         </View>
-        
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-        
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleVerifyCode}
-          disabled={isLoading}
+
+        {errorMessage && !isSendingCode ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
+        <TouchableOpacity style={styles.button} onPress={handleVerifyCode} disabled={isLoading}>
+          {isLoading ? <ActivityIndicator color="white" /> : null}
+          <Text style={styles.buttonText}>Verificar Código</Text>
+        </TouchableOpacity>
+
+        {count > 0 && (
+          <Text style={styles.resendText}>
+            Reenviar código em{' '}
+            <Text style={styles.resendLink}>{count}s</Text>
+          </Text>
+        )}
+
+        <TouchableOpacity
+          onPress={handleResendEmail}
+          disabled={count > 0 || isSendingCode}
+          style={count > 0 || isSendingCode ? styles.disabledResend : undefined}
         >
-          {isLoading && <ActivityIndicator color={theme.buttonText} />}
-          <Text style={styles.buttonText}>
-            {isLoading ? 'Verificando...' : 'Verificar Código'}
+          <Text style={[styles.resendText, styles.resendLink]}>
+            {isSendingCode ? <ActivityIndicator color={theme.buttonText} /> : 'Reenviar Código'}
           </Text>
         </TouchableOpacity>
-        
-        <Text style={styles.resendText}>
-          Não recebeu o código?{' '}
-          <Text
-            onPress={isResendDisabled ? undefined : handleResendEmail}
-            style={[styles.resendLink, isResendDisabled && styles.disabledResend]}
-          >
-            {isResendDisabled ? `Reenviar em ${resendTimer}s` : 'Reenviar código'}
-          </Text>
-        </Text>
       </View>
     </LinearGradient>
   );

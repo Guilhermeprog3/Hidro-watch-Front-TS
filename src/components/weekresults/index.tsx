@@ -1,17 +1,45 @@
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, TouchableOpacity, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/themecontext';
+import { MeasurementContext } from '../../context/measurementscontext';
 
 type WeekResultsProps = {
-  weeklyData: any[];
-  currentStartDay: number;
-  onPrevDay: () => void;
-  onNextDay: () => void;
+  objectId: string;
 };
 
-const WeekResults: React.FC<WeekResultsProps> = ({ weeklyData, currentStartDay, onPrevDay, onNextDay }) => {
+const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
   const { theme } = useTheme();
+  const { getWeeklyAverage } = useContext(MeasurementContext);
+  const [weeklyData, setWeeklyData] = useState<any[]>([]);
+  const [currentStartDay, setCurrentStartDay] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWeeklyData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getWeeklyAverage(objectId);
+        if (data) {
+          setWeeklyData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching weekly data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchWeeklyData();
+  }, [objectId]);
+
+  const prevDay = () => {
+    setCurrentStartDay((prev) => (prev === 0 ? 6 : prev - 1));
+  };
+
+  const nextDay = () => {
+    setCurrentStartDay((prev) => (prev === 6 ? 0 : prev + 1));
+  };
 
   const roundToNearestHalf = (value: number) => {
     return Math.round(value * 2) / 2;
@@ -67,17 +95,30 @@ const WeekResults: React.FC<WeekResultsProps> = ({ weeklyData, currentStartDay, 
       color: theme.textPrimary,
       fontSize: 16,
     },
+    loadingContainer: {
+      height: 130,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   });
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.iconColor} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.weekResults}>
-      <TouchableOpacity onPress={onPrevDay} style={styles.arrowButton}>
+      <TouchableOpacity onPress={prevDay} style={styles.arrowButton}>
         <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
       </TouchableOpacity>
 
       {[0, 1, 2, 3].map((index) => getDayResult(index))}
 
-      <TouchableOpacity onPress={onNextDay} style={styles.arrowButton}>
+      <TouchableOpacity onPress={nextDay} style={styles.arrowButton}>
         <Ionicons name="arrow-forward" size={24} color={theme.iconColor} />
       </TouchableOpacity>
     </View>

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthContext } from '../../context/authcontext';
 import { UserContext } from '../../context/usercontext';
@@ -144,7 +144,7 @@ const SignUpScreen = () => {
       width: '48%',
       height: 40,
       borderRadius: 5,
-      backgroundColor: '#DB4437',
+      backgroundColor: theme.red,
     },
     socialButtonText: {
       color: 'white',
@@ -164,7 +164,7 @@ const SignUpScreen = () => {
         <Text style={styles.heading}>Criar Conta</Text>
 
         <View style={styles.inputContainer}>
-          <MaterialIcons name="person" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <Ionicons name="person-outline" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Seu Nome"
@@ -175,7 +175,7 @@ const SignUpScreen = () => {
         </View>
 
         <View style={styles.inputContainer}>
-          <MaterialIcons name="email" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <Ionicons name="mail-outline" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Seu Email"
@@ -188,7 +188,7 @@ const SignUpScreen = () => {
         </View>
 
         <View style={styles.inputContainer}>
-          <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <Ionicons name="lock-closed-outline" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Sua Senha"
@@ -198,8 +198,8 @@ const SignUpScreen = () => {
             onChangeText={setPassword}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <MaterialIcons
-              name={showPassword ? 'visibility' : 'visibility-off'}
+            <Ionicons
+              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
               size={24}
               color={theme.iconColor}
               style={styles.showPasswordIcon}
@@ -208,7 +208,7 @@ const SignUpScreen = () => {
         </View>
 
         <View style={styles.inputContainer}>
-          <MaterialIcons name="lock" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <Ionicons name="lock-closed-outline" size={24} color={theme.iconColor} style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Confirme sua Senha"
@@ -218,8 +218,8 @@ const SignUpScreen = () => {
             onChangeText={setConfirmPassword}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <MaterialIcons
-              name={showPassword ? 'visibility' : 'visibility-off'}
+            <Ionicons
+              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
               size={24}
               color={theme.iconColor}
               style={styles.showPasswordIcon}

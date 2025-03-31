@@ -48,9 +48,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       }
     } catch (error: any) {
       if (error.response) {
-        if (error.response.status === 400) {
-          throw new Error('Nenhum usuário vinculado a essa conta.');
-        } else if (error.response.status === 401) {
+         if (error.response.status === 401 || error.response.status === 400) {
           throw new Error('Credenciais inválidas. Verifique seu email e senha.');
         } else {
           throw new Error('Falha na conexão. Tente novamente mais tarde.');

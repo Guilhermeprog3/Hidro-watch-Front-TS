@@ -3,14 +3,25 @@ import { Alert } from 'react-native';
 import { api } from '../services/api';
 import { AuthContext } from './authcontext';
 
+interface User {
+  User: any;
+  id: string;
+  name: string;
+  email: string;
+  profile_picture?: string;
+  token: {
+    token: string;
+  };
+}
+
 type UserContextProps = {
-  GetUserforId: () => Promise<void>;
+  GetUserforId: () => Promise<User | null>;
   Postuser: (name: string, email: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   validateResetCode: (code: string) => Promise<boolean>;
   resetPassword: (code: string, newPassword: string) => Promise<void>;
-  updateProfilePicture: (imageUri: string) => Promise<void>;
+  updateProfilePicture: (imageUri: string) => Promise<User>;
 };
 
 export const UserContext = createContext<UserContextProps>({} as UserContextProps);
@@ -18,160 +29,121 @@ export const UserContext = createContext<UserContextProps>({} as UserContextProp
 export const UserProvider = ({ children }: PropsWithChildren) => {
   const { user } = useContext(AuthContext);
 
-  async function GetUserforId() {
+  async function GetUserforId(): Promise<User | null> {
     if (!user?.id) {
       console.error('Usuário ou ID não encontrado');
-      return;
+      return null;
     }
     try {
       const token = user.token.token;
       const response = await api.get(`user/${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      return response.data as User;
     } catch (error) {
       console.log('Erro ao buscar dados do usuário:', error);
+      return null;
     }
   }
 
-  async function Postuser(name: string, email: string, password: string) {
+  async function Postuser(name: string, email: string, password: string): Promise<void> {
     try {
-      const response = await api.post('user', { email, password, name });
-      
-      if (!response.data) {
-        throw new Error('Resposta inválida do servidor');
-      }
+      await api.post('user', { email, password, name });
     } catch (error: any) {
       if (error.response) {
-        if (error.response.status === 400) {
-          throw new Error('Dados inválidos fornecidos para criação de usuário.');
-        } else if (error.response.status === 409) {
+         if (error.response.status === 409) {
           throw new Error('Email já está em uso. Por favor, use outro email.');
-        } else {
-          throw new Error('Falha ao criar usuário. Tente novamente mais tarde.');
         }
       }
-      throw error;
+      throw new Error('Falha ao criar usuário. Tente novamente mais tarde.');
     }
   }
 
-  async function deleteUser() {
+  async function deleteUser(): Promise<void> {
     if (!user?.id) {
-      console.log('Usuário ou ID não encontrado');
       return;
     }
     try {
       const token = user.token.token;
-      const response = await api.delete(`user/${user.id}`, {
+      await api.delete(`user/${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
-      console.log('Erro ao deletar usuário:', error);
       Alert.alert('Erro ao deletar usuário');
     }
   }
 
-  async function forgotPassword(email: string) {
+  async function forgotPassword(email: string): Promise<void> {
     try {
       const response = await api.post('/password/reset-code', { email });
-      
       if (response.status !== 200) {
-        throw new Error('Resposta inválida do servidor');
+        throw new Error('Erro ao enviar código de recuperação.');
       }
     } catch (error: any) {
       if (error.response) {
-        if (error.response.status === 400) {
-          throw new Error('Email inválido ou formato incorreto.');
-        } else if (error.response.status === 404) {
+          if (error.response.status === 404) {
           throw new Error('Nenhum usuário encontrado com este email.');
-        } else if (error.response.status === 429) {
-          throw new Error('Muitas tentativas. Por favor, espere antes de tentar novamente.');
-        } else {
-          throw new Error('Falha ao enviar código de recuperação. Tente novamente mais tarde.');
         }
       }
-      throw error;
+      throw new Error('Falha ao enviar código de recuperação. Tente novamente mais tarde.');
     }
   }
 
-  async function validateResetCode(code: string) {
+  async function validateResetCode(code: string): Promise<boolean> {
     try {
       const response = await api.post('/password/validate-code', { code });
-      
-      if (response.data.message === 'Código válido') {
-        return true;
-      } else {
-        throw new Error('Resposta inválida do servidor');
-      }
+      return response.data.message === 'Código válido';
     } catch (error: any) {
       if (error.response) {
-        if (error.response.status === 400) {
-          throw new Error('Código inválido ou formato incorreto.');
-        } else if (error.response.status === 404) {
+         if (error.response.status === 404) {
           throw new Error('Código não encontrado ou expirado.');
-        } else {
-          throw new Error('Falha ao validar código. Tente novamente mais tarde.');
         }
       }
-      throw error;
+      throw new Error('Falha ao validar código. Tente novamente mais tarde.');
     }
   }
 
-  async function resetPassword(code: string, new_password: string): Promise<void> {
+  async function resetPassword(code: string, newPassword: string): Promise<void> {
     try {
-      if (!code || !new_password) {
+      if (!code || !newPassword) {
         throw new Error('Código e nova senha são obrigatórios.');
       }
 
-      const response = await api.patch('/password/reset', { code, new_password });
-
-      if (response.status !== 200) {
-        throw new Error('Resposta inválida do servidor');
-      }
+      await api.patch('/password/reset', { code, new_password: newPassword });
     } catch (error: any) {
       if (error.response) {
         if (error.response.status === 400) {
           throw new Error('Dados inválidos fornecidos para redefinição de senha.');
         } else if (error.response.status === 404) {
           throw new Error('Código inválido ou expirado.');
-        } else if (error.response.status === 422) {
-          throw new Error('A nova senha não atende aos requisitos de segurança.');
-        } else {
-          throw new Error('Falha ao redefinir senha. Tente novamente mais tarde.');
         }
       }
-      throw error;
+      throw new Error('Falha ao redefinir senha. Tente novamente mais tarde.');
     }
   }
 
-  const updateProfilePicture = async (imageUri: string) => {
-    if (!user?.id) {
-      console.error('Usuário ou ID não encontrado');
-      return;
+  const updateProfilePicture = async (imageUri: string): Promise<User> => {
+    if (!user?.id || !user?.token?.token) {
+      throw new Error('Usuário não autenticado');
     }
-  
     try {
-      const token = user.token.token;
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-  
       const formData = new FormData();
-      formData.append('profile_picture', blob, 'profile.jpg');
-  
-      const apiResponse = await api.patch(`user/${user.id}/picture`, formData, {
+      formData.append('profile_picture', {
+        uri: imageUri,
+        name: 'profile_picture.jpg',
+        type: 'image/jpeg',
+      } as any);
+
+      const response = await api.patch(`/user/${user.id}/picture`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${user.token.token}`,
         },
       });
-  
-      if (apiResponse.status === 200) {
-        Alert.alert('Sucesso', 'Imagem de perfil atualizada!');
-      } else {
-        throw new Error('Erro ao atualizar a imagem de perfil');
-      }
-    } catch (error) {
-      console.log('Erro ao atualizar a imagem de perfil:', error);
-      Alert.alert('Erro', 'Não foi possível atualizar a imagem de perfil.');
+      return response.data as User;
+    } catch (error: any) {
+      console.error('Erro no upload:', error.response?.data);
+      throw new Error(error.response?.data?.message || 'Falha ao atualizar a foto de perfil');
     }
   };
 
