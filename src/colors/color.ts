@@ -1,4 +1,4 @@
-const Primary_theme = {
+const hidro = {
   primaryDark: '#01002C',
   primaryLight: '#000481',
   secondary: '#00bfa5',
@@ -14,10 +14,11 @@ const Primary_theme = {
   navBarBackground: '#00036A',
   iconColor: '#fff',
   navBarIconColor: '#fff',
-  gradientstartlogin:'#01002C',
-  gradientendlogin:'#000481',
+  gradientstartlogin: '#01002C',
+  gradientendlogin: '#000481',
 };
-const Secondary_theme = {
+
+const light = { 
   primaryDark: '#ffffff',
   primaryLight: '#f5f5f5',
   secondary: '#008000',
@@ -33,10 +34,11 @@ const Secondary_theme = {
   navBarBackground: '#008000', 
   iconColor: '#008000',
   navBarIconColor: '#fff',
-  gradientstartlogin:'#008000',
-  gradientendlogin:'#e0e0e0',
+  gradientstartlogin: '#008000',
+  gradientendlogin: '#e0e0e0',
 };
-const Tertiary_theme = {
+
+const dark = {
   primaryDark: '#000000',
   primaryLight: '#262626',
   secondary: '#008000',
@@ -55,4 +57,5 @@ const Tertiary_theme = {
   gradientstartlogin: '#008000',
   gradientendlogin: '#333333',
 };
-export { Primary_theme, Secondary_theme,Tertiary_theme };
+
+export { hidro, light, dark };

@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../context/authcontext';
 import { UserContext } from '../../context/usercontext';
 
-type ThemeMode = 'Hidro' | 'Light' | 'Dark';
+type ThemeMode = 'hidro' | 'light' | 'dark';
 
 const MenuOptionsConfig = () => {
   const { theme, toggleTheme } = useTheme();
@@ -24,40 +24,24 @@ const MenuOptionsConfig = () => {
   const { deleteUser, forgotPassword } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [themeModalVisible, setThemeModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const navigation = useNavigation<NavigationProp<any>>();
 
   const toggleMode = async (newMode: ThemeMode) => {
     toggleTheme(newMode);
-    await AsyncStorage.setItem('userMode', newMode);
-    setModalVisible(false);
+    setThemeModalVisible(false);
   };
 
-  const confirmDeleteAccount = () => {
-    Alert.alert(
-      'Confirmar Exclusão',
-      'Você tem certeza de que deseja deletar sua conta? Esta ação não pode ser desfeita.',
-      [
-        { 
-          text: 'Cancelar', 
-          style: 'cancel' 
-        },
-        { 
-          text: 'Deletar', 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteUser();
-              logout();
-              navigation.navigate('Login');
-            } catch (error) {
-              Alert.alert('Erro', 'Ocorreu um erro ao deletar a conta. Por favor, tente novamente.');
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+  const handleDeleteAccount = async () => {
+    setDeleteModalVisible(false);
+    try {
+      await deleteUser();
+      logout();
+      navigation.navigate('Login');
+    } catch (error) {
+      Alert.alert('Erro', 'Ocorreu um erro ao deletar a conta. Por favor, tente novamente.');
+    }
   };
 
   const handleForgotPassword = async () => {
@@ -115,10 +99,11 @@ const MenuOptionsConfig = () => {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.5)',
     },
     modalContent: {
       width: '85%',
-      backgroundColor: theme.gradientStart,
+      backgroundColor: theme.primaryLight,
       borderRadius: 12,
       padding: 20,
       shadowColor: '#000',
@@ -147,6 +132,28 @@ const MenuOptionsConfig = () => {
       color: theme.textPrimary,
       marginLeft: 16,
     },
+    modalButtonsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 20,
+    },
+    modalButton: {
+      flex: 1,
+      padding: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginHorizontal: 5,
+    },
+    cancelButton: {
+      backgroundColor: theme.secondary,
+    },
+    deleteButton: {
+      backgroundColor: '#ff3b30',
+    },
+    buttonText: {
+      color: '#fff',
+      fontWeight: 'bold',
+    },
     closeButton: {
       position: 'absolute',
       top: 12,
@@ -158,6 +165,15 @@ const MenuOptionsConfig = () => {
       width: 24,
       alignItems: 'center',
     },
+    warningIcon: {
+      alignSelf: 'center',
+      marginBottom: 15,
+    },
+    warningText: {
+      textAlign: 'center',
+      color: theme.textPrimary,
+      marginBottom: 5,
+    },
   });
 
   return (
@@ -166,7 +182,7 @@ const MenuOptionsConfig = () => {
       
       <TouchableOpacity 
         style={styles.menuItem} 
-        onPress={() => setModalVisible(true)}
+        onPress={() => setThemeModalVisible(true)}
         activeOpacity={0.7}
       >
         <View style={styles.iconContainer}>
@@ -197,7 +213,7 @@ const MenuOptionsConfig = () => {
 
       <TouchableOpacity 
         style={styles.menuItem}
-        onPress={confirmDeleteAccount}
+        onPress={() => setDeleteModalVisible(true)}
         activeOpacity={0.7}
       >
         <View style={styles.iconContainer}>
@@ -210,16 +226,16 @@ const MenuOptionsConfig = () => {
       <Modal
         animationType="fade"
         transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        visible={themeModalVisible}
+        onRequestClose={() => setThemeModalVisible(false)}
       >
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => setThemeModalVisible(false)}>
           <View style={styles.modalContainer}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContent}>
                 <TouchableOpacity
                   style={styles.closeButton}
-                  onPress={() => setModalVisible(false)}
+                  onPress={() => setThemeModalVisible(false)}
                 >
                   <Ionicons name="close" size={24} color={theme.iconColor} />
                 </TouchableOpacity>
@@ -228,7 +244,7 @@ const MenuOptionsConfig = () => {
                 
                 <TouchableOpacity 
                   style={styles.modalOption} 
-                  onPress={() => toggleMode('Hidro')}
+                  onPress={() => toggleMode('hidro')}
                 >
                   <Ionicons name="water-outline" size={22} color="#2d9cdb" />
                   <Text style={styles.modalOptionText}>Hidro Mode</Text>
@@ -236,7 +252,7 @@ const MenuOptionsConfig = () => {
                 
                 <TouchableOpacity 
                   style={styles.modalOption} 
-                  onPress={() => toggleMode('Light')}
+                  onPress={() => toggleMode('light')}
                 >
                   <Ionicons name="sunny-outline" size={22} color="#f2c94c" />
                   <Text style={styles.modalOptionText}>Light Mode</Text>
@@ -244,11 +260,65 @@ const MenuOptionsConfig = () => {
                 
                 <TouchableOpacity 
                   style={styles.modalOption} 
-                  onPress={() => toggleMode('Dark')}
+                  onPress={() => toggleMode('dark')}
                 >
                   <Ionicons name="moon-outline" size={22} color="#bb86fc" />
                   <Text style={styles.modalOptionText}>Dark Mode</Text>
                 </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={deleteModalVisible}
+        onRequestClose={() => setDeleteModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setDeleteModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContent}>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setDeleteModalVisible(false)}
+                >
+                  <Ionicons name="close" size={24} color={theme.iconColor} />
+                </TouchableOpacity>
+
+                <Ionicons 
+                  name="warning-outline" 
+                  size={40} 
+                  color="#ff3b30" 
+                  style={styles.warningIcon}
+                />
+                
+                <Text style={styles.modalHeader}>Confirmar Exclusão</Text>
+                
+                <Text style={styles.warningText}>
+                  Você tem certeza de que deseja deletar sua conta?
+                </Text>
+                <Text style={styles.warningText}>
+                  Esta ação não pode ser desfeita.
+                </Text>
+
+                <View style={styles.modalButtonsContainer}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={() => setDeleteModalVisible(false)}
+                  >
+                    <Text style={styles.buttonText}>Cancelar</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.deleteButton]}
+                    onPress={handleDeleteAccount}
+                  >
+                    <Text style={styles.buttonText}>Deletar</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </TouchableWithoutFeedback>
           </View>

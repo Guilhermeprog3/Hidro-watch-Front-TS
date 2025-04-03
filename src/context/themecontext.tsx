@@ -1,53 +1,44 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Primary_theme, Secondary_theme, Tertiary_theme } from '../colors/color';
+import { hidro, light, dark } from '../colors/color';
 
-type ThemeType = typeof Secondary_theme;
+type ThemeName = 'hidro' | 'light' | 'dark';
+type ThemeType = typeof light;
 
-interface ThemeContextProps {
+const themes: Record<ThemeName, ThemeType> = {
+  hidro: hidro,
+  light: light,
+  dark: dark
+};
+
+interface ThemeContextValue {
   theme: ThemeType;
-  toggleTheme: (themeName: 'Hidro' | 'Light' | 'Dark') => void;
+  toggleTheme: (themeName: ThemeName) => void;
 }
 
-const ThemeContext = createContext<ThemeContextProps>({
-  theme: Secondary_theme,
-  toggleTheme: () => {},
+const ThemeContext = createContext<ThemeContextValue>({
+  theme: light, 
+  toggleTheme: () => {}
 });
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<ThemeType>(Secondary_theme);
+interface ThemeProviderProps {
+  children: ReactNode;
+}
+
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  const [theme, setTheme] = useState<ThemeType>(light);
 
   useEffect(() => {
-    const loadSavedTheme = async () => {
-      try {
-        const savedTheme = await AsyncStorage.getItem('userMode');
-        if (savedTheme) {
-          const selectedTheme =
-            savedTheme === 'Hidro' ? Primary_theme :
-            savedTheme === 'Light' ? Secondary_theme :
-            Tertiary_theme;
-          setTheme(selectedTheme);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar o tema:', error);
-      }
+    const loadTheme = async () => {
+      const savedTheme = await AsyncStorage.getItem('userMode') as ThemeName | null;
+      if (savedTheme) setTheme(themes[savedTheme]);
     };
-
-    loadSavedTheme();
+    loadTheme();
   }, []);
 
-  const toggleTheme = async (themeName: 'Hidro' | 'Light' | 'Dark') => {
-    const selectedTheme =
-      themeName === 'Hidro' ? Primary_theme :
-      themeName === 'Light' ? Secondary_theme :
-      Tertiary_theme;
-    setTheme(selectedTheme);
-
-    try {
-      await AsyncStorage.setItem('userMode', themeName);
-    } catch (error) {
-      console.error('Erro ao salvar o tema:', error);
-    }
+  const toggleTheme = async (themeName: ThemeName) => {
+    setTheme(themes[themeName]);
+    await AsyncStorage.setItem('userMode', themeName);
   };
 
   return (
@@ -57,6 +48,4 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   );
 };
 
-export const useTheme = () => {
-  return useContext(ThemeContext);
-};
+export const useTheme = () => useContext(ThemeContext);
