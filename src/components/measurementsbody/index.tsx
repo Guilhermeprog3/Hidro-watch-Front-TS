@@ -43,7 +43,6 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
           });
         }
       } catch (error) {
-        console.error('Erro ao buscar dados:', error);
         Alert.alert('Erro', 'Não foi possível carregar os dados do dispositivo');
       } finally {
         setIsLoading(false);

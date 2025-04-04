@@ -44,7 +44,6 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
           setLastMeasurementDate('Nenhuma medição registrada');
         }
       } catch (error) {
-        console.error('Erro ao buscar dados:', error);
         setLastMeasurementDate('Erro ao carregar dados');
       } finally {
         setIsLoading(false);

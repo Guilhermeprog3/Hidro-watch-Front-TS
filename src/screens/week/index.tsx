@@ -35,9 +35,6 @@ const Week_page = () => {
       textAlign: 'center',
       marginBottom: 20,
     },
-    scrollContent: {
-      paddingVertical: 20,
-    },
     sectionTitle: {
       color: theme.textPrimary,
       fontSize: 18,
@@ -52,11 +49,9 @@ const Week_page = () => {
       <View>
         <Text style={styles.headerText}>Resultados Semanais</Text>
         <Text style={styles.headerSubText}>Max: 14   Min: 7</Text>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.sectionTitle}>Análise Semanal</Text>
           <WeekResults objectId={objectId} />
           <InfoBoxes objectId={objectId} />
-        </ScrollView>
       </View>
     </LinearGradient>
   );

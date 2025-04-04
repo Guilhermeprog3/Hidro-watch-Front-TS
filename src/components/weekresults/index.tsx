@@ -24,7 +24,6 @@ const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
           setWeeklyData(data);
         }
       } catch (error) {
-        console.error('Error fetching weekly data:', error);
       } finally {
         setIsLoading(false);
       }
