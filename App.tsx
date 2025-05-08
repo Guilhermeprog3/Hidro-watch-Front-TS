@@ -7,7 +7,7 @@ import RoutesComponent from './src/routes';
 import { MenuProvider } from 'react-native-popup-menu';
 import { ThemeProvider } from './src/context/themecontext';
 import { enableScreens } from 'react-native-screens';
-import 'react-native-gesture-handler';
+// import 'react-native-gesture-handler';
 
 enableScreens();
 

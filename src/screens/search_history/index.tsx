@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { useTheme } from '../../context/themecontext';
-import NavBar from '../../components/Navbar';
 
 const SearchHistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -49,6 +48,7 @@ const SearchHistoryPage = () => {
       backgroundColor: theme.gradientStart,
       borderRadius: 10,
       padding: 5,
+      marginTop:20
     },
     searchBar: {
       backgroundColor: theme.white,
@@ -119,7 +119,6 @@ const SearchHistoryPage = () => {
           </View>
         )}
       />
-      <NavBar/>
     </LinearGradient>
   );
 };

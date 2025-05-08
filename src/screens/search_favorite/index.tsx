@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useObject } from '../../hooks/Objectcontext';
 import { useTheme } from '../../context/themecontext';
-import NavBar from '../../components/Navbar';
 
 const SearchFavoritePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -72,6 +71,7 @@ const SearchFavoritePage = () => {
       flexDirection: 'row',
       alignItems: 'center',
       marginBottom: 20,
+      marginTop:50,
       backgroundColor: theme.gradientStart,
       borderRadius: 10,
       padding: 5,
@@ -166,7 +166,6 @@ const SearchFavoritePage = () => {
           </View>
         )}
       />
-      <NavBar />
     </LinearGradient>
   );
 };

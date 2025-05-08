@@ -1,8 +1,19 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  Image, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Alert,
+  ActivityIndicator,
+  Animated,
+  Dimensions
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../context/themecontext';
 import { UserContext } from '../../context/usercontext';
+import { Ionicons } from '@expo/vector-icons';
 
 interface User {
   id?: string;
@@ -11,12 +22,15 @@ interface User {
   profile_picture?: string;
 }
 
+const { width } = Dimensions.get('window');
+
 const HeaderUser = () => {
   const { theme } = useTheme();
   const { GetUserforId, updateProfilePicture } = useContext(UserContext);
   const [user, setUser] = useState<User | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -25,13 +39,18 @@ const HeaderUser = () => {
         if (userData) {
           setUser(userData);
           setProfileImage(userData.profile_picture || null);
+          
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }).start();
         }
       } catch (error) {
         console.error('Erro ao buscar dados do usuário:', error);
       }
     };
     
-
     fetchUserData();
   }, []);
 
@@ -65,85 +84,178 @@ const HeaderUser = () => {
     }
   };
 
+  const getInitials = (name?: string) => {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  };
+
   const styles = StyleSheet.create({
     header: {
-      paddingBottom: 30,
+      paddingVertical: 30,
       alignItems: 'center',
+      width: '100%',
     },
     profileSection: {
       alignItems: 'center',
+      width: '100%',
+    },
+    profileImageContainer: {
+      position: 'relative',
+      marginBottom: 20,
     },
     profilePicture: {
-      width: 100,
-      height: 100,
-      borderRadius: 50,
-      marginBottom: 10,
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      borderWidth: 4,
+      borderColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    initialsContainer: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
       backgroundColor: theme.gradientendlogin,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 4,
+      borderColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    initialsText: {
+      fontSize: 40,
+      fontWeight: 'bold',
+      color: 'white',
+    },
+    editIconContainer: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      backgroundColor: theme.buttonBackground,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 3,
+      elevation: 5,
     },
     profileName: {
-      fontSize: 20,
+      fontSize: 24,
       fontWeight: 'bold',
       color: theme.textPrimary,
-      marginTop: 5,
+      marginBottom: 5,
+      textAlign: 'center',
     },
     profileEmail: {
       fontSize: 16,
       color: theme.textSecondary,
-      marginBottom: 10,
+      textAlign: 'center',
     },
-    editButton: {
-      marginTop: 10,
-      padding: 10,
-      backgroundColor: theme.buttonBackground,
-      borderRadius: 20,
-      minWidth: 150,
+    loadingContainer: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      borderRadius: 60,
+      justifyContent: 'center',
       alignItems: 'center',
-    },
-    editButtonText: {
-      color: theme.buttonText,
-      fontWeight: 'bold',
     },
     loadingText: {
       color: theme.textSecondary,
-      marginTop: 5,
+      marginTop: 10,
+      fontSize: 14,
+    },
+    skeletonContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 30,
+    },
+    skeletonCircle: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      marginBottom: 20,
+    },
+    skeletonLine: {
+      height: 20,
+      width: 150,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: 10,
+      marginBottom: 10,
+    },
+    skeletonLineSmall: {
+      height: 16,
+      width: 200,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: 8,
     },
   });
 
   if (!user) {
     return (
       <View style={styles.header}>
-        <Text style={styles.profileName}>Carregando usuário...</Text>
+        <View>
+          <View style={styles.skeletonContainer}>
+            <View style={styles.skeletonCircle} />
+            <View style={styles.skeletonLine} />
+            <View style={styles.skeletonLineSmall} />
+          </View>
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.header}>
-      <View style={styles.profileSection}>
-        <Image
-          source={{
-            uri: profileImage || 'https://www.gravatar.com/avatar/?d=mp',
-            cache: 'reload',
-          }}
-          style={styles.profilePicture}
-        />
+    <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
+      <View>
+        <View style={styles.profileSection}>
+          <View style={styles.profileImageContainer}>
+            {profileImage ? (
+              <Image
+                source={{
+                  uri: profileImage,
+                  cache: 'reload',
+                }}
+                style={styles.profilePicture}
+              />
+            ) : (
+              <View style={styles.initialsContainer}>
+                <Text style={styles.initialsText}>{getInitials(user.name)}</Text>
+              </View>
+            )}
+            
+            <TouchableOpacity 
+              style={styles.editIconContainer}
+              onPress={pickImage}
+              disabled={isLoading}
+            >
+              <Ionicons name="camera" size={20} color={theme.buttonText} />
+            </TouchableOpacity>
+            
+            {isLoading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={theme.buttonText} />
+              </View>
+            )}
+          </View>
 
-        <Text style={styles.profileName}>{user.name}</Text>
-        <Text style={styles.profileEmail}>{user.email}</Text>
-
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={pickImage}
-          disabled={isLoading}
-        >
-          <Text style={styles.editButtonText}>
-            {isLoading ? 'Enviando...' : 'Alterar Foto'}
-          </Text>
-        </TouchableOpacity>
-
-        {isLoading && <Text style={styles.loadingText}>Atualizando...</Text>}
+          <View>
+            <Text style={styles.profileName}>{user.name || 'Usuário'}</Text>
+            <Text style={styles.profileEmail}>{user.email}</Text>
+          </View>
+        </View>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 

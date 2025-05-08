@@ -21,10 +21,9 @@ interface MenuOptionsProps {
   logout: () => void;
 }
 
-const MenuOptions: React.FC<MenuOptionsProps> = ({ user, logout }) => {
+const MenuOptions: React.FC<MenuOptionsProps> = ({ logout }) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
-  const [isLoading, setIsLoading] = useState(false);
 
   const confirmLogout = () => {
     Alert.alert(
@@ -47,7 +46,6 @@ const MenuOptions: React.FC<MenuOptionsProps> = ({ user, logout }) => {
 
   const styles = StyleSheet.create({
     menuContainer: {
-      marginTop: 20,
       paddingBottom: 30,
     },
     sectionTitle: {

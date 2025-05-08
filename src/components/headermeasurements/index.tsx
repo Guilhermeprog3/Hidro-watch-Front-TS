@@ -42,8 +42,7 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
       alignItems: 'center',
       justifyContent: 'space-between',
       marginBottom: 10,
-      marginTop: 20,
-      paddingHorizontal: 16,
+      marginTop: 50,
     },
     backButton: {
       flexDirection: 'row',

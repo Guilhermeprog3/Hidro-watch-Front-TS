@@ -18,7 +18,7 @@ type UserContextProps = {
   GetUserforId: () => Promise<User | null>;
   Postuser: (name: string, email: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<{ success: boolean }>;
   validateResetCode: (code: string) => Promise<boolean>;
   resetPassword: (code: string, newPassword: string) => Promise<void>;
   updateProfilePicture: (imageUri: string) => Promise<User>;
@@ -73,19 +73,21 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
-  async function forgotPassword(email: string): Promise<void> {
+  async function forgotPassword(email: string): Promise<{ success: boolean }> {
     try {
       const response = await api.post('/password/reset-code', { email });
       if (response.status !== 200) {
         throw new Error('Erro ao enviar código de recuperação.');
       }
+      return { success: true };
     } catch (error: any) {
       if (error.response) {
-          if (error.response.status === 404) {
+        if (error.response.status === 404) {
           throw new Error('Nenhum usuário encontrado com este email.');
         }
       }
-      throw new Error('Falha ao enviar código de recuperação. Tente novamente mais tarde.');
+      console.error('Falha no forgotPassword:', error);
+      return { success: false };
     }
   }
 

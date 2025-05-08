@@ -1,4 +1,6 @@
-import React, { useState, useContext } from 'react';
+"use client"
+
+import { useState, useContext, useRef, useEffect } from "react"
 import {
   View,
   Text,
@@ -6,145 +8,314 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { UserContext } from '../../context/usercontext';
-import { useTheme } from '../../context/themecontext';
-import HeaderBack from '../../components/headerBack';
+  Animated,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+} from "react-native"
+import { LinearGradient } from "expo-linear-gradient"
+import { useNavigation, type NavigationProp } from "@react-navigation/native"
+import { UserContext } from "../../context/usercontext"
+import { useTheme } from "../../context/themecontext"
+import HeaderBack from "../../components/headerBack"
+import { Ionicons } from "@expo/vector-icons"
 
 const RecoverPage = () => {
-  const navigation = useNavigation<NavigationProp<any>>();
-  const { theme } = useTheme();
-  const [email, setEmail] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const navigation = useNavigation<NavigationProp<any>>()
+  const { theme } = useTheme()
+  const [email, setEmail] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [keyboardVisible, setKeyboardVisible] = useState(false)
+  const [emailFocused, setEmailFocused] = useState(false)
 
-  const { forgotPassword } = useContext(UserContext);
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const shakeAnim = useRef(new Animated.Value(0)).current
+  const buttonScaleAnim = useRef(new Animated.Value(1)).current
+
+  const { forgotPassword } = useContext(UserContext)
+
+  useEffect(() => {
+    // Fade in animation
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start()
+
+    // Keyboard listeners
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => setKeyboardVisible(true))
+    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false))
+
+    return () => {
+      keyboardDidShowListener.remove()
+      keyboardDidHideListener.remove()
+    }
+  }, [])
 
   const validateEmail = (email: string) => {
-    return email.includes('@');
-  };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const shakeError = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 10, duration: 100, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -10, duration: 100, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 10, duration: 100, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 100, useNativeDriver: true }),
+    ]).start()
+  }
+
+  const animateButtonPress = () => {
+    Animated.sequence([
+      Animated.timing(buttonScaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(buttonScaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
 
   const handleResetPassword = async () => {
-    if (!email) {
-      setErrorMessage('Por favor, insira seu endereço de e-mail.');
-      return;
+    animateButtonPress()
+
+    if (!email.trim()) {
+      setErrorMessage("Por favor, insira seu endereço de e-mail.")
+      shakeError()
+      return
     }
 
     if (!validateEmail(email)) {
-      setErrorMessage('Por favor, insira um email válido.');
-      return;
+      setErrorMessage("Por favor, insira um email válido.")
+      shakeError()
+      return
     }
 
-    setIsLoading(true);
-    setErrorMessage('');
+    setIsLoading(true)
+    setErrorMessage("")
 
     try {
-      await forgotPassword(email);
-      navigation.navigate('Codepass', { email });
+      await forgotPassword(email)
+      navigation.navigate("Codepass", { email })
     } catch (error: any) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.message)
+      shakeError()
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
+
+  const dismissKeyboard = () => {
+    Keyboard.dismiss()
+  }
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      padding: 20
+    },
+    innerContainer: {
+      flex: 1,
+      paddingHorizontal: 24,
+    },
+    headerContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 10,
     },
     content: {
       flex: 1,
-      justifyContent: 'center',
-      paddingHorizontal: 24,
+      justifyContent: "center",
+      paddingBottom: keyboardVisible ? 40 : 0,
+    },
+    iconContainer: {
+      marginBottom: 30,
+      alignItems: "center",
+    },
+    icon: {
+      backgroundColor: "rgba(255, 255, 255, 0.2)",
+      padding: 16,
+      borderRadius: 50,
     },
     title: {
       fontSize: 28,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: theme.textPrimary,
       marginBottom: 16,
-      textAlign: 'center',
+      textAlign: "center",
     },
     subtitle: {
       fontSize: 16,
       color: theme.textSecondary,
       marginBottom: 32,
-      textAlign: 'center',
+      textAlign: "center",
+      lineHeight: 22,
     },
     inputContainer: {
-      marginBottom: 10,
+      marginBottom: 24,
+    },
+    inputLabel: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: theme.textPrimary,
+      marginBottom: 8,
+      marginLeft: 4,
+    },
+    inputWrapper: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1.5,
+      borderRadius: 12,
+      borderColor: emailFocused ? theme.buttonBackground : errorMessage ? theme.red : "rgba(255, 255, 255, 0.3)",
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+      paddingHorizontal: 12,
+    },
+    inputIcon: {
+      marginRight: 8,
     },
     input: {
-      height: 50,
-      borderWidth: 1,
-      borderRadius: 8,
-      paddingHorizontal: 16,
+      flex: 1,
+      height: 55,
       color: theme.textPrimary,
-      borderColor: errorMessage ? theme.red : theme.textSecondary,
+      fontSize: 16,
+    },
+    errorContainer: {
+      marginBottom: 20,
+      padding: 12,
+      borderRadius: 8,
+      backgroundColor: "rgba(255, 0, 0, 0.1)",
+      borderLeftWidth: 4,
+      borderLeftColor: theme.red,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    errorText: {
+      fontSize: 14,
+      color: theme.red,
+      flex: 1,
+      marginLeft: 8,
     },
     button: {
       backgroundColor: theme.buttonBackground,
       padding: 16,
-      borderRadius: 8,
-      alignItems: 'center',
+      borderRadius: 12,
+      alignItems: "center",
       elevation: 3,
-      shadowColor: '#000',
+      shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.2,
       shadowRadius: 4,
-      flexDirection: 'row',
-      justifyContent: 'center',
+      flexDirection: "row",
+      justifyContent: "center",
     },
     buttonText: {
       color: theme.buttonText,
       fontSize: 18,
-      fontWeight: 'bold',
-      marginLeft: isLoading ? 8 : 0,
+      fontWeight: "bold",
+      marginLeft: isLoading ? 12 : 0,
     },
-    errorText: {
-      color: theme.red,
+    infoContainer: {
+      marginTop: 24,
+      padding: 16,
+      borderRadius: 12,
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    infoText: {
       fontSize: 14,
-      marginBottom: 16,
-      textAlign: 'center',
+      color: theme.textSecondary,
+      textAlign: "center",
+      lineHeight: 20,
     },
-  });
+    infoHighlight: {
+      color: theme.textPrimary,
+      fontWeight: "500",
+    },
+  })
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-      <HeaderBack onBackPress={() => navigation.goBack()} />
-      <View style={styles.content}>
-        <Text style={styles.title}>Esqueci a Senha</Text>
-        <Text style={styles.subtitle}>Digite o email vinculado ao seu cadastro</Text>
-        
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Seu Email"
-            placeholderTextColor={theme.textSecondary}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
-        
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-        
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleResetPassword}
-          disabled={isLoading}
-        >
-          {isLoading && <ActivityIndicator color={theme.buttonText} />}
-          <Text style={styles.buttonText}>
-            {isLoading ? 'Enviando...' : 'Enviar Código'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </LinearGradient>
-  );
-};
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <View style={styles.innerContainer}>
+          <View style={styles.headerContainer}>
+            <HeaderBack onBackPress={() => navigation.goBack()} />
+          </View>
 
-export default RecoverPage;
+          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
+            <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+              <View style={styles.iconContainer}>
+                <View style={styles.icon}>
+                  <Ionicons name="key" size={40} color={theme.textPrimary} />
+                </View>
+              </View>
+
+              <Text style={styles.title}>Recuperar Senha</Text>
+              <Text style={styles.subtitle}>
+                Digite o email associado à sua conta e enviaremos um código de verificação para redefinir sua senha.
+              </Text>
+
+              <Animated.View style={[styles.inputContainer, { transform: [{ translateX: shakeAnim }] }]}>
+                <Text style={styles.inputLabel}>Email</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="mail-outline" size={22} color={theme.textSecondary} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Seu email"
+                    placeholderTextColor={theme.textSecondary}
+                    value={email}
+                    onChangeText={(text) => {
+                      setEmail(text)
+                      setErrorMessage("")
+                    }}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onFocus={() => setEmailFocused(true)}
+                    onBlur={() => setEmailFocused(false)}
+                    selectionColor={theme.buttonBackground}
+                  />
+                </View>
+
+                {errorMessage ? (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={20} color={theme.red} />
+                    <Text style={styles.errorText}>{errorMessage}</Text>
+                  </View>
+                ) : null}
+              </Animated.View>
+
+              <Animated.View style={{ transform: [{ scale: buttonScaleAnim }] }}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleResetPassword}
+                  disabled={isLoading}
+                  activeOpacity={0.9}
+                >
+                  {isLoading ? <ActivityIndicator color={theme.buttonText} size="small" /> : null}
+                  <Text style={styles.buttonText}>{isLoading ? "Enviando..." : "Enviar Código"}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+
+              <View style={styles.infoContainer}>
+                <Text style={styles.infoText}>
+                  Após receber o código, você poderá criar uma <Text style={styles.infoHighlight}>nova senha</Text> para
+                  sua conta. Verifique também sua pasta de spam caso não encontre o email.
+                </Text>
+              </View>
+            </Animated.View>
+          </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
+    </LinearGradient>
+  )
+}
+
+export default RecoverPage

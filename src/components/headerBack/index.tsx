@@ -15,7 +15,7 @@ const HeaderBack: React.FC<HeaderProps> = ({ onBackPress }) => {
       flexDirection: 'row',
       alignItems: 'center',
       marginBottom: 20,
-      marginTop: 20,
+      marginTop: 50,
       paddingHorizontal: 5,
     },
     headerTitle: {

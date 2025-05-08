@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../context/themecontext';
 import HeaderUtil from '../../components/headerUtil';
 import ListHistorico from '../../components/Listhistory';
-import NavBar from '../../components/Navbar';
 
 const HistoryPage = () => {
   const { theme } = useTheme();
@@ -30,7 +29,6 @@ const HistoryPage = () => {
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
       <HeaderUtil />
       <ListHistorico />
-      <NavBar />
     </LinearGradient>
   );
 };

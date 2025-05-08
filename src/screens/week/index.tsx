@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useRoute, RouteProp,useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
 import HeaderBack from '../../components/headerBack';
 import WeekResults from '../../components/weekresults';

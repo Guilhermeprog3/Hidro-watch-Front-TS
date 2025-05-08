@@ -1,76 +1,70 @@
 import * as ImagePicker from 'expo-image-picker';
-import * as BarCodeScanner from 'expo-barcode-scanner';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { useState, useEffect } from 'react';
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useObject } from '../../hooks/Objectcontext';
 
 export default function QRCodeScanner() {
   const [facing] = useState<CameraType>('back');
-  const [permission, requestPermission] = useCameraPermissions();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [galleryPermission, setGalleryPermission] = useState<ImagePicker.PermissionStatus | null>(null);
   const [scanned, setScanned] = useState(false);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const navigation = useNavigation();
   const { postUserObject } = useObject();
 
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      setGalleryPermission(status);
+    })();
+  }, []);
+
   const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
+    if (galleryPermission !== 'granted') {
       Alert.alert('Permissão necessária', 'Precisamos da sua permissão para acessar a galeria.');
-      return;
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      setGalleryPermission(status);
+      if (status !== 'granted') return;
     }
 
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    setIsProcessingImage(true);
+    
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        base64: true,
+      });
 
-    if (!result.canceled && result.assets && result.assets[0].uri) {
-      try {
-        const barcodes = await BarCodeScanner.scanFromURLAsync(result.assets[0].uri);
-        
-        if (barcodes && barcodes.length > 0) {
-          handleBarCodeScanned({ data: barcodes[0].data });
-        } else {
-          Alert.alert(
-            'Nenhum QR Code encontrado',
-            'A imagem selecionada não contém um QR Code válido.',
-            [
-              {
-                text: 'OK',
-                onPress: () => setScanned(false),
-              },
-            ]
-          );
-        }
-      } catch (error) {
-        console.log('Erro ao ler QR Code da imagem:', error);
+      if (!result.canceled && result.assets?.[0]?.uri) {
         Alert.alert(
-          'Erro',
-          'Não foi possível ler o QR Code da imagem.',
-          [
-            {
-              text: 'OK',
-              onPress: () => setScanned(false),
-            },
-          ]
+          'Leitura de QR Code',
+          'Para ler QR Codes de imagens, você precisará implementar uma solução específica ou usar uma API externa.',
+          [{ text: 'OK' }]
         );
       }
+    } catch (error) {
+      console.log('Erro ao acessar galeria:', error);
+      Alert.alert('Erro', 'Não foi possível acessar a galeria.');
+    } finally {
+      setIsProcessingImage(false);
     }
   };
 
-  if (!permission) {
-    return <View />;
+  if (!cameraPermission) {
+    return <View style={styles.container} />;
   }
 
-  if (!permission.granted) {
+  if (!cameraPermission.granted) {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>Precisamos da sua permissão para acessar a câmera</Text>
-        <Button onPress={requestPermission} title="Conceder permissão" />
+        <Button onPress={requestCameraPermission} title="Conceder permissão" />
       </View>
     );
   }
@@ -91,20 +85,14 @@ export default function QRCodeScanner() {
         })
         .catch((error) => {
           console.log('Erro ao criar objeto:', error);
+          setScanned(false);
         });
     } catch (error) {
       console.log('Erro ao processar QR Code:', error);
       Alert.alert(
         'Erro',
         'Dados do QR Code inválidos. Certifique-se de que o QR Code contém informações válidas.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              setScanned(false);
-            },
-          },
-        ],
+        [{ text: 'OK', onPress: () => setScanned(false) }],
         { cancelable: false }
       );
     }
@@ -112,13 +100,6 @@ export default function QRCodeScanner() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-          <Text style={styles.headerTitle}>VOLTAR</Text>
-        </TouchableOpacity>
-      </View>
-
       <CameraView
         style={styles.camera}
         facing={facing}
@@ -127,15 +108,33 @@ export default function QRCodeScanner() {
           barcodeTypes: ['qr'],
         }}
       >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="white" />
+            <Text style={styles.headerTitle}>VOLTAR</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.overlay}>
           <Text style={styles.instructionText}>Encontre um código QR</Text>
           <View style={styles.scanArea} />
         </View>
       </CameraView>
 
-      <TouchableOpacity style={styles.galleryButton} onPress={pickImage}>
-        <Ionicons name="images" size={30} color="white" />
-      </TouchableOpacity>
+      {isProcessingImage ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#ffffff" />
+          <Text style={styles.loadingText}>Processando...</Text>
+        </View>
+      ) : (
+        <TouchableOpacity 
+          style={styles.galleryButton} 
+          onPress={pickImage}
+          disabled={isProcessingImage}
+        >
+          <Ionicons name="images" size={30} color="white" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -149,7 +148,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 40,
     left: 10,
-    zIndex: 10,
+    zIndex: 1,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -174,7 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   overlay: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
@@ -183,6 +182,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'white',
     marginBottom: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 10,
   },
   scanArea: {
     width: 250,
@@ -190,7 +192,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'white',
     borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   galleryButton: {
     position: 'absolute',
@@ -199,5 +201,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 15,
     borderRadius: 25,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'white',
+    marginTop: 10,
   },
 });

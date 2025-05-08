@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import HeaderUser from '../../components/headeruser';
 import MenuOptions from '../../components/menuoptionsuser';
-import NavBar from '../../components/Navbar';
 import { AuthContext } from '../../context/authcontext';
 import { useTheme } from '../../context/themecontext';
 
@@ -34,9 +33,6 @@ const UserPage: React.FC = () => {
         />
       </View>
 
-      <View style={styles.navBarContainer}>
-        <NavBar />
-      </View>
     </LinearGradient>
   );
 };

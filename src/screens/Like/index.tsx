@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../context/themecontext';
 import HeaderLike from '../../components/headerLike';
 import ListLike from '../../components/ListLike';
-import NavBar from '../../components/Navbar';
 
 const FavoritePage = () => {
   const { theme } = useTheme();
@@ -30,7 +29,6 @@ const FavoritePage = () => {
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
       <HeaderLike />
       <ListLike />
-      <NavBar />
     </LinearGradient>
   );
 };

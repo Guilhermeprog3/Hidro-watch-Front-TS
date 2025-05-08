@@ -1,24 +1,52 @@
 {
   "expo": {
-    "name": "Hidro-watch",
-    "slug": "Hidro-watch",
+    "name": "Hidro-Watch-Front",
+    "slug": "Hidro-Watch-Front",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor":"transparent",
+      "dark": {
+        "backgroundColor":"transparent"
+      }
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "splash": {
+        "image": "./assets/splash-icon.png",
+        "resizeMode": "contain",
+        "backgroundColor":"transparent",
+        "dark": {
+          "backgroundColor":"transparent"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor":"transparent"
       },
-      "package": "com.anonymous.Hidrowatch"
+      "edgeToEdgeEnabled": true,
+      "splash": {
+        "image": "./assets/splash-icon.png",
+        "resizeMode": "contain",
+        "backgroundColor":"transparent",
+        "dark": {
+          "backgroundColor":"transparent"
+        }
+      }
     },
-    "web": {}
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-barcode-scanner",
+      "expo-camera"
+    ]
   }
 }

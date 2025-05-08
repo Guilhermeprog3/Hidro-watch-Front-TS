@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../context/themecontext';
 import HeaderHome from '../../components/headerhome';
 import DeviceListHome from '../../components/ListHome';
-import NavBar from '../../components/Navbar';
 
 const HomePage = () => {
   const { theme } = useTheme();
@@ -36,7 +35,6 @@ const HomePage = () => {
       <HeaderHome />
       <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
       <DeviceListHome />
-      <NavBar />
     </LinearGradient>
   );
 };
