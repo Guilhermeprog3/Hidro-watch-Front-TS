@@ -11,6 +11,9 @@ import RecoverPage from '../screens/recoverpass';
 import NewPassword from '../screens/newpassword';
 import CodePage from '../screens/codepass';
 import BottomRoutes from './bottom_routes';
+import AboutScreen from '../screens/about';
+import PrivacyPolicyScreen from '../screens/privacy';
+import TermsOfUseScreen from '../screens/terms';
 
 
 const PrivateRoutes = () => {
@@ -28,6 +31,9 @@ const PrivateRoutes = () => {
             <Screen name="Recoverpass" component={RecoverPage} options={{ headerShown: false }} />
             <Screen name="Codepass" component={CodePage} options={{ headerShown: false }} />
             <Screen name="Newpassword" component={NewPassword} options={{ headerShown: false }} />
+            <Screen name="About" component={AboutScreen} options={{ headerShown: false }} />
+            <Screen name="Privacy" component={PrivacyPolicyScreen} options={{ headerShown: false }} />
+            <Screen name="Terms" component={TermsOfUseScreen} options={{ headerShown: false }} />
         </Navigator>
     );
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, ColorValue } from 'react-native';
 import { useTheme } from '../../context/themecontext';
 import { Measurementobject } from '../../hooks/measurements';
 import { useObject } from '../../hooks/Objectcontext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type MeasurementBodyProps = {
   deviceId: string;
@@ -18,6 +19,7 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
     ph: 0,
     turbidity: 0,
     temperature: 0,
+    tds: 0,
     averageMeasurement: 0,
   });
 
@@ -39,6 +41,7 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
             ph: latestMeasurement.ph || 0,
             turbidity: latestMeasurement.turbidity || 0,
             temperature: latestMeasurement.temperature || 0,
+            tds: latestMeasurement.tds || 0,
             averageMeasurement: latestMeasurement.averageMeasurement || 0,
           });
         }
@@ -56,22 +59,38 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
     return Math.round(value * 2) / 2;
   };
 
-  const getBackgroundColor = (result: number) => {
-    if (result <= 2) return 'rgba(207, 6, 6, 0.76)';
-    if (result <= 4) return 'rgba(180, 177, 6, 0.8)';
-    if (result <= 8) return 'rgba(8, 175, 19, 0.8)';
-    if (result <= 10) return 'rgba(7, 18, 170, 0.8)';
-    if (result <= 13) return 'rgba(2, 4, 81, 0.8)';
-    return 'rgba(118, 7, 165, 0.8)';
+  const getGradientColors = (result: number): readonly [ColorValue, ColorValue] => {
+    if (result <= 2) return ['#FF5252', '#D32F2F'] as const;
+    if (result <= 4) return ['#FFD54F', '#FFA000'] as const;
+    if (result <= 8) return ['#66BB6A', '#388E3C'] as const;
+    if (result <= 10) return ['#42A5F5', '#1976D2'] as const;
+    if (result <= 13) return ['#5C6BC0', '#303F9F'] as const;
+    return ['#AB47BC', '#7B1FA2'] as const;
+  };
+
+  const getMeasurementLabel = (type: string, value: number) => {
+    switch (type) {
+      case 'ph':
+        return `pH ${value < 7 ? '(Ácido)' : value > 7 ? '(Básico)' : '(Neutro)'}`;
+      case 'temperature':
+        return `Temperatura ${value > 25 ? '(Alta)' : value < 15 ? '(Baixa)' : '(Normal)'}`;
+      case 'turbidity':
+        return `Turbidez ${value > 5 ? '(Alta)' : '(Normal)'}`;
+      case 'tds':
+        return `TDS ${value > 500 ? '(Alto)' : '(Normal)'}`;
+      default:
+        return type;
+    }
   };
 
   const styles = StyleSheet.create({
     container: {
       marginBottom: 30,
+      paddingHorizontal: 16,
     },
     headerText: {
       color: theme.textPrimary,
-      fontSize: 22,
+      fontSize: 24,
       fontWeight: 'bold',
       textAlign: 'center',
       fontFamily: 'Inter-Bold',
@@ -84,30 +103,52 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
       marginBottom: 25,
       fontFamily: 'Inter-Regular',
     },
+    circleContainer: {
+      alignItems: 'center',
+      marginBottom: 20,
+    },
     circle: {
+      width: 160,
+      height: 160,
+      borderRadius: 80,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    innerCircle: {
       width: 140,
       height: 140,
       borderRadius: 70,
       backgroundColor: theme.navBarBackground,
       justifyContent: 'center',
       alignItems: 'center',
-      alignSelf: 'center',
-      marginBottom: 30,
-      borderWidth: 3,
-      borderColor: theme.secondary,
+      borderWidth: 0,
+      borderColor: 'rgba(255,255,255,0.3)',
     },
     circleText: {
       color: theme.textPrimary,
-      fontSize: 24,
+      fontSize: 28,
       fontWeight: 'bold',
       fontFamily: 'Inter-Bold',
     },
+    circleSubText: {
+      color: theme.textSecondary,
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      marginTop: 4,
+    },
     sectionTitle: {
       color: theme.textPrimary,
-      fontSize: 18,
+      fontSize: 20,
       fontWeight: 'bold',
       marginBottom: 20,
       fontFamily: 'Inter-SemiBold',
+      textAlign: 'center',
+      letterSpacing: 1,
     },
     row: {
       flexDirection: 'row',
@@ -115,31 +156,45 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
       marginBottom: 15,
     },
     measurementBox: {
-      borderRadius: 12,
+      borderRadius: 16,
       padding: 20,
       width: '48%',
-      height: 100,
+      height: 110,
       alignItems: 'center',
       justifyContent: 'center',
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.15,
+      shadowRadius: 6,
+      elevation: 5,
+      overflow: 'hidden',
     },
     measurementLabel: {
-      color: theme.textPrimary,
+      color: '#FFFFFF',
       fontSize: 14,
       fontWeight: 'bold',
       marginBottom: 8,
       fontFamily: 'Inter-Medium',
       textAlign: 'center',
+      textShadowColor: 'rgba(0, 0, 0, 0.3)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 2,
     },
     measurementValue: {
-      color: theme.textPrimary,
-      fontSize: 20,
+      color: '#FFFFFF',
+      fontSize: 24,
       fontWeight: 'bold',
       fontFamily: 'Inter-Bold',
+      textShadowColor: 'rgba(0, 0, 0, 0.3)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
+    },
+    measurementUnit: {
+      color: '#FFFFFF',
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      opacity: 0.9,
+      marginTop: 2,
     },
     loadingContainer: {
       height: 300,
@@ -156,36 +211,74 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
     );
   }
 
+  const averageValue = roundToNearestHalf(measurement.averageMeasurement);
+  const averageGradient = getGradientColors(averageValue);
+
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>{objectName}</Text>
-      <Text style={styles.headerSubText}>Max: 14   Min: 6</Text>
+      <Text style={styles.headerSubText}>Faixa ideal: 6 - 14</Text>
 
-      <View style={styles.circle}>
-        <Text style={styles.circleText}>{roundToNearestHalf(measurement.averageMeasurement)} MD</Text>
+      <View style={styles.circleContainer}>
+        <LinearGradient
+          colors={averageGradient}
+          style={styles.circle}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={styles.innerCircle}>
+            <Text style={styles.circleText}>{averageValue}</Text>
+            <Text style={styles.circleSubText}>Medição Média</Text>
+          </View>
+        </LinearGradient>
       </View>
 
-      <Text style={styles.sectionTitle}>MEDIÇÕES</Text>
+      <Text style={styles.sectionTitle}>PARÂMETROS DE QUALIDADE</Text>
 
       <View style={styles.row}>
-        <View style={[styles.measurementBox, { backgroundColor: getBackgroundColor(measurement.ph) }]}>
-          <Text style={styles.measurementLabel}>PH</Text>
+        <LinearGradient
+          colors={getGradientColors(measurement.ph)}
+          style={styles.measurementBox}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.measurementLabel}>{getMeasurementLabel('ph', measurement.ph)}</Text>
           <Text style={styles.measurementValue}>{measurement.ph}</Text>
-        </View>
-        <View style={[styles.measurementBox, { backgroundColor: getBackgroundColor(measurement.temperature) }]}>
-          <Text style={styles.measurementLabel}>Temperatura (°C)</Text>
+        </LinearGradient>
+        
+        <LinearGradient
+          colors={getGradientColors(measurement.temperature)}
+          style={styles.measurementBox}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.measurementLabel}>{getMeasurementLabel('temperature', measurement.temperature)}</Text>
           <Text style={styles.measurementValue}>{measurement.temperature}°</Text>
-        </View>
+        </LinearGradient>
       </View>
+      
       <View style={styles.row}>
-        <View style={[styles.measurementBox, { backgroundColor: getBackgroundColor(measurement.turbidity) }]}>
-          <Text style={styles.measurementLabel}>TURBIDEZ (NTU)</Text>
+        <LinearGradient
+          colors={getGradientColors(measurement.turbidity)}
+          style={styles.measurementBox}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.measurementLabel}>{getMeasurementLabel('turbidity', measurement.turbidity)}</Text>
           <Text style={styles.measurementValue}>{measurement.turbidity}</Text>
-        </View>
-        <View style={[styles.measurementBox, { backgroundColor: getBackgroundColor(measurement.averageMeasurement) }]}>
-          <Text style={styles.measurementLabel}>Média</Text>
-          <Text style={styles.measurementValue}>{roundToNearestHalf(measurement.averageMeasurement)}</Text>
-        </View>
+          <Text style={styles.measurementUnit}>NTU</Text>
+        </LinearGradient>
+        
+        <LinearGradient
+          colors={getGradientColors(measurement.tds)}
+          style={styles.measurementBox}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.measurementLabel}>{getMeasurementLabel('tds', measurement.tds)}</Text>
+          <Text style={styles.measurementValue}>{measurement.tds}</Text>
+          <Text style={styles.measurementUnit}>mg/L</Text>
+        </LinearGradient>
       </View>
     </View>
   );

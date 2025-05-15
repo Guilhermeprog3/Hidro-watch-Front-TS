@@ -212,7 +212,7 @@ const NewPassword = () => {
       borderWidth: 1.5,
       borderRadius: 12,
       marginBottom: 16,
-      borderColor: passwordFocused ? theme.buttonBackground : errorMessage ? theme.red : "rgba(255, 255, 255, 0.3)",
+      borderColor: passwordFocused ? theme.buttonBackground : errorMessage ? theme.red : theme.buttonBackground,
       backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
     passwordInput: {
@@ -221,6 +221,7 @@ const NewPassword = () => {
       paddingHorizontal: 16,
       color: theme.textPrimary,
       fontSize: 16,
+      borderColor: theme.buttonBackground,
     },
     eyeIcon: {
       padding: 12,
@@ -237,7 +238,7 @@ const NewPassword = () => {
     },
     strengthBarContainer: {
       height: 6,
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
+      backgroundColor: "rgba(146, 0, 0, 0.1)",
       borderRadius: 3,
       overflow: "hidden",
       flexDirection: "row",

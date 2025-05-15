@@ -100,6 +100,7 @@ const MenuOptions: React.FC<MenuOptionsProps> = ({ logout }) => {
       <TouchableOpacity
         style={styles.menuItem}
         activeOpacity={0.7}
+        onPress={() => navigation.navigate('About')}
       >
         <View style={styles.iconContainer}>
           <Ionicons name="information-circle-outline" size={22} color={theme.iconColor} />
@@ -123,6 +124,7 @@ const MenuOptions: React.FC<MenuOptionsProps> = ({ logout }) => {
       <TouchableOpacity 
         style={styles.menuItem}
         activeOpacity={0.7}
+        onPress={() => navigation.navigate('Privacy')}
       >
         <View style={styles.iconContainer}>
           <Ionicons name="shield-checkmark-outline" size={22} color={theme.iconColor} />

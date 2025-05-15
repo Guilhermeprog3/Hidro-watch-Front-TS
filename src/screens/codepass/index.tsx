@@ -228,7 +228,7 @@ const CodePage = () => {
       fontSize: 20,
       fontWeight: 'bold',
       color: theme.textPrimary,
-      borderColor: 'rgba(255, 255, 255, 0.3)',
+      borderColor: theme.buttonBackground,
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
     digitInputFilled: {

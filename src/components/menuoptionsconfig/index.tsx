@@ -98,11 +98,7 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
       try {
         const result = await forgotPassword(user.email);
         setIsLoading(false);
-        if (result.success) {
           navigation.navigate('Codepass', { email: user.email });
-        } else {
-          Alert.alert('Erro', 'Não foi possível enviar o e-mail de recuperação de senha.');
-        }
       } catch (error) {
         setIsLoading(false);
         Alert.alert('Erro', 'Ocorreu um erro ao tentar enviar o e-mail de recuperação de senha.');
@@ -213,15 +209,6 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
       borderRadius: 12,
       marginRight: 10,
     },
-    hidroTheme: {
-      backgroundColor: '#0088cc',
-    },
-    lightTheme: {
-      backgroundColor: '#f8f8f8',
-    },
-    darkTheme: {
-      backgroundColor: '#222222',
-    },
   });
 
   return (
@@ -275,7 +262,7 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
                   ]} 
                   onPress={() => toggleMode('Hidro')}
                 >
-                  <View style={[styles.themeIndicator, styles.hidroTheme]} />
+                  <View style={[styles.themeIndicator]} />
                   <Ionicons name="water" size={24} color="#0088cc" />
                   <Text style={styles.modalOptionText}>Hidro Mode</Text>
                   {getCurrentThemeName() === 'Hidro' && (
@@ -290,7 +277,7 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
                   ]} 
                   onPress={() => toggleMode('Light')}
                 >
-                  <View style={[styles.themeIndicator, styles.lightTheme]} />
+                  <View style={[styles.themeIndicator]} />
                   <Ionicons name="sunny" size={24} color="#FF9500" />
                   <Text style={styles.modalOptionText}>Light Mode</Text>
                   {getCurrentThemeName() === 'Light' && (
@@ -305,7 +292,7 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
                   ]} 
                   onPress={() => toggleMode('Dark')}
                 >
-                  <View style={[styles.themeIndicator, styles.darkTheme]} />
+                  <View style={[styles.themeIndicator]} />
                   <Ionicons name="moon" size={24} color="#8E8E93" />
                   <Text style={styles.modalOptionText}>Dark Mode</Text>
                   {getCurrentThemeName() === 'Dark' && (

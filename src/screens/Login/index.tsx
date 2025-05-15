@@ -1,11 +1,24 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
 import HeaderHidro from '../../components/headerhidro';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string()
+    .trim()
+    .min(1, "O e-mail é obrigatório")
+    .email("Por favor, insira um e-mail válido")
+    .toLowerCase(),
+  password: z.string()
+    .min(1, "A senha é obrigatória")
+    .min(6, "A senha deve ter pelo menos 6 caracteres")
+    .max(32, "A senha não pode ter mais de 32 caracteres"),
+});
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -15,37 +28,47 @@ const LoginScreen = () => {
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const validateEmail = (email: string) => {
-    return email.includes('@');
-  };
-
   const handleLogin = async () => {
-    if (!email) {
-      setErrorMessage('Por favor, insira seu endereço de e-mail.');
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setErrorMessage('Por favor, insira um email válido.');
-      return;
-    }
-
-    if (!password) {
-      setErrorMessage('Por favor, insira sua senha.');
-      return;
-    }
-
-    setIsLoading(true);
-    setErrorMessage('');
-
     try {
+      Keyboard.dismiss();
+      
+      setErrorMessage('');
+      setFieldErrors({});
+      
+      loginSchema.parse({ email, password });
+      
+      setIsLoading(true);
+      
       await login(email, password);
-    } catch (error: any) {
-      setErrorMessage(error.message || 'Erro Desconhecido');
+      
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path) {
+            errors[err.path[0]] = err.message;
+          }
+        });
+        setFieldErrors(errors);
+        
+        if (error.errors[0]) {
+          setErrorMessage(error.errors[0].message);
+        }
+      } 
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const clearFieldError = (fieldName: string) => {
+    if (fieldErrors[fieldName]) {
+      setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+    }
+    if (errorMessage) {
+      setErrorMessage('');
     }
   };
 
@@ -56,7 +79,8 @@ const LoginScreen = () => {
       alignItems: 'center',
     },
     content: {
-      width: '80%',
+      width: '90%',
+      maxWidth: 400,
       alignItems: 'center',
     },
     heading: {
@@ -80,8 +104,19 @@ const LoginScreen = () => {
       borderWidth: 1,
       borderRadius: 8,
       paddingHorizontal: 16,
-      marginBottom: 16,
-      borderColor: errorMessage ? theme.red : theme.textSecondary,
+      marginBottom: 8,
+      borderColor: fieldErrors.email ? theme.red : theme.textSecondary,
+    },
+    passwordContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      width: '100%',
+      height: 50,
+      borderWidth: 1,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      marginBottom: 8,
+      borderColor: fieldErrors.password ? theme.red : theme.textSecondary,
     },
     inputIcon: {
       marginRight: 10,
@@ -89,14 +124,22 @@ const LoginScreen = () => {
     input: {
       flex: 1,
       color: theme.textPrimary,
+      height: '100%',
     },
     showPasswordIcon: {
       marginLeft: 10,
     },
+    fieldError: {
+      color: theme.red,
+      fontSize: 12,
+      alignSelf: 'flex-start',
+      marginLeft: 16,
+      marginBottom: 12,
+    },
     button: {
       width: '100%',
       backgroundColor: theme.buttonBackground,
-      padding: 8,
+      padding: 15,
       borderRadius: 8,
       alignItems: 'center',
       elevation: 3,
@@ -107,6 +150,9 @@ const LoginScreen = () => {
       flexDirection: 'row',
       justifyContent: 'center',
       marginBottom: 20,
+    },
+    disabledButton: {
+      opacity: 0.7,
     },
     buttonText: {
       color: theme.buttonText,
@@ -144,62 +190,96 @@ const LoginScreen = () => {
     link: {
       color: theme.textPrimary,
       marginTop: 20,
+      textDecorationLine: 'underline',
     },
     forgotPasswordText: {
       color: theme.textPrimary,
       marginTop: 0,
       marginBottom: 20,
       textDecorationLine: 'underline',
+      alignSelf: 'flex-end',
     },
   });
 
   return (
-    <LinearGradient colors={[theme.gradientstartlogin, theme.gradientendlogin]} style={styles.container}>
+    <LinearGradient 
+      colors={[theme.gradientstartlogin, theme.gradientendlogin]} 
+      style={styles.container}
+    >
       <View style={styles.content}>
         <HeaderHidro />
         <Text style={styles.heading}>Entrar</Text>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={24} color={theme.iconColor} style={styles.inputIcon} />
+          <Ionicons 
+            name="mail-outline" 
+            size={24} 
+            color={fieldErrors.email ? theme.red : theme.iconColor} 
+            style={styles.inputIcon} 
+          />
           <TextInput
             style={styles.input}
             placeholder="Seu Email"
             placeholderTextColor={theme.textSecondary}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(text) => {
+              setEmail(text);
+              clearFieldError('email');
+            }}
             keyboardType="email-address"
             autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="next"
+            onSubmitEditing={() => {
+              const passwordInput = document.getElementById('password-input');
+              passwordInput?.focus();
+            }}
           />
         </View>
+        {fieldErrors.email && <Text style={styles.fieldError}>{fieldErrors.email}</Text>}
 
-        <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={24} color={theme.iconColor} style={styles.inputIcon} />
+        <View style={styles.passwordContainer}>
+          <Ionicons 
+            name="lock-closed-outline" 
+            size={24} 
+            color={fieldErrors.password ? theme.red : theme.iconColor} 
+            style={styles.inputIcon} 
+          />
           <TextInput
             style={styles.input}
             placeholder="Sua Senha"
             placeholderTextColor={theme.textSecondary}
             secureTextEntry={!showPassword}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(text) => {
+              setPassword(text);
+              clearFieldError('password');
+            }}
+            id="password-input"
+            returnKeyType="go"
+            onSubmitEditing={handleLogin}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Ionicons
               name={showPassword ? 'eye-outline' : 'eye-off-outline'}
               size={24}
-              color={theme.iconColor}
+              color={fieldErrors.password ? theme.red : theme.iconColor}
               style={styles.showPasswordIcon}
             />
           </TouchableOpacity>
         </View>
+        {fieldErrors.password && <Text style={styles.fieldError}>{fieldErrors.password}</Text>}
 
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+        {errorMessage && !fieldErrors.email && !fieldErrors.password && (
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        )}
 
         <TouchableOpacity onPress={() => navigation.navigate('Recoverpass')}>
           <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.button} 
+          style={[styles.button, isLoading && styles.disabledButton]} 
           onPress={handleLogin}
           disabled={isLoading}
         >
@@ -212,7 +292,10 @@ const LoginScreen = () => {
         <Text style={styles.orText}>Ou entre com</Text>
         
         <View style={styles.socialButtons}>
-          <TouchableOpacity style={[styles.socialButton, styles.googleButton]}>
+          <TouchableOpacity 
+            style={[styles.socialButton, styles.googleButton]}
+            onPress={() => {}}
+          >
             <AntDesign name="google" size={24} color="white" />
             <Text style={styles.socialButtonText}>Google</Text>
           </TouchableOpacity>

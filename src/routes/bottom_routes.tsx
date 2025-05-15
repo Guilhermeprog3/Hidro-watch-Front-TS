@@ -15,7 +15,7 @@ const BottomRoutes = () => {
         <Navigator
             screenOptions={{
                 tabBarActiveTintColor: theme.buttonBackground,
-                tabBarInactiveTintColor: theme.buttonText,
+                tabBarInactiveTintColor: theme.textPrimary,
                 tabBarStyle: {
                     backgroundColor: theme.gradientStart,
                     borderTopWidth: 0,

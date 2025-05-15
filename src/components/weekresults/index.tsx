@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, ActivityIndicator, ColorValue } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/themecontext';
 import { MeasurementContext } from '../../context/measurementscontext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type WeekResultsProps = {
   objectId: string;
@@ -44,13 +45,22 @@ const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
     return Math.round(value * 2) / 2;
   };
 
-  const getBackgroundColor = (result: number) => {
-    if (result <= 2) return 'rgba(220, 0, 22, 0.8)';
-    if (result <= 4) return 'rgba(242, 238, 0, 0.8)';
-    if (result <= 8) return 'rgba(0, 255, 17, 0.8)';
-    if (result <= 10) return 'rgba(0, 17, 255, 0.8)';
-    if (result <= 13) return 'rgba(0, 4, 131, 0.8)';
-    return 'rgba(88, 13, 120, 0.8)';
+  const getGradientColors = (result: number): readonly [ColorValue, ColorValue] => {
+    if (result <= 2) return ['#FF5252', '#D32F2F'] as const;
+    if (result <= 4) return ['#FFD54F', '#FFA000'] as const;
+    if (result <= 8) return ['#66BB6A', '#388E3C'] as const;
+    if (result <= 10) return ['#42A5F5', '#1976D2'] as const;
+    if (result <= 13) return ['#5C6BC0', '#303F9F'] as const;
+    return ['#AB47BC', '#7B1FA2'] as const;
+  };
+
+  const getQualityLabel = (value: number): string => {
+    if (value <= 2) return 'Ruim';
+    if (value <= 4) return 'Regular';
+    if (value <= 8) return 'Bom';
+    if (value <= 10) return 'Ótimo';
+    if (value <= 13) return 'Excelente';
+    return 'Superior';
   };
 
   const getDayResult = (index: number) => {
@@ -59,11 +69,22 @@ const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
     if (!dayData) return null;
 
     const roundedAverage = roundToNearestHalf(dayData.average_measurement);
+    const gradientColors = getGradientColors(roundedAverage);
+    const qualityLabel = getQualityLabel(roundedAverage);
 
     return (
-      <View key={dayIndex} style={[styles.dayResult, { backgroundColor: getBackgroundColor(roundedAverage) }]}>
-        <Text style={styles.dayText}>{roundedAverage}</Text>
-        <Text style={styles.dayLabel}>{dayData.day}</Text>
+      <View key={dayIndex} style={styles.dayContainer}>
+        <LinearGradient
+          colors={gradientColors}
+          style={styles.dayResult}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+        >
+          <Text style={styles.dayText}>{roundedAverage}</Text>
+          <View style={styles.divider} />
+          <Text style={styles.dayLabel}>{dayData.day}</Text>
+          <Text style={styles.qualityLabel}>{qualityLabel}</Text>
+        </LinearGradient>
       </View>
     );
   };
@@ -74,30 +95,76 @@ const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: 30,
+      paddingHorizontal: 8,
     },
     arrowButton: {
-      padding: 0,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.secondary + '20',
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+      elevation: 3,
+    },
+    dayContainer: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.15,
+      shadowRadius: 5,
+      elevation: 6,
+      borderRadius: 30,
     },
     dayResult: {
-      width: 60,
-      height: 130,
+      width: 65,
+      height: 150,
       borderRadius: 30,
       alignItems: 'center',
       justifyContent: 'center',
+      padding: 10,
     },
     dayText: {
-      color: theme.textPrimary,
-      fontSize: 24,
+      color: '#FFFFFF',
+      fontSize: 28,
       fontWeight: 'bold',
+      fontFamily: 'Inter-Bold',
+      textShadowColor: 'rgba(0, 0, 0, 0.3)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
     },
     dayLabel: {
-      color: theme.textPrimary,
+      color: '#FFFFFF',
       fontSize: 16,
+      fontWeight: 'bold',
+      fontFamily: 'Inter-Medium',
+      textShadowColor: 'rgba(0, 0, 0, 0.2)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 2,
+    },
+    qualityLabel: {
+      color: '#FFFFFF',
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      marginTop: 4,
+      opacity: 0.9,
+      textShadowColor: 'rgba(0, 0, 0, 0.2)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 1,
+    },
+    divider: {
+      width: '80%',
+      height: 1,
+      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+      marginVertical: 8,
     },
     loadingContainer: {
-      height: 130,
+      height: 150,
       justifyContent: 'center',
       alignItems: 'center',
+      width: '100%',
     },
   });
 
@@ -111,14 +178,14 @@ const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
 
   return (
     <View style={styles.weekResults}>
-      <TouchableOpacity onPress={prevDay} style={styles.arrowButton}>
-        <Ionicons name="arrow-back" size={24} color={theme.iconColor} />
+      <TouchableOpacity onPress={prevDay} style={styles.arrowButton} activeOpacity={0.7}>
+        <Ionicons name="chevron-back" size={24} color={theme.iconColor} />
       </TouchableOpacity>
 
       {[0, 1, 2, 3].map((index) => getDayResult(index))}
 
-      <TouchableOpacity onPress={nextDay} style={styles.arrowButton}>
-        <Ionicons name="arrow-forward" size={24} color={theme.iconColor} />
+      <TouchableOpacity onPress={nextDay} style={styles.arrowButton} activeOpacity={0.7}>
+        <Ionicons name="chevron-forward" size={24} color={theme.iconColor} />
       </TouchableOpacity>
     </View>
   );
