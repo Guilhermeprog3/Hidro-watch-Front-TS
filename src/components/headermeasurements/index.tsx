@@ -24,7 +24,7 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
   const confirmDelete = async () => {
     try {
       await DeleteObject(deviceId);
-      navigation.navigate('Home');
+      onBackPress()
     } catch (error) {
       Alert.alert("Erro", "Não foi possível deletar o objeto. Tente novamente.");
     } finally {

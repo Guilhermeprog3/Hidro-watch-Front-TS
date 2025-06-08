@@ -26,7 +26,7 @@ const FavoritePage = () => {
 
   return (
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
-      <Image source={require('../../../assets/images/decorativeImage.png')} style={styles.decorativeImage} />
+      <Image source={require('../../../assets/images/entradaifma.jpeg')} style={styles.decorativeImage} />
       <HeaderLike />
       <ListLike />
     </LinearGradient>

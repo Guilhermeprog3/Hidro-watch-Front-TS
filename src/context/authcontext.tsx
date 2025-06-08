@@ -1,6 +1,7 @@
 import React, { createContext, PropsWithChildren, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from '../services/api';
+import { api, updateNotificationToken } from '../services/api';
+import { registerForPushNotificationsAsync } from '../services/notificationService';
 
 type UserToken = {
   token: string;
@@ -8,6 +9,7 @@ type UserToken = {
 };
 
 type User = {
+  user: any;
   password: string;
   id: string;
   name: string;
@@ -18,7 +20,7 @@ type User = {
 type AuthContextProps = {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -43,6 +45,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       if (response.data && response.data.token) {
         await AsyncStorage.setItem('@token-hidrowatch!2', JSON.stringify(response.data));
         setUser(response.data);
+        const notificationToken = await registerForPushNotificationsAsync();
+        if (notificationToken) {
+          api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token.token}`;
+          await updateNotificationToken(notificationToken);
+        }
+        
       } else {
         throw new Error('Resposta inválida do servidor');
       }
@@ -56,6 +64,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       }
     }
   }
+  
   async function logout() {
     await AsyncStorage.removeItem('@token-hidrowatch!2');
     setUser(null);

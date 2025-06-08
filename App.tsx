@@ -3,11 +3,10 @@ import { AuthProvider } from './src/context/authcontext';
 import { UserProvider } from './src/context/usercontext';
 import { ObjectProvider } from './src/context/objectcontext';
 import { MeasurementProvider } from './src/context/measurementscontext';
-import RoutesComponent from './src/routes';
+import Routes from './src/routes/index';
 import { MenuProvider } from 'react-native-popup-menu';
 import { ThemeProvider } from './src/context/themecontext';
 import { enableScreens } from 'react-native-screens';
-// import 'react-native-gesture-handler';
 
 enableScreens();
 
@@ -19,7 +18,7 @@ const App: React.FC = () => {
           <UserProvider>
             <ObjectProvider>
               <MeasurementProvider>
-                <RoutesComponent />
+                <Routes />
               </MeasurementProvider>
             </ObjectProvider>
           </UserProvider>

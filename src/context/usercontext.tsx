@@ -4,7 +4,6 @@ import { api } from '../services/api';
 import { AuthContext } from './authcontext';
 
 interface User {
-  User: any;
   id: string;
   name: string;
   email: string;
@@ -13,10 +12,11 @@ interface User {
     token: string;
   };
 }
-
 type UserContextProps = {
+  initEmailVerification: (email: string) => Promise<boolean>;
+  confirmEmailVerification: (email: string, code: string) => Promise<boolean>;
+  postUser: (name: string, email: string, password: string) => Promise<void>;
   GetUserforId: () => Promise<User | null>;
-  Postuser: (name: string, email: string, password: string) => Promise<void>;
   deleteUser: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   validateResetCode: (code: string) => Promise<boolean>;
@@ -30,45 +30,66 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
   const { user } = useContext(AuthContext);
 
   async function GetUserforId(): Promise<User | null> {
-    if (!user?.id) {
-      console.error('Usuário ou ID não encontrado');
+
+    if (!user?.user.id) {
+      console.error('GetUserforId: Usuário ou ID não encontrado no contexto.');
       return null;
     }
     try {
       const token = user.token.token;
-      const response = await api.get(`user/${user.id}`, {
+      const response = await api.get(`user/${user.user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data as User;
-    } catch (error) {
-      console.log('Erro ao buscar dados do usuário:', error);
+    } catch (error: any) {
+      console.log('Erro ao buscar dados do usuário:', error.response?.data?.message || error.message);
       return null;
     }
   }
 
-  async function Postuser(name: string, email: string, password: string): Promise<void> {
+   async function initEmailVerification(email: string): Promise<boolean> {
     try {
-      await api.post('user', { email, password, name });
+      await api.post('email/verify-init', { email });
+      return true;
     } catch (error: any) {
-      if (error.response) {
-         if (error.response.status === 409) {
-          throw new Error('Email já está em uso. Por favor, use outro email.');
-        }
+      if (error.response?.status === 409) {
+        throw new Error('Este e-mail já está em uso.');
       }
+      throw new Error('Falha ao enviar o código de verificação.');
+    }
+  }
+
+  async function confirmEmailVerification(email: string, code: string): Promise<boolean> {
+    try {
+      const response = await api.post('email/verify-confirm', { email, code });
+      return response.data.verified === true;
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        throw new Error(error.response.data.message || 'Código inválido ou expirado.');
+      }
+      throw new Error('Falha ao verificar o código.');
+    }
+  }
+
+  async function postUser(name: string, email: string, password: string): Promise<void> {
+    try {
+      await api.post('users', { email, password, name });
+    } catch (error: any) {
       throw new Error('Falha ao criar usuário. Tente novamente mais tarde.');
     }
   }
 
   async function deleteUser(): Promise<void> {
-    if (!user?.id) {
+    if (!user?.user.id) {
       return;
     }
     try {
       const token = user.token.token;
-      await api.delete(`user/${user.id}`, {
+      await api.delete(`user/${user.user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Erro ao deletar usuário:', error.response?.data?.message || error.message);
       Alert.alert('Erro ao deletar usuário');
     }
   }
@@ -80,13 +101,11 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
         throw new Error('Erro ao enviar código de recuperação.');
       }
     } catch (error: any) {
-      if (error.response) {
-        if (error.response.status === 404) {
-          throw new Error('Nenhum usuário encontrado com este email.');
-        }
+      if (error.response && error.response.data && error.response.data.message) {
+        throw new Error(error.response.data.message);
       }
       console.error('Falha no forgotPassword:', error);
-      return alert("deu certo");
+      throw new Error('Falha ao enviar código de recuperação. Tente novamente mais tarde.');
     }
   }
 
@@ -95,10 +114,8 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       const response = await api.post('/password/validate-code', { code });
       return response.data.message === 'Código válido';
     } catch (error: any) {
-      if (error.response) {
-         if (error.response.status === 404) {
-          throw new Error('Código não encontrado ou expirado.');
-        }
+      if (error.response && error.response.data && error.response.data.message) {
+        throw new Error(error.response.data.message);
       }
       throw new Error('Falha ao validar código. Tente novamente mais tarde.');
     }
@@ -112,19 +129,15 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
 
       await api.patch('/password/reset', { code, new_password: newPassword });
     } catch (error: any) {
-      if (error.response) {
-        if (error.response.status === 400) {
-          throw new Error('Dados inválidos fornecidos para redefinição de senha.');
-        } else if (error.response.status === 404) {
-          throw new Error('Código inválido ou expirado.');
-        }
+      if (error.response && error.response.data && error.response.data.message) {
+        throw new Error(error.response.data.message);
       }
       throw new Error('Falha ao redefinir senha. Tente novamente mais tarde.');
     }
   }
 
   const updateProfilePicture = async (imageUri: string): Promise<User> => {
-    if (!user?.id || !user?.token?.token) {
+    if (!user?.user.id || !user?.token?.token) {
       throw new Error('Usuário não autenticado');
     }
     try {
@@ -135,7 +148,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
         type: 'image/jpeg',
       } as any);
 
-      const response = await api.patch(`/user/${user.id}/picture`, formData, {
+      const response = await api.patch(`/user/${user.user.id}/picture`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${user.token.token}`,
@@ -153,7 +166,9 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       value={{
         updateProfilePicture,
         GetUserforId,
-        Postuser,
+        initEmailVerification,
+        confirmEmailVerification,
+        postUser,
         deleteUser,
         forgotPassword,
         validateResetCode,

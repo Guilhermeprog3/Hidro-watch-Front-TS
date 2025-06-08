@@ -3,6 +3,7 @@
     "name": "Hidro-Watch-Front",
     "slug": "Hidro-Watch-Front",
     "version": "1.0.0",
+    "projectId": "ec65b7e2-cebf-42d1-8d45-2ed2f00f334c",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -46,7 +47,13 @@
     },
     "plugins": [
       "expo-barcode-scanner",
-      "expo-camera"
+      "expo-camera",
+      [
+        "expo-notifications",
+        {
+          "color": "#ffffff"
+        }
+      ]
     ]
   }
 }
