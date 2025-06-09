@@ -34,15 +34,15 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
   }
 
   async function postUserObject(objectData: any) {
+    console.log(objectData)
     if (!user) return;
     try {
       const response = await api.post(
         'object',
-        { tittle: objectData.Tittle, location: objectData.Location },
+        { tittle: objectData.title, location: objectData.location },
         { headers: { Authorization: `Bearer ${user.token.token}` } }
       );
     } catch (error) {
-
     }
   }
 

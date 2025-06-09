@@ -6,6 +6,7 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface User {
+  user: any;
   email?: string;
 }
 
@@ -93,10 +94,10 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
   };
 
   const handleForgotPassword = async () => {
-    if (user?.email) {
+    if (user?.user.email) {
       setIsLoading(true);
       try {
-        const result = await forgotPassword(user.email);
+        const result = await forgotPassword(user.user.email);
         setIsLoading(false);
           navigation.navigate('Codepass', { email: user.email });
       } catch (error) {

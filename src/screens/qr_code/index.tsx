@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, Camera, CameraType, useCameraPermissions } from 'expo-camera'; 
 import { useState, useEffect } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -22,35 +22,73 @@ export default function QRCodeScanner() {
     })();
   }, []);
 
+  const handleBarCodeScanned = ({ data }: { data: string }) => {
+    if (scanned) return; 
+    setScanned(true);
+
+    try {
+      const qrData = JSON.parse(data);
+
+      // **CORREÇÃO APLICADA AQUI**
+      // Verificando por 'title' em vez de 'tittle'
+      if (typeof qrData.title !== 'string' || typeof qrData.location !== 'string') {
+        throw new Error('Dados do QR Code com formato inválido');
+      }
+
+
+      postUserObject({ title: qrData.title, location: qrData.location })
+        .then(() => {
+          Alert.alert('Sucesso', 'Objeto adicionado com sucesso!');
+          navigation.goBack();
+        })
+        .catch((error) => {
+          console.log('Erro ao criar objeto:', error);
+          Alert.alert('Erro na API', 'Não foi possível adicionar o objeto. Verifique sua conexão e tente novamente.');
+          setScanned(false);
+        });
+    } catch (error) {
+      console.log('Erro ao processar QR Code:', error);
+      Alert.alert(
+        'QR Code Inválido',
+        'Os dados do QR Code lido não estão no formato esperado. Por favor, tente novamente com um código válido.',
+        [{ text: 'OK', onPress: () => setScanned(false) }],
+        { cancelable: false }
+      );
+    }
+  };
+
   const pickImage = async () => {
     if (galleryPermission !== 'granted') {
-      Alert.alert('Permissão necessária', 'Precisamos da sua permissão para acessar a galeria.');
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setGalleryPermission(status);
-      if (status !== 'granted') return;
+      if (status !== 'granted') {
+        Alert.alert('Permissão necessária', 'Precisamos da sua permissão para acessar a galeria.');
+        return;
+      }
     }
 
     setIsProcessingImage(true);
     
     try {
-      let result = await ImagePicker.launchImageLibraryAsync({
+      const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
         quality: 1,
-        base64: true,
       });
 
       if (!result.canceled && result.assets?.[0]?.uri) {
-        Alert.alert(
-          'Leitura de QR Code',
-          'Para ler QR Codes de imagens, você precisará implementar uma solução específica ou usar uma API externa.',
-          [{ text: 'OK' }]
-        );
+        const imageUri = result.assets[0].uri;
+        
+        const scannedCodes = await Camera.scanFromURLAsync(imageUri);
+        
+        if (scannedCodes.length > 0 && scannedCodes[0].data) {
+          handleBarCodeScanned({ data: scannedCodes[0].data });
+        } else {
+          Alert.alert('Nenhum QR Code Encontrado', 'Não foi possível identificar um QR Code na imagem selecionada.');
+        }
       }
     } catch (error) {
-      console.log('Erro ao acessar galeria:', error);
-      Alert.alert('Erro', 'Não foi possível acessar a galeria.');
+      console.log('Erro ao escanear imagem da galeria:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao processar a imagem.');
     } finally {
       setIsProcessingImage(false);
     }
@@ -62,41 +100,12 @@ export default function QRCodeScanner() {
 
   if (!cameraPermission.granted) {
     return (
-      <View style={styles.container}>
+      <View style={styles.permissionContainer}>
         <Text style={styles.message}>Precisamos da sua permissão para acessar a câmera</Text>
         <Button onPress={requestCameraPermission} title="Conceder permissão" />
       </View>
     );
   }
-
-  const handleBarCodeScanned = ({ data }: { data: string }) => {
-    setScanned(true);
-
-    try {
-      const qrData = JSON.parse(data);
-
-      if (!qrData.Tittle || !qrData.Location) {
-        throw new Error('Dados do QR Code inválidos');
-      }
-
-      postUserObject({ Tittle: qrData.Tittle, Location: qrData.Location })
-        .then(() => {
-          navigation.goBack();
-        })
-        .catch((error) => {
-          console.log('Erro ao criar objeto:', error);
-          setScanned(false);
-        });
-    } catch (error) {
-      console.log('Erro ao processar QR Code:', error);
-      Alert.alert(
-        'Erro',
-        'Dados do QR Code inválidos. Certifique-se de que o QR Code contém informações válidas.',
-        [{ text: 'OK', onPress: () => setScanned(false) }],
-        { cancelable: false }
-      );
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -116,103 +125,117 @@ export default function QRCodeScanner() {
         </View>
 
         <View style={styles.overlay}>
-          <Text style={styles.instructionText}>Encontre um código QR</Text>
+          <Text style={styles.instructionText}>Aponte para o código QR</Text>
           <View style={styles.scanArea} />
         </View>
       </CameraView>
 
-      {isProcessingImage ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
-          <Text style={styles.loadingText}>Processando...</Text>
-        </View>
-      ) : (
-        <TouchableOpacity 
-          style={styles.galleryButton} 
-          onPress={pickImage}
-          disabled={isProcessingImage}
-        >
-          <Ionicons name="images" size={30} color="white" />
-        </TouchableOpacity>
-      )}
+      <View style={styles.footer}>
+        {isProcessingImage ? (
+            <View style={styles.loadingIndicator}>
+                <ActivityIndicator size="large" color="#ffffff" />
+                <Text style={styles.loadingText}>Processando...</Text>
+            </View>
+        ) : (
+          <TouchableOpacity 
+            style={styles.galleryButton} 
+            onPress={pickImage}
+            disabled={scanned}
+          >
+            <Ionicons name="images" size={30} color="white" />
+            <Text style={styles.galleryButtonText}>Galeria</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  header: {
-    position: 'absolute',
-    top: 40,
-    left: 10,
-    zIndex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 10,
-    borderRadius: 20,
-  },
-  headerTitle: {
-    color: 'white',
-    fontSize: 16,
-    marginLeft: 10,
-  },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
-    color: 'white',
-  },
-  camera: {
-    flex: 1,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  instructionText: {
-    fontSize: 20,
-    color: 'white',
-    marginBottom: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 10,
-    borderRadius: 10,
-  },
-  scanArea: {
-    width: 250,
-    height: 250,
-    borderWidth: 2,
-    borderColor: 'white',
-    borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  galleryButton: {
-    position: 'absolute',
-    bottom: 40,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 15,
-    borderRadius: 25,
-  },
-  loadingContainer: {
-    position: 'absolute',
-    bottom: 40,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: 'white',
-    marginTop: 10,
-  },
-});
+    container: {
+      flex: 1,
+      backgroundColor: '#000',
+    },
+    permissionContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#000',
+    },
+    header: {
+      position: 'absolute',
+      top: 50,
+      left: 20,
+      zIndex: 1,
+    },
+    backButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 20,
+    },
+    headerTitle: {
+      color: 'white',
+      fontSize: 16,
+      marginLeft: 8,
+      fontWeight: 'bold',
+    },
+    message: {
+      textAlign: 'center',
+      paddingBottom: 10,
+      color: 'white',
+      fontSize: 16,
+    },
+    camera: {
+      flex: 1,
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    instructionText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: 'white',
+      position: 'absolute',
+      top: '25%',
+      textAlign: 'center',
+    },
+    scanArea: {
+      width: 250,
+      height: 250,
+      borderWidth: 2,
+      borderColor: '#009640',
+      borderRadius: 20,
+    },
+    footer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 100,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    galleryButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    galleryButtonText: {
+      color: 'white',
+      marginTop: 4,
+      fontSize: 14,
+    },
+    loadingIndicator: {
+      alignItems: 'center',
+    },
+    loadingText: {
+      color: 'white',
+      marginTop: 10,
+      fontSize: 16,
+    },
+  });
