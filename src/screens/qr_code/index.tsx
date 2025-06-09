@@ -29,8 +29,6 @@ export default function QRCodeScanner() {
     try {
       const qrData = JSON.parse(data);
 
-      // **CORREÇÃO APLICADA AQUI**
-      // Verificando por 'title' em vez de 'tittle'
       if (typeof qrData.title !== 'string' || typeof qrData.location !== 'string') {
         throw new Error('Dados do QR Code com formato inválido');
       }
