@@ -93,15 +93,11 @@ const SignUpScreen = () => {
         width: 0,
         height: 2,
       },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
+
     },
     inputContainerFocused: {
       borderColor: theme.buttonBackground,
       backgroundColor: 'rgba(255, 255, 255, 0.15)',
-      shadowOpacity: 0.15,
-      elevation: 4,
     },
     inputIcon: {
       marginRight: 12,

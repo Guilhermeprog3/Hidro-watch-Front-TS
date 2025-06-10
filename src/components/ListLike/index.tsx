@@ -1,136 +1,200 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
 import { useObject } from '../../hooks/Objectcontext';
+import { Measurementobject } from '../../hooks/measurements';
 
 type Device = {
   id: string;
   tittle: string;
   location: string;
   favorite: boolean;
+  averageMeasurement: number;
 };
 
-const ListLike = () => {
+const ListLike: React.FC = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
   const { getUserObjects, markFavorite } = useObject();
+  const { getLatestMeasurement } = Measurementobject();
   const [devices, setDevices] = useState<Device[]>([]);
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchDevices = async () => {
-    const userDevices = await getUserObjects();
-    if (userDevices) {
-      const favoriteDevices = userDevices.filter((device: Device) => device.favorite);
-      setDevices(favoriteDevices);
-      setFavorites(favoriteDevices.map((device: Device) => device.id));
+  const fetchDevices = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const userDevices = await getUserObjects();
+      if (userDevices) {
+        const favoriteDevices = userDevices.filter((device: Device) => device.favorite);
+
+        const devicesWithMeasurements = await Promise.all(
+          favoriteDevices.map(async (device: Device) => {
+            const latestMeasurement = await getLatestMeasurement(device.id);
+            return {
+              ...device,
+              averageMeasurement: latestMeasurement?.averageMeasurement || 0,
+            };
+          })
+        );
+        setDevices(devicesWithMeasurements);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dispositivos favoritos:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [getUserObjects, getLatestMeasurement]);
 
   useFocusEffect(
     useCallback(() => {
       fetchDevices();
-    }, [])
+    }, [fetchDevices])
   );
 
   const toggleFavorite = async (deviceId: string) => {
+    // Optimistically remove from UI
+    setDevices(prevDevices => prevDevices.filter(d => d.id !== deviceId));
+    
     try {
       await markFavorite(deviceId);
-      
-      setDevices(prevDevices => 
-        prevDevices.map(device => 
-          device.id === deviceId 
-            ? { ...device, favorite: !device.favorite } 
-            : device
-        ).filter(device => device.favorite)
-      );
-      
-      setFavorites(prevFavorites => 
-        prevFavorites.includes(deviceId)
-          ? prevFavorites.filter(id => id !== deviceId)
-          : [...prevFavorites, deviceId]
-      );
     } catch (error) {
-      console.error('Erro ao marcar como favorito:', error);
+      console.error('Erro ao desmarcar como favorito:', error);
+      // Re-fetch to revert UI in case of error
+      fetchDevices();
     }
+  };
+  
+  const handleDevicePress = (deviceId: string) => {
+    navigation.navigate('Measurement', { deviceId });
   };
 
   const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
     sectionTitle: {
       color: theme.textPrimary,
-      fontSize: 18,
+      fontSize: 20,
       fontWeight: 'bold',
-      marginBottom: 10,
+      marginBottom: 15,
       marginTop: 140,
+      paddingHorizontal: 5,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 140,
+    },
+    emptyListContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 50,
+    },
+    emptyListText: {
+        color: theme.textSecondary,
+        fontSize: 16,
+        marginTop: 10,
     },
     deviceContainer: {
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      padding: 15,
-      borderRadius: 10,
-      marginBottom: 10,
+      backgroundColor: theme.primaryLight,
+      borderRadius: 15,
+      padding: 20,
+      marginBottom: 15,
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 5,
+      elevation: 3,
+    },
+    deviceInfoContainer: {
+      flex: 1,
+      flexDirection: 'row',
       alignItems: 'center',
     },
+    statusIndicator: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 15,
+    },
+    textContainer: {
+      flex: 1,
+    },
     deviceName: {
-      fontSize: 16,
-      fontWeight: 'bold',
+      fontSize: 17,
+      fontWeight: '600',
       color: theme.textPrimary,
     },
     deviceLocation: {
       fontSize: 14,
       color: theme.textSecondary,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      marginTop: 2,
     },
     favoriteButton: {
-      marginRight: 10,
-    },
-    detailsButton: {
-      backgroundColor: theme.buttonBackground,
-      padding: 10,
-      borderRadius: 5,
-    },
-    detailsButtonText: {
-      color: theme.buttonText,
-      fontWeight: 'bold',
+      padding: 5,
     },
   });
 
+  const renderDevice = ({ item }: { item: Device }) => {
+    const isAboveAverage = item.averageMeasurement > 10;
+    const statusColor = isAboveAverage ? theme.secondary : '#FFC107';
+
+    return (
+      <TouchableOpacity onPress={() => handleDevicePress(item.id)} activeOpacity={0.7}>
+        <View style={styles.deviceContainer}>
+          <View style={styles.deviceInfoContainer}>
+            <View style={[styles.statusIndicator, { backgroundColor: statusColor }]}>
+              <Ionicons name="water" size={22} color="white" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.deviceName} numberOfLines={1}>{item.tittle}</Text>
+              <Text style={styles.deviceLocation} numberOfLines={1}>{item.location}</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={() => toggleFavorite(item.id)}
+          >
+            <Ionicons
+              name="heart"
+              size={26}
+              color={theme.red}
+            />
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.buttonBackground} />
+      </View>
+    );
+  }
+
   return (
-    <View>
+    <View style={styles.container}>
       <Text style={styles.sectionTitle}>Dispositivos Favoritos</Text>
       <FlatList
         data={devices}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.deviceContainer}>
-            <View>
-              <Text style={styles.deviceName}>{item.tittle}</Text>
-              <Text style={styles.deviceLocation}>{item.location}</Text>
+        renderItem={renderDevice}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+            <View style={styles.emptyListContainer}>
+                <Ionicons name="heart-dislike-outline" size={50} color={theme.textSecondary} />
+                <Text style={styles.emptyListText}>Você ainda não tem favoritos.</Text>
             </View>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.favoriteButton}
-                onPress={() => toggleFavorite(item.id)}
-              >
-                <Ionicons
-                  name={favorites.includes(item.id) ? "heart" : "heart-outline"}
-                  size={24}
-                  color={favorites.includes(item.id) ? theme.red : theme.iconColor}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Measurement', { deviceId: item.id })}
-                style={styles.detailsButton}
-              >
-                <Text style={styles.detailsButtonText}>Detalhes</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
         )}
       />
     </View>

@@ -49,13 +49,13 @@ const HeaderLike = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Ionicons name="heart" size={24} color={theme.gradientEnd || "#FFFFFF"} />
+          <Ionicons name="heart" size={24} color={theme.navBarIconColor} />
           <Text style={styles.headerTitle}>Favoritos</Text>
         </View>
 
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("Search_favorite")}>
-            <Ionicons name="search" size={24} color={theme.gradientEnd || "#FFFFFF"} />
+            <Ionicons name="search" size={24} color={theme.navBarIconColor} />
           </TouchableOpacity>
         </View>
       </View>

@@ -49,13 +49,13 @@ const HeaderUtil = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Ionicons name="time-outline" size={24} color={theme.gradientEnd || "#FFFFFF"} />
+          <Ionicons name="time-outline" size={24} color={theme.navBarIconColor} />
           <Text style={styles.headerTitle}>Historico</Text>
         </View>
 
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("Search_history")}>
-            <Ionicons name="search" size={24} color={theme.gradientEnd || "#FFFFFF"} />
+            <Ionicons name="search" size={24} color={theme.navBarIconColor} />
           </TouchableOpacity>
         </View>
       </View>

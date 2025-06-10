@@ -68,7 +68,7 @@ const HeaderHome = () => {
       padding: 8,
       borderRadius: 20,
       marginLeft: 15,
-      backgroundColor: "rgba(255, 255, 255, 0.2)",
+      backgroundColor: "rgba(0, 0, 0, 0.2)",
     },
     addButtonContainer: {
       marginTop: 20,
@@ -110,14 +110,14 @@ const HeaderHome = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Ionicons name="home" size={24} color={theme.gradientEnd || "#FFFFFF"} />
+          <Ionicons name="home" size={24} color={theme.navBarIconColor} />
           <Text style={styles.headerTitle}>Início</Text>
         </View>
 
         <View style={styles.headerRight}>
 
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("Search_home")}>
-            <Ionicons name="search" size={24} color={theme.gradientEnd || "#FFFFFF"} />
+            <Ionicons name="search" size={24} color={theme.navBarIconColor} />
           </TouchableOpacity>
         </View>
       </View>

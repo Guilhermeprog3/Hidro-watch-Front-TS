@@ -1,31 +1,49 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
 import { useObject } from '../../hooks/Objectcontext';
+import { Measurementobject } from '../../hooks/measurements';
 
 type Device = {
   id: string;
   tittle: string;
   location: string;
+  favorite: boolean;
+  averageMeasurement: number;
 };
 
 const ListHistorico: React.FC = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
   const { getUserObjects } = useObject();
+  const { getLatestMeasurement } = Measurementobject();
   const [devices, setDevices] = useState<Device[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchDevices = useCallback(async () => {
     try {
-      const response = await getUserObjects();
-      if (response) {
-        setDevices(response);
+      setIsLoading(true);
+      const userDevices = await getUserObjects();
+      if (userDevices) {
+        const devicesWithMeasurements = await Promise.all(
+          userDevices.map(async (device: Device) => {
+            const latestMeasurement = await getLatestMeasurement(device.id);
+            return {
+              ...device,
+              averageMeasurement: latestMeasurement?.averageMeasurement || 0,
+            };
+          })
+        );
+        setDevices(devicesWithMeasurements);
       }
     } catch (error) {
       console.error('Erro ao buscar dispositivos:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [getUserObjects]);
+  }, [getUserObjects, getLatestMeasurement]);
 
   useFocusEffect(
     useCallback(() => {
@@ -33,63 +51,132 @@ const ListHistorico: React.FC = () => {
     }, [fetchDevices])
   );
 
+  const handleDevicePress = (deviceId: string) => {
+    navigation.navigate('Week', { objectId: deviceId });
+  };
+
   const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
     sectionTitle: {
       color: theme.textPrimary,
-      fontSize: 18,
+      fontSize: 20,
       fontWeight: 'bold',
-      marginBottom: 10,
+      marginBottom: 15,
       marginTop: 140,
+      paddingHorizontal: 5,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 140,
+    },
+    emptyListContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 50,
+    },
+    emptyListText: {
+        color: theme.textSecondary,
+        fontSize: 16,
+        marginTop: 10,
     },
     deviceContainer: {
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      padding: 15,
-      borderRadius: 10,
-      marginBottom: 10,
+      backgroundColor: theme.primaryLight,
+      borderRadius: 15,
+      padding: 20,
+      marginBottom: 15,
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 5,
+      elevation: 3,
+    },
+    deviceInfoContainer: {
+      flex: 1,
+      flexDirection: 'row',
       alignItems: 'center',
     },
+    statusIndicator: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 15,
+    },
+    textContainer: {
+      flex: 1,
+    },
     deviceName: {
-      fontSize: 16,
-      fontWeight: 'bold',
+      fontSize: 17,
+      fontWeight: '600',
       color: theme.textPrimary,
     },
     deviceLocation: {
       fontSize: 14,
       color: theme.textSecondary,
+      marginTop: 2,
     },
-    detailsButton: {
-      backgroundColor: theme.buttonBackground,
-      padding: 10,
-      borderRadius: 5,
-    },
-    detailsButtonText: {
-      color: theme.buttonText,
-      fontSize: 14,
+    arrowIcon: {
+      padding: 5,
     },
   });
 
+  const renderDevice = ({ item }: { item: Device }) => {
+    const isAboveAverage = item.averageMeasurement > 10;
+    const statusColor = isAboveAverage ? theme.secondary : '#FFC107';
+
+    return (
+      <TouchableOpacity onPress={() => handleDevicePress(item.id)} activeOpacity={0.7}>
+        <View style={styles.deviceContainer}>
+          <View style={styles.deviceInfoContainer}>
+            <View style={[styles.statusIndicator, { backgroundColor: statusColor }]}>
+              <Ionicons name="water" size={22} color="white" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.deviceName} numberOfLines={1}>{item.tittle}</Text>
+              <Text style={styles.deviceLocation} numberOfLines={1}>{item.location}</Text>
+            </View>
+          </View>
+          <Ionicons
+            name="chevron-forward-outline"
+            size={24}
+            color={theme.textSecondary}
+            style={styles.arrowIcon}
+          />
+        </View>
+      </TouchableOpacity>
+    );
+  };
+  
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.buttonBackground} />
+      </View>
+    );
+  }
+
   return (
-    <View>
-      <Text style={styles.sectionTitle}>Dispositivos Registrados</Text>
+    <View style={styles.container}>
+      <Text style={styles.sectionTitle}>Histórico dos Dispositivos</Text>
       <FlatList
         data={devices}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.deviceContainer}>
-            <View>
-              <Text style={styles.deviceName}>{item.tittle}</Text>
-              <Text style={styles.deviceLocation}>{item.location}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Week', { objectId: item.id })}
-              style={styles.detailsButton}
-            >
-              <Text style={styles.detailsButtonText}>Histórico</Text>
-            </TouchableOpacity>
+        renderItem={renderDevice}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyListContainer}>
+              <Ionicons name="document-text-outline" size={50} color={theme.textSecondary} />
+              <Text style={styles.emptyListText}>Nenhum dispositivo encontrado.</Text>
           </View>
-        )}
+      )}
       />
     </View>
   );
