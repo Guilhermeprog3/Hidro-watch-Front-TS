@@ -7,6 +7,7 @@ import CompleteSignUpScreen from '../screens/Sign';
 import RecoverPage from '../screens/recoverpass';
 import CodePage from '../screens/codepass';
 import NewPassword from '../screens/newpassword';
+import TermsOfUseScreen from '../screens/terms';
 
 const PublicRoutes = () => {
   const { Navigator, Screen } = createNativeStackNavigator();
@@ -20,6 +21,7 @@ const PublicRoutes = () => {
       <Screen name="Recoverpass" component={RecoverPage} options={{ headerShown: false }} />
       <Screen name="Codepass" component={CodePage} options={{ headerShown: false }} />
       <Screen name="Newpassword" component={NewPassword} options={{ headerShown: false }} />
+      <Screen name="Terms" component={TermsOfUseScreen} options={{ headerShown: false }} />
     </Navigator>
   );
 };
