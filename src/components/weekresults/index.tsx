@@ -178,15 +178,7 @@ const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
 
   return (
     <View style={styles.weekResults}>
-      <TouchableOpacity onPress={prevDay} style={styles.arrowButton} activeOpacity={0.7}>
-        <Ionicons name="chevron-back" size={24} color={theme.iconColor} />
-      </TouchableOpacity>
-
-      {[0, 1, 2, 3].map((index) => getDayResult(index))}
-
-      <TouchableOpacity onPress={nextDay} style={styles.arrowButton} activeOpacity={0.7}>
-        <Ionicons name="chevron-forward" size={24} color={theme.iconColor} />
-      </TouchableOpacity>
+      
     </View>
   );
 };

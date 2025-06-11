@@ -68,7 +68,11 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
 
   const styles = StyleSheet.create({
     container: {
-      marginBottom: 25,
+      position: 'absolute',
+      bottom: 20,
+      left: 0,
+      right: 0,
+      padding: 20,
     },
     statusCard: {
       borderRadius: 16,
@@ -116,7 +120,7 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
       marginTop: 2,
     },
     lastMeasurementCard: {
-      backgroundColor: theme.navBarBackground,
+      backgroundColor: theme.gradientEnd,
       borderRadius: 16,
       padding: 16,
       flexDirection: 'row',

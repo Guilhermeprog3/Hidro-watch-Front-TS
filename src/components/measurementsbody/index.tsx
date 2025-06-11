@@ -85,8 +85,9 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
 
   const styles = StyleSheet.create({
     container: {
-      marginBottom: 30,
+      marginBottom: 20,
       paddingHorizontal: 16,
+      marginTop:20
     },
     headerText: {
       color: theme.textPrimary,
@@ -102,44 +103,6 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
       textAlign: 'center',
       marginBottom: 25,
       fontFamily: 'Inter-Regular',
-    },
-    circleContainer: {
-      alignItems: 'center',
-      marginBottom: 20,
-    },
-    circle: {
-      width: 160,
-      height: 160,
-      borderRadius: 80,
-      justifyContent: 'center',
-      alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
-      elevation: 6,
-    },
-    innerCircle: {
-      width: 140,
-      height: 140,
-      borderRadius: 70,
-      backgroundColor: theme.navBarBackground,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderWidth: 0,
-      borderColor: 'rgba(255,255,255,0.3)',
-    },
-    circleText: {
-      color: theme.textPrimary,
-      fontSize: 28,
-      fontWeight: 'bold',
-      fontFamily: 'Inter-Bold',
-    },
-    circleSubText: {
-      color: theme.textSecondary,
-      fontSize: 14,
-      fontFamily: 'Inter-Medium',
-      marginTop: 4,
     },
     sectionTitle: {
       color: theme.textPrimary,
@@ -168,6 +131,7 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
       shadowRadius: 6,
       elevation: 5,
       overflow: 'hidden',
+      marginTop:10
     },
     measurementLabel: {
       color: '#FFFFFF',
@@ -211,27 +175,9 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
     );
   }
 
-  const averageValue = roundToNearestHalf(measurement.averageMeasurement);
-  const averageGradient = getGradientColors(averageValue);
-
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>{objectName}</Text>
-      <Text style={styles.headerSubText}>Faixa ideal: 6 - 14</Text>
-
-      <View style={styles.circleContainer}>
-        <LinearGradient
-          colors={averageGradient}
-          style={styles.circle}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.innerCircle}>
-            <Text style={styles.circleText}>{averageValue}</Text>
-            <Text style={styles.circleSubText}>Medição Média</Text>
-          </View>
-        </LinearGradient>
-      </View>
 
       <Text style={styles.sectionTitle}>PARÂMETROS DE QUALIDADE</Text>
 
