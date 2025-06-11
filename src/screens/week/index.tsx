@@ -46,9 +46,6 @@ const Week_page = () => {
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <HeaderBack onBackPress={() => navigation.goBack()} />
       <View>
-        <Text style={styles.headerText}>Resultados Semanais</Text>
-        <Text style={styles.headerSubText}>Max: 14   Min: 7</Text>
-          <Text style={styles.sectionTitle}>Análise Semanal</Text>
           <WeekResults objectId={objectId} />
           <InfoBoxes objectId={objectId} />
       </View>

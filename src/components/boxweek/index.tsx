@@ -5,7 +5,7 @@ import { useTheme } from '../../context/themecontext';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { MeasurementContext } from '../../context/measurementscontext';
 import { ObjectContext } from '../../context/objectcontext';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 type InfoBoxesProps = {
   objectId: string;
@@ -57,15 +57,15 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
     navigation.navigate('Measurement', { deviceId: objectId });
   };
 
-  // Função para obter cores do gradiente
+
   const getGradientColors = (type: 'primary' | 'acidic' | 'alkaline'): readonly [ColorValue, ColorValue] => {
     switch (type) {
       case 'primary':
-        return ['#3949AB', '#1A237E'] as const; // Azul profundo
+        return ['#3949AB', '#1A237E'] as const;
       case 'acidic':
-        return ['#E53935', '#B71C1C'] as const; // Vermelho
+        return ['#E53935', '#B71C1C'] as const;
       case 'alkaline':
-        return ['#43A047', '#1B5E20'] as const; // Verde
+        return ['#43A047', '#1B5E20'] as const;
       default:
         return ['#3949AB', '#1A237E'] as const;
     }
@@ -73,7 +73,6 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
 
   const styles = StyleSheet.create({
     container: {
-      marginBottom: 20,
     },
     qualityCard: {
       borderRadius: 16,
@@ -157,58 +156,6 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
       marginRight: 5,
       fontFamily: 'Inter-SemiBold',
     },
-    waterInfo: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      width: '92%',
-      alignSelf: 'center',
-    },
-    infoBox: {
-      borderRadius: 16,
-      width: '48%',
-      overflow: 'hidden',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.15,
-      shadowRadius: 5,
-      elevation: 6,
-    },
-    infoBoxContent: {
-      padding: 16,
-      alignItems: 'center',
-    },
-    infoIconContainer: {
-      backgroundColor: 'rgba(255, 255, 255, 0.25)',
-      width: 50,
-      height: 50,
-      borderRadius: 25,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 12,
-    },
-    infoText: {
-      color: '#FFFFFF',
-      fontSize: 28,
-      fontWeight: 'bold',
-      fontFamily: 'Inter-Bold',
-      textShadowColor: 'rgba(0, 0, 0, 0.2)',
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 2,
-    },
-    infoLabel: {
-      color: '#FFFFFF',
-      fontSize: 16,
-      fontWeight: 'bold',
-      marginTop: 5,
-      fontFamily: 'Inter-SemiBold',
-    },
-    infoDescription: {
-      color: 'rgba(255, 255, 255, 0.9)',
-      fontSize: 13,
-      marginTop: 5,
-      textAlign: 'center',
-      fontFamily: 'Inter-Regular',
-    },
     loadingContainer: {
       height: 200,
       justifyContent: 'center',
@@ -259,40 +206,6 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
             <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
           </TouchableOpacity>
         </LinearGradient>
-      </View>
-
-      <View style={styles.waterInfo}>
-        <View style={styles.infoBox}>
-          <LinearGradient
-            colors={getGradientColors('acidic')}
-            style={styles.infoBoxContent}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-          >
-            <View style={styles.infoIconContainer}>
-              <MaterialCommunityIcons name="flask" size={28} color="#FFFFFF" />
-            </View>
-            <Text style={styles.infoText}>0</Text>
-            <Text style={styles.infoLabel}>Ácida</Text>
-            <Text style={styles.infoDescription}>Água imprópria para consumo, pH baixo</Text>
-          </LinearGradient>
-        </View>
-
-        <View style={styles.infoBox}>
-          <LinearGradient
-            colors={getGradientColors('alkaline')}
-            style={styles.infoBoxContent}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-          >
-            <View style={styles.infoIconContainer}>
-              <MaterialCommunityIcons name="water-check" size={28} color="#FFFFFF" />
-            </View>
-            <Text style={styles.infoText}>14</Text>
-            <Text style={styles.infoLabel}>Alcalina</Text>
-            <Text style={styles.infoDescription}>Água adequada para consumo, pH elevado</Text>
-          </LinearGradient>
-        </View>
       </View>
     </View>
   );
