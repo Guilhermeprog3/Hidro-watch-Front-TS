@@ -1,6 +1,6 @@
 # 💧 Hidro‑Watch — Porque cada gota importa
 
-Hidro‑Watch é uma solução móvel completa e **open‑source** para o monitoramento inteligente da qualidade da água. Construído em **React Native** com **Expo** e **TypeScript**, o aplicativo conecta‑se a dispositivos de hardware via Bluetooth/Wi‑Fi, exibindo medições em tempo real, relatórios semanais e alertas automáticos. Tudo isso em uma interface fluida, personalizável e pronta para produção.
+Hidro‑Watch é uma solução móvel completa para o monitoramento inteligente da qualidade da água. Construído em **React Native** com **Expo** e **TypeScript**, o aplicativo conecta‑se a dispositivos de hardware via Bluetooth/Wi‑Fi, exibindo medições em tempo real, relatórios semanais e alertas automáticos. Tudo isso em uma interface fluida, personalizável e pronta para produção.
 
 ---
 
@@ -101,25 +101,7 @@ Hidro‑Watch é uma solução móvel completa e **open‑source** para o monito
 
 ---
 
-## 🤝 Contribuindo
 
-Contribuições são **muito bem‑vindas**! Para contribuir:
-
-1. Faça um *fork* do projeto.
-2. Crie uma *branch* para a sua feature/bugfix:
-   ```bash
-   git checkout -b minha-feature
-   ```
-3. Commit suas mudanças.
-4. Envie um *pull request* 😄.
-
----
-
-## 📜 Licença
-
-Distribuído sob a licença **MIT**. Veja `LICENSE` para mais informações.
-
----
 
 ## 📬 Contato
 
