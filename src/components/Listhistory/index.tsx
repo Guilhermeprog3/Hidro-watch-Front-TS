@@ -12,6 +12,7 @@ type Device = {
   location: string;
   favorite: boolean;
   averageMeasurement: number;
+  connected: boolean;
 };
 
 const ListHistorico: React.FC = () => {
@@ -28,11 +29,12 @@ const ListHistorico: React.FC = () => {
       const userDevices = await getUserObjects();
       if (userDevices) {
         const devicesWithMeasurements = await Promise.all(
-          userDevices.map(async (device: Device) => {
+          userDevices.map(async (device: any) => {
             const latestMeasurement = await getLatestMeasurement(device.id);
             return {
               ...device,
               averageMeasurement: latestMeasurement?.averageMeasurement || 0,
+              connected: device.connected || false,
             };
           })
         );
@@ -129,8 +131,7 @@ const ListHistorico: React.FC = () => {
   });
 
   const renderDevice = ({ item }: { item: Device }) => {
-    const isAboveAverage = item.averageMeasurement > 10;
-    const statusColor = isAboveAverage ? theme.secondary : '#FFC107';
+    const statusColor = item.connected ? theme.secondary : '#FFC107';
 
     return (
       <TouchableOpacity onPress={() => handleDevicePress(item.id)} activeOpacity={0.7}>

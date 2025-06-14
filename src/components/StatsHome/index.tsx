@@ -3,12 +3,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../context/themecontext';
 
 type StatsComponentProps = {
-  aboveAverage: number;
-  belowAverage: number;
+  connectedCount: number;
+  disconnectedCount: number;
   devicesCount: number;
 };
 
-const StatsHome: React.FC<StatsComponentProps> = ({ aboveAverage, belowAverage, devicesCount }) => {
+const StatsHome: React.FC<StatsComponentProps> = ({ connectedCount, disconnectedCount, devicesCount }) => {
   const { theme } = useTheme();
 
   const styles = StyleSheet.create({
@@ -37,16 +37,16 @@ const StatsHome: React.FC<StatsComponentProps> = ({ aboveAverage, belowAverage, 
   return (
     <View style={styles.statsContainer}>
       <View style={styles.statItem}>
-        <Text style={styles.statNumber}>{aboveAverage}</Text>
-        <Text style={styles.statText}>Acima da Média</Text>
+        <Text style={styles.statNumber}>{connectedCount}</Text>
+        <Text style={styles.statText}>Conectados</Text>
       </View>
       <View style={styles.statItem}>
         <Text style={styles.statNumber}>{devicesCount}</Text>
         <Text style={styles.statText}>Dispositivos</Text>
       </View>
       <View style={styles.statItem}>
-        <Text style={styles.statNumber}>{belowAverage}</Text>
-        <Text style={styles.statText}>Abaixo da Média</Text>
+        <Text style={styles.statNumber}>{disconnectedCount}</Text>
+        <Text style={styles.statText}>Desconectados</Text>
       </View>
     </View>
   );

@@ -13,6 +13,7 @@ type Device = {
   location: string;
   favorite: boolean;
   averageMeasurement: number;
+  connected: boolean;
 };
 
 type DeviceCardProps = {
@@ -24,8 +25,7 @@ type DeviceCardProps = {
 };
 
 const DeviceCard: React.FC<DeviceCardProps> = ({ device, onNavigate, onToggleFavorite, isFavorite, theme }) => {
-    const isAboveAverage = device.averageMeasurement > 10;
-    const statusColor = isAboveAverage ? theme.secondary : '#FFC107';
+    const statusColor = device.connected ? theme.secondary : '#FFC107';
 
     const styles = StyleSheet.create({
         deviceContainer: {
@@ -142,11 +142,12 @@ const SearchFavoritePage = () => {
       if (userDevices) {
         const favoriteDevices = userDevices.filter((device: any) => device.favorite);
         const devicesWithMeasurements = await Promise.all(
-            favoriteDevices.map(async (device: Device) => {
+            favoriteDevices.map(async (device: any) => {
             const latestMeasurement = await getLatestMeasurement(device.id);
             return {
               ...device,
               averageMeasurement: latestMeasurement?.averageMeasurement || 0,
+              connected: device.connected || false
             };
           })
         );
@@ -175,7 +176,6 @@ const SearchFavoritePage = () => {
   };
   
   const toggleFavorite = async (deviceId: string) => {
-    // Optimistically remove from UI
     setAllDevices(prev => prev.filter(d => d.id !== deviceId));
     setFilteredDevices(prev => prev.filter(d => d.id !== deviceId));
     
@@ -183,7 +183,6 @@ const SearchFavoritePage = () => {
       await markFavorite(deviceId);
     } catch (error) {
       console.error('Erro ao desmarcar como favorito:', error);
-      // Re-fetch to revert UI in case of error
       fetchDevices();
     }
   };

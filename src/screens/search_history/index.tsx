@@ -12,6 +12,7 @@ type Device = {
   tittle: string;
   location: string;
   averageMeasurement: number;
+  connected: boolean;
 };
 
 type DeviceCardProps = {
@@ -21,8 +22,7 @@ type DeviceCardProps = {
 }
 
 const DeviceCard: React.FC<DeviceCardProps> = ({ device, onNavigate, theme }) => {
-    const isAboveAverage = device.averageMeasurement > 10;
-    const statusColor = isAboveAverage ? theme.secondary : '#FFC107';
+    const statusColor = device.connected ? theme.secondary : '#FFC107';
 
     const styles = StyleSheet.create({
         deviceContainer: {
@@ -117,11 +117,12 @@ const SearchHistoryPage = () => {
       const userDevices = await getUserObjects();
       if (userDevices) {
         const devicesWithMeasurements = await Promise.all(
-          userDevices.map(async (device: Device) => {
+          userDevices.map(async (device: any) => {
             const latestMeasurement = await getLatestMeasurement(device.id);
             return {
               ...device,
               averageMeasurement: latestMeasurement?.averageMeasurement || 0,
+              connected: device.connected || false
             };
           })
         );

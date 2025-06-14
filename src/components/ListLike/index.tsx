@@ -12,6 +12,7 @@ type Device = {
   location: string;
   favorite: boolean;
   averageMeasurement: number;
+  connected: boolean;
 };
 
 const ListLike: React.FC = () => {
@@ -27,14 +28,15 @@ const ListLike: React.FC = () => {
       setIsLoading(true);
       const userDevices = await getUserObjects();
       if (userDevices) {
-        const favoriteDevices = userDevices.filter((device: Device) => device.favorite);
+        const favoriteDevices = userDevices.filter((device: any) => device.favorite);
 
         const devicesWithMeasurements = await Promise.all(
-          favoriteDevices.map(async (device: Device) => {
+          favoriteDevices.map(async (device: any) => {
             const latestMeasurement = await getLatestMeasurement(device.id);
             return {
               ...device,
               averageMeasurement: latestMeasurement?.averageMeasurement || 0,
+              connected: device.connected || false,
             };
           })
         );
@@ -54,14 +56,12 @@ const ListLike: React.FC = () => {
   );
 
   const toggleFavorite = async (deviceId: string) => {
-    // Optimistically remove from UI
     setDevices(prevDevices => prevDevices.filter(d => d.id !== deviceId));
     
     try {
       await markFavorite(deviceId);
     } catch (error) {
       console.error('Erro ao desmarcar como favorito:', error);
-      // Re-fetch to revert UI in case of error
       fetchDevices();
     }
   };
@@ -144,8 +144,7 @@ const ListLike: React.FC = () => {
   });
 
   const renderDevice = ({ item }: { item: Device }) => {
-    const isAboveAverage = item.averageMeasurement > 10;
-    const statusColor = isAboveAverage ? theme.secondary : '#FFC107';
+    const statusColor = item.connected ? theme.secondary : '#FFC107';
 
     return (
       <TouchableOpacity onPress={() => handleDevicePress(item.id)} activeOpacity={0.7}>

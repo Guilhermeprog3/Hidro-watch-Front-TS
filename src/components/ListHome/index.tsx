@@ -13,6 +13,7 @@ type Device = {
   location: string;
   favorite: boolean;
   averageMeasurement: number;
+  connected: boolean;
 };
 
 const DeviceListHome = () => {
@@ -22,8 +23,8 @@ const DeviceListHome = () => {
   const [devices, setDevices] = useState<Device[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [aboveAverage, setAboveAverage] = useState<number>(0);
-  const [belowAverage, setBelowAverage] = useState<number>(0);
+  const [connectedCount, setConnectedCount] = useState<number>(0);
+  const [disconnectedCount, setDisconnectedCount] = useState<number>(0);
   const navigation = useNavigation<NavigationProp<any>>();
 
   const fetchDevices = async () => {
@@ -32,21 +33,23 @@ const DeviceListHome = () => {
       const userDevices = await getUserObjects();
       if (userDevices) {
         const devicesWithMeasurements = await Promise.all(
-          userDevices.map(async (device: Device) => {
+          userDevices.map(async (device: any) => {
             const latestMeasurement = await getLatestMeasurement(device.id);
             return {
               ...device,
-              averageMeasurement: latestMeasurement?.averageMeasurement || 0
+              averageMeasurement: latestMeasurement?.averageMeasurement || 0,
+              connected: device.connected || false
             };
           })
         );
 
         setDevices(devicesWithMeasurements);
         setFavorites(devicesWithMeasurements.filter(d => d.favorite).map(d => d.id));
-        const above = devicesWithMeasurements.filter(d => d.averageMeasurement > 10).length;
-        const below = devicesWithMeasurements.filter(d => d.averageMeasurement <= 10).length;
-        setAboveAverage(above);
-        setBelowAverage(below);
+        
+        const connected = devicesWithMeasurements.filter(d => d.connected).length;
+        const disconnected = devicesWithMeasurements.length - connected;
+        setConnectedCount(connected);
+        setDisconnectedCount(disconnected);
       }
     } catch (error) {
       console.error("Erro ao buscar dispositivos:", error);
@@ -169,8 +172,7 @@ const DeviceListHome = () => {
   });
 
   const renderDevice = ({ item }: { item: Device }) => {
-    const isAboveAverage = item.averageMeasurement > 10;
-    const statusColor = isAboveAverage ? theme.secondary : '#FFC107';
+    const statusColor = item.connected ? theme.secondary : '#FFC107';
 
     return (
       <TouchableOpacity onPress={() => handleDevicePress(item.id)} activeOpacity={0.7}>
@@ -212,8 +214,8 @@ const DeviceListHome = () => {
   return (
     <View style={styles.contentContainer}>
       <StatsHome 
-        aboveAverage={aboveAverage} 
-        belowAverage={belowAverage} 
+        connectedCount={connectedCount} 
+        disconnectedCount={disconnectedCount} 
         devicesCount={devices.length} 
       />
       
@@ -236,4 +238,3 @@ const DeviceListHome = () => {
 };
 
 export default DeviceListHome;
-
