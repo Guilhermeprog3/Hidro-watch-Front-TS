@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTheme } from '../../context/themecontext';
@@ -45,6 +45,7 @@ const LoginScreen = () => {
       setIsLoading(true);
 
       await login(email, password);
+      navigation.navigate('HomeLayout')
       
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -58,13 +59,12 @@ const LoginScreen = () => {
         if (error.errors[0]) {
           setErrorMessage(error.errors[0].message);
         }
-      } else if (error.response?.data?.message) {
-        setErrorMessage(error.response.data.message);
-        setGlobalError(true);
       } else if (error.message) {
         setErrorMessage(error.message);
+        setGlobalError(true);
       } else {
         setErrorMessage('Erro inesperado. Tente novamente mais tarde.');
+        setGlobalError(true);
       }
     } finally {
       setIsLoading(false);
@@ -81,7 +81,7 @@ const LoginScreen = () => {
     }
   };
 
-  const hasError = (field: string) => fieldErrors[field] || globalError;
+  const hasError = (field: string) => !!fieldErrors[field] || globalError;
 
   const styles = StyleSheet.create({
     container: {
@@ -117,7 +117,7 @@ const LoginScreen = () => {
       opacity: 0.8,
     },
     formContainer: {
-      marginBottom: 32,
+      marginBottom: 24,
     },
     inputContainer: {
       flexDirection: 'row',
@@ -160,19 +160,6 @@ const LoginScreen = () => {
       fontSize: 14,
       fontWeight: '500',
     },
-    globalErrorContainer: {
-      marginBottom: 16,
-      paddingHorizontal: 4,
-      backgroundColor: 'rgba(255, 0, 0, 0.1)',
-      borderRadius: 8,
-      padding: 12,
-    },
-    errorText: {
-      color: theme.red,
-      fontSize: 14,
-      fontWeight: '500',
-      textAlign: 'center',
-    },
     forgotPasswordContainer: {
       alignItems: 'flex-end',
       marginBottom: 24,
@@ -192,7 +179,6 @@ const LoginScreen = () => {
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
-      marginBottom:-25,
       shadowColor: theme.buttonBackground,
       shadowOffset: {
         width: 0,
@@ -212,49 +198,6 @@ const LoginScreen = () => {
       fontSize: 18,
       fontWeight: '600',
       marginLeft: isLoading ? 10 : 0,
-    },
-    dividerContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginVertical: 24,
-    },
-    dividerLine: {
-      flex: 1,
-      height: 1,
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    },
-    orText: {
-      color: theme.textSecondary,
-      fontSize: 14,
-      fontWeight: '500',
-      marginHorizontal: 16,
-      opacity: 0.7,
-    },
-    socialButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-      height: 52,
-      borderRadius: 12,
-      marginBottom: 24,
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    googleButton: {
-      backgroundColor: '#DB4437',
-    },
-    socialButtonText: {
-      color: 'white',
-      marginLeft: 12,
-      fontSize: 16,
-      fontWeight: '600',
     },
     linksContainer: {
       alignItems: 'center',
@@ -379,8 +322,8 @@ const LoginScreen = () => {
             )}
 
             {errorMessage && globalError && (
-              <View style={styles.globalErrorContainer}>
-                <Text style={styles.errorText}>{errorMessage}</Text>
+              <View style={styles.fieldErrorContainer}>
+                <Text style={styles.fieldError}>{errorMessage}</Text>
               </View>
             )}
 
@@ -405,21 +348,6 @@ const LoginScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
-
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.orText}>Ou entre com</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity 
-            style={[styles.socialButton, styles.googleButton]} 
-            onPress={() => {}}
-            activeOpacity={0.8}
-          >
-            <AntDesign name="google" size={20} color="white" />
-            <Text style={styles.socialButtonText}>Continuar com Google</Text>
-          </TouchableOpacity>
 
           <View style={styles.linksContainer}>
             <TouchableOpacity 
