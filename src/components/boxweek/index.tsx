@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../context/themecontext';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { MeasurementContext } from '../../context/measurementscontext';
-import { ObjectContext } from '../../context/objectcontext';
 import { Ionicons } from '@expo/vector-icons';
 
 type InfoBoxesProps = {
@@ -15,23 +14,14 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp<any>>();
   const { getLatestMeasurement } = useContext(MeasurementContext);
-  const { GetObjectforId } = useContext(ObjectContext);
   const [lastMeasurementDate, setLastMeasurementDate] = useState<string>('');
-  const [objectTitle, setObjectTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [objectData, latestMeasurement] = await Promise.all([
-          GetObjectforId(objectId),
-          getLatestMeasurement(objectId),
-        ]);
-
-        if (objectData) {
-          setObjectTitle(objectData.tittle);
-        }
+        const latestMeasurement = await getLatestMeasurement(objectId);
 
         if (latestMeasurement?.createdAt) {
           const formattedDate = new Date(latestMeasurement.createdAt).toLocaleString('pt-BR', {
@@ -42,9 +32,12 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
             minute: '2-digit'
           });
           setLastMeasurementDate(formattedDate);
+        } else {
+          setLastMeasurementDate('Nenhuma medição encontrada');
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+        setLastMeasurementDate('Erro ao carregar dados');
       } finally {
         setIsLoading(false);
       }
@@ -57,28 +50,18 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
     navigation.navigate('Measurement', { deviceId: objectId });
   };
 
-
-  const getGradientColors = (type: 'primary' | 'acidic' | 'alkaline'): readonly [ColorValue, ColorValue] => {
-    switch (type) {
-      case 'primary':
-        return ['#3949AB', '#1A237E'] as const;
-      case 'acidic':
-        return ['#E53935', '#B71C1C'] as const;
-      case 'alkaline':
-        return ['#43A047', '#1B5E20'] as const;
-      default:
-        return ['#3949AB', '#1A237E'] as const;
-    }
+  const getGradientColors = (): readonly [ColorValue, ColorValue] => {
+    return [theme.primaryLight, theme.gradientEnd] as const;
   };
 
   const styles = StyleSheet.create({
     container: {
-    },
-    qualityCard: {
-      borderRadius: 16,
-      marginBottom: 20,
       width: '92%',
       alignSelf: 'center',
+      marginTop:15
+    },
+    card: {
+      borderRadius: 16,
       overflow: 'hidden',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 3 },
@@ -86,124 +69,87 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
       shadowRadius: 5,
       elevation: 6,
     },
-    qualityCardContent: {
-      padding: 20,
-    },
-    deviceInfoRow: {
+    gradientContent: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 10,
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingVertical: 15,
     },
-    deviceIcon: {
-      backgroundColor: 'rgba(255, 255, 255, 0.25)',
-      width: 36,
-      height: 36,
-      borderRadius: 18,
+    measurementContainer: {
+      flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
+    },
+    icon: {
       marginRight: 12,
     },
-    qualityTextContainer: {
-      flex: 1,
+    textContainer: {
+      flexShrink: 1, 
     },
-    qualityTitle: {
-      color: '#FFFFFF',
-      fontSize: 18,
+    lastMeasurementLabel: {
+      color: theme.textSecondary,
+      fontSize: 12,
+      fontWeight: '600',
+    },
+    lastMeasurementDate: {
+      color: theme.textPrimary,
+      fontSize: 15,
       fontWeight: 'bold',
-      fontFamily: 'Inter-Bold',
     },
-    qualityText: {
-      color: 'rgba(255, 255, 255, 0.9)',
-      fontSize: 14,
-      fontFamily: 'Inter-Medium',
-    },
-    lastMeasurementText: {
-      color: '#FFFFFF',
-      fontSize: 16,
-      fontWeight: 'bold',
-      marginTop: 10,
-      fontFamily: 'Inter-SemiBold',
-    },
-    noMeasurementText: {
-      color: 'rgba(255, 255, 255, 0.8)',
-      fontSize: 16,
-      fontWeight: 'bold',
-      marginTop: 10,
-      fontStyle: 'italic',
-      fontFamily: 'Inter-SemiBold',
-    },
-    divider: {
-      height: 1,
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      marginVertical: 12,
-      width: '100%',
-    },
-    learnMoreButton: {
+    detailsButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      paddingVertical: 8,
-      paddingHorizontal: 16,
+      backgroundColor: theme.buttonBackground,
+      paddingVertical: 10,
+      paddingHorizontal: 18,
       borderRadius: 20,
-      alignSelf: 'flex-start',
-      marginTop: 5,
     },
-    learnMore: {
-      color: '#FFFFFF',
+    detailsButtonText: {
+      color: theme.buttonText,
       fontSize: 14,
       fontWeight: 'bold',
-      marginRight: 5,
-      fontFamily: 'Inter-SemiBold',
+      marginRight: 6,
     },
     loadingContainer: {
-      height: 200,
+      height: 70, 
       justifyContent: 'center',
       alignItems: 'center',
+      borderRadius: 16,
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      width: '92%',
+      alignSelf: 'center',
+      marginBottom: 20,
     },
   });
 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.iconColor} />
+        <ActivityIndicator size="small" color={theme.iconColor} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.qualityCard}>
+      <View style={styles.card}>
         <LinearGradient
-          colors={getGradientColors('primary')}
-          style={styles.qualityCardContent}
+          colors={getGradientColors()}
+          style={styles.gradientContent}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <View style={styles.deviceInfoRow}>
-            <View style={styles.deviceIcon}>
-              <Ionicons name="water-outline" size={22} color="#FFFFFF" />
-            </View>
-            <View style={styles.qualityTextContainer}>
-              <Text style={styles.qualityTitle}>{objectTitle || 'Dispositivo'}</Text>
-              <Text style={styles.qualityText}>Monitoramento de qualidade da água</Text>
+          <View style={styles.measurementContainer}>
+            <Ionicons name="time-outline" size={24} color={theme.iconColor} style={styles.icon} />
+            <View style={styles.textContainer}>
+              <Text style={styles.lastMeasurementLabel}>ÚLTIMA MEDIÇÃO</Text>
+              <Text style={styles.lastMeasurementDate}>{lastMeasurementDate}</Text>
             </View>
           </View>
-
-          <View style={styles.divider} />
-
-          {lastMeasurementDate ? (
-            <>
-              <Text style={styles.qualityText}>Última medição:</Text>
-              <Text style={styles.lastMeasurementText}>{lastMeasurementDate}</Text>
-            </>
-          ) : (
-            <Text style={styles.noMeasurementText}>Sem histórico de medição</Text>
-          )}
-
-          <TouchableOpacity style={styles.learnMoreButton} onPress={handleLearnMore} activeOpacity={0.8}>
-            <Text style={styles.learnMore}>Detalhes completos</Text>
-            <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
+          
+          <TouchableOpacity style={styles.detailsButton} onPress={handleLearnMore} activeOpacity={0.8}>
+            <Text style={styles.detailsButtonText}>Detalhes</Text>
+            <Ionicons name="arrow-forward" size={16} color={theme.buttonText} />
           </TouchableOpacity>
         </LinearGradient>
       </View>

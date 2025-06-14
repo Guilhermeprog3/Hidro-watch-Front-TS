@@ -21,7 +21,7 @@ const MeasurementPage = () => {
     container: {
       flex: 1,
       backgroundColor: theme.gradientStart,
-      paddingHorizontal: 20,
+      paddingHorizontal: 10,
     },
     
   });

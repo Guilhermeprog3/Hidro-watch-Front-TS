@@ -11,6 +11,14 @@ type DeviceInfoProps = {
   deviceId: string;
 };
 
+const colorLegend = [
+    { colors: ['#FF5252', '#D32F2F'], label: 'Crítico' },
+    { colors: ['#FFD54F', '#FFA000'], label: 'Abaixo do Ideal' },
+    { colors: ['#66BB6A', '#388E3C'], label: 'Ideal' },
+    { colors: ['#42A5F5', '#1976D2'], label: 'Acima' },
+    { colors: ['#AB47BC', '#7B1FA2'], label: 'Muito Acima' },
+] as const;
+
 const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
   const { theme } = useTheme();
   const { GetObjectforId } = useObject();
@@ -22,7 +30,9 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
+      if (isLoading) {
+          setIsLoading(true);
+      }
       try {
         const [objectData, latestMeasurement] = await Promise.all([
           GetObjectforId(deviceId),
@@ -60,11 +70,10 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
   }, [deviceId]);
 
   const getStatusGradient = (): readonly [ColorValue, ColorValue] => {
-    return isConnected 
+    return isConnected
       ? ['#43A047', '#2E7D32'] as const
       : ['#E53935', '#C62828'] as const;
   };
-
 
   const styles = StyleSheet.create({
     container: {
@@ -72,9 +81,10 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
       bottom: 20,
       left: 0,
       right: 0,
-      padding: 20,
+      paddingHorizontal: 20,
     },
     statusCard: {
+      marginTop: 15,
       borderRadius: 16,
       marginBottom: 15,
       shadowColor: '#000',
@@ -132,6 +142,7 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
       elevation: 2,
       borderWidth: 1,
       borderColor: theme.secondary + '30',
+      marginBottom:25
     },
     timeIconContainer: {
       backgroundColor: theme.secondary + '20',
@@ -161,6 +172,47 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    legendCard: {
+        backgroundColor: theme.gradientEnd,
+        borderRadius: 16,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        borderWidth: 1,
+        borderColor: theme.secondary + '30',
+    },
+    legendTitle: {
+        color: theme.textPrimary,
+        fontSize: 15,
+        fontFamily: 'Inter-Bold',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    legendGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    legendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '48%',
+        marginBottom: 8,
+    },
+    legendSwatch: {
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        marginRight: 8,
+    },
+    legendLabel: {
+        color: theme.textSecondary,
+        fontSize: 13,
+        fontFamily: 'Inter-Regular',
+    },
   });
 
   if (isLoading) {
@@ -173,58 +225,73 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.statusCard}>
-        <LinearGradient
-          colors={getStatusGradient()}
-          style={styles.statusGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        >
-          <View style={styles.statusContent}>
-            <View style={styles.statusIcon}>
-              {isConnected ? (
-                <Ionicons 
-                  name="wifi" 
-                  size={22} 
-                  color="#FFFFFF" 
-                />
-              ) : (
-                <Feather 
-                  name="wifi-off" 
-                  size={22} 
-                  color="#FFFFFF" 
-                />
-              )}
+      <View style={styles.legendCard}>
+            <Text style={styles.legendTitle}>Legenda de Cores</Text>
+            <View style={styles.legendGrid}>
+                {colorLegend.map((item, index) => (
+                    <View key={index} style={styles.legendItem}>
+                        <LinearGradient
+                            colors={item.colors}
+                            style={styles.legendSwatch}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                        />
+                        <Text style={styles.legendLabel}>{item.label}</Text>
+                    </View>
+                ))}
             </View>
-            <View style={styles.statusTextContainer}>
-              <Text style={styles.statusTitle}>
-                {isConnected ? 'DISPOSITIVO CONECTADO' : 'DISPOSITIVO DESCONECTADO'}
-              </Text>
-              <Text style={styles.statusSubtitle}>
-                {isConnected 
-                  ? 'O dispositivo está online e enviando dados' 
-                  : 'O dispositivo está offline ou sem comunicação'
-                }
-              </Text>
-            </View>
-          </View>
-        
-        </LinearGradient>
-      </View>
+        </View>
+        <View style={styles.statusCard}>
+            <LinearGradient
+              colors={getStatusGradient()}
+              style={styles.statusGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <View style={styles.statusContent}>
+                <View style={styles.statusIcon}>
+                  {isConnected ? (
+                    <Ionicons 
+                      name="wifi" 
+                      size={22} 
+                      color="#FFFFFF" 
+                    />
+                  ) : (
+                    <Feather 
+                      name="wifi-off" 
+                      size={22} 
+                      color="#FFFFFF" 
+                    />
+                  )}
+                </View>
+                <View style={styles.statusTextContainer}>
+                  <Text style={styles.statusTitle}>
+                    {isConnected ? 'DISPOSITIVO CONECTADO' : 'DISPOSITIVO DESCONECTADO'}
+                  </Text>
+                  <Text style={styles.statusSubtitle}>
+                    {isConnected 
+                      ? 'O dispositivo está online e enviando dados' 
+                      : 'O dispositivo está offline ou sem comunicação'
+                    }
+                  </Text>
+                </View>
+              </View>
+            </LinearGradient>
+        </View>
 
-      <View style={styles.lastMeasurementCard}>
-        <View style={styles.timeIconContainer}>
-          <Ionicons name="time-outline" size={22} color={theme.iconColor} />
+        <View style={styles.lastMeasurementCard}>
+            <View style={styles.timeIconContainer}>
+              <Ionicons name="time-outline" size={22} color={theme.iconColor} />
+            </View>
+            <View style={styles.lastMeasurementTextContainer}>
+              <Text style={styles.lastMeasurementLabel}>
+                ÚLTIMA ATUALIZAÇÃO
+              </Text>
+              <Text style={styles.lastMeasurementText}>
+                {lastMeasurementDate}
+              </Text>
+            </View>
         </View>
-        <View style={styles.lastMeasurementTextContainer}>
-          <Text style={styles.lastMeasurementLabel}>
-            ÚLTIMA ATUALIZAÇÃO
-          </Text>
-          <Text style={styles.lastMeasurementText}>
-            {lastMeasurementDate}
-          </Text>
-        </View>
-      </View>
     </View>
   );
 };

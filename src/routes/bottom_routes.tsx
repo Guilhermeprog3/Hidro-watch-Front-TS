@@ -19,7 +19,7 @@ const BottomRoutes = () => {
             left: 20,
             right: 20,
             borderRadius: 20,
-            height: 65,
+            height: 30,
             backgroundColor: theme.gradientStart,
             borderTopWidth: 0,
             shadowColor: '#000',

@@ -10,9 +10,9 @@ const AboutScreen = () => {
   const appVersion = "1.0.0"
   const navigation = useNavigation<NavigationProp<any>>()
 
-  const openLink = (url: string) => {
-    Linking.openURL(url).catch((err) => console.error("Couldn't open link", err))
-  }
+  const openPortfolio = () => {
+    Linking.openURL("https://guilhermeriosdev.vercel.app");
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -223,7 +223,7 @@ const AboutScreen = () => {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.contactButton} onPress={() => openLink("guilhermeriosprog@gmail.com")}>
+        <TouchableOpacity style={styles.contactButton} onPress={() => openPortfolio()}>
           <Ionicons name="mail-outline" size={20} color={theme.buttonText} />
           <Text style={styles.contactButtonText}>Entre em Contato</Text>
         </TouchableOpacity>

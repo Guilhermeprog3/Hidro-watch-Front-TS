@@ -64,7 +64,6 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
     if (result <= 4) return ['#FFD54F', '#FFA000'] as const;
     if (result <= 8) return ['#66BB6A', '#388E3C'] as const;
     if (result <= 10) return ['#42A5F5', '#1976D2'] as const;
-    if (result <= 13) return ['#5C6BC0', '#303F9F'] as const;
     return ['#AB47BC', '#7B1FA2'] as const;
   };
 
@@ -87,7 +86,6 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
     container: {
       marginBottom: 20,
       paddingHorizontal: 16,
-      marginTop:20
     },
     headerText: {
       color: theme.textPrimary,
