@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { CameraView, Camera, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Modal, Pressable } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { Button, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Modal, Pressable, Animated, Easing } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useObject } from '../../hooks/Objectcontext';
@@ -22,6 +22,34 @@ export default function QRCodeScanner() {
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const navigation = useNavigation();
   const { postUserDevice } = useObject();
+
+  const scanAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const startAnimation = () => {
+      scanAnimation.setValue(0);
+      Animated.loop(
+        Animated.timing(scanAnimation, {
+          toValue: 1,
+          duration: 3000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      ).start();
+    };
+    startAnimation();
+  }, [scanAnimation]);
+
+  const animatedStyle = {
+    transform: [
+      {
+        translateY: scanAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 248],
+        }),
+      },
+    ],
+  };
 
   const [modalConfig, setModalConfig] = useState<ModalConfig>({
     visible: false,
@@ -109,7 +137,7 @@ export default function QRCodeScanner() {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         quality: 1,
       });
 
@@ -170,22 +198,22 @@ export default function QRCodeScanner() {
         barcodeScannerSettings={{
           barcodeTypes: ['qr'],
         }}
-      >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="white" />
-            <Text style={styles.headerTitle}>VOLTAR</Text>
-          </TouchableOpacity>
-        </View>
+      />
 
-        <View style={styles.overlay}>
-          <Text style={styles.instructionText}>Aponte para o código QR</Text>
-          <View style={styles.scanAreaWrapper}>
-            <View style={styles.scanArea} />
-            <View style={[styles.scanLine, scanned && { display: 'none' }]} />
-          </View>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="white" />
+          <Text style={styles.headerTitle}>VOLTAR</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.overlay}>
+        <Text style={styles.instructionText}>Aponte para o código QR</Text>
+        <View style={styles.scanAreaWrapper}>
+          <View style={styles.scanArea} />
+          <Animated.View style={[styles.scanLine, animatedStyle, scanned && { display: 'none' }]} />
         </View>
-      </CameraView>
+      </View>
 
       <View style={styles.footer}>
         {isProcessingImage ? (

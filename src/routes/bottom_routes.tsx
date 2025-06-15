@@ -15,7 +15,7 @@ const BottomRoutes = () => {
     const styles = StyleSheet.create({
         tabBar: {
             position: 'absolute',
-            bottom: Platform.OS === 'ios' ? 30 : 20,
+            bottom:  50,
             left: 20,
             right: 20,
             borderRadius: 20,

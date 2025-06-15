@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Hidro-Watch-Front",
+    "name": "Hidro-Watch",
     "slug": "Hidro-Watch-Front",
     "version": "1.0.0",
     "projectId": "ec65b7e2-cebf-42d1-8d45-2ed2f00f334c",
@@ -11,9 +11,9 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor":"transparent",
+      "backgroundColor": "#0A1128",
       "dark": {
-        "backgroundColor":"transparent"
+        "backgroundColor": "#0A1128"
       }
     },
     "ios": {
@@ -21,32 +21,38 @@
       "splash": {
         "image": "./assets/splash-icon.png",
         "resizeMode": "contain",
-        "backgroundColor":"transparent",
+        "backgroundColor": "#0A1128",
         "dark": {
-          "backgroundColor":"transparent"
+          "backgroundColor": "#0A1128"
         }
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor":"transparent"
+        "backgroundColor": "#0A1128"
       },
       "edgeToEdgeEnabled": true,
       "splash": {
         "image": "./assets/splash-icon.png",
         "resizeMode": "contain",
-        "backgroundColor":"transparent",
+        "backgroundColor": "#0A1128",
         "dark": {
-          "backgroundColor":"transparent"
+          "backgroundColor": "#0A1128"
         }
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.guilhermeriosdev.HidroWatchFront"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-barcode-scanner",
       "expo-camera",
       [
         "expo-notifications",
