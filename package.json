@@ -22,16 +22,15 @@
     "expo-linear-gradient": "^14.1.4",
     "expo-notifications": "~0.31.3",
     "expo-secure-store": "^14.2.3",
-    "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-chart-kit": "^6.12.0",
-    "react-native-feather": "^1.1.2",
     "react-native-popup-menu": "^0.17.0",
     "react-native-safe-area-context": "^5.4.1",
     "react-native-svg": "^15.12.0",
     "usehooks-ts": "^3.1.1",
-    "zod": "^3.25.46"
+    "zod": "^3.25.46",
+    "expo-splash-screen": "~0.30.9"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

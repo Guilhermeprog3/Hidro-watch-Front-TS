@@ -26,12 +26,11 @@ Hidro‑Watch é uma solução móvel completa para o monitoramento inteligente 
 - **Framework:** React Native + Expo
 - **Linguagem:** TypeScript
 - **Navegação:** React Navigation (Native Stack, Bottom Tabs)
-- **Estilização:** StyleSheet • Expo Linear Gradient
+- **Estilização:** StyleSheet
 - **HTTP Client:** Axios
 - **Gerenciamento de Estado:** React Context API
-- **Gráficos:** `react-native-chart-kit`
 - **Validação:** Zod
-- **Armazenamento Local:** AsyncStorage • Expo Secure Store
+- **Armazenamento Local:** AsyncStorage
 
 ---
 

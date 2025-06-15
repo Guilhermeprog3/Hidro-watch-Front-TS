@@ -7,10 +7,10 @@ import { MeasurementContext } from '../../context/measurementscontext';
 import { Ionicons } from '@expo/vector-icons';
 
 type InfoBoxesProps = {
-  objectId: string;
+  deviceId: string;
 };
 
-const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
+const InfoBoxes: React.FC<InfoBoxesProps> = ({ deviceId }) => {
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp<any>>();
   const { getLatestMeasurement } = useContext(MeasurementContext);
@@ -21,7 +21,7 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const latestMeasurement = await getLatestMeasurement(objectId);
+        const latestMeasurement = await getLatestMeasurement(deviceId);
 
         if (latestMeasurement?.createdAt) {
           const formattedDate = new Date(latestMeasurement.createdAt).toLocaleString('pt-BR', {
@@ -44,10 +44,10 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ objectId }) => {
     };
 
     fetchData();
-  }, [objectId]);
+  }, [deviceId]);
 
   const handleLearnMore = () => {
-    navigation.navigate('Measurement', { deviceId: objectId });
+    navigation.navigate('Measurement', { deviceId: deviceId });
   };
 
   const getGradientColors = (): readonly [ColorValue, ColorValue] => {

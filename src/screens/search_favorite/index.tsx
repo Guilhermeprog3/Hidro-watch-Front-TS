@@ -9,7 +9,7 @@ import { Measurementobject } from '../../hooks/measurements';
 
 type Device = {
   id: string;
-  tittle: string;
+  title: string;
   location: string;
   favorite: boolean;
   averageMeasurement: number;
@@ -77,17 +77,6 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onNavigate, onToggleFav
             padding: 8,
             marginRight: 8,
         },
-        detailsButton: {
-            backgroundColor: theme.buttonBackground,
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: 20,
-        },
-        detailsButtonText: {
-            color: theme.buttonText,
-            fontSize: 14,
-            fontWeight: 'bold',
-        }
     });
 
     return (
@@ -97,7 +86,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onNavigate, onToggleFav
                     <Ionicons name="water" size={22} color={theme.buttonText} />
                 </View>
                 <View style={styles.textContainer}>
-                    <Text style={styles.deviceName} numberOfLines={1}>{device.tittle}</Text>
+                    <Text style={styles.deviceName} numberOfLines={1}>{device.title}</Text>
                     <Text style={styles.deviceLocation} numberOfLines={1}>{device.location}</Text>
                 </View>
             </TouchableOpacity>
@@ -113,13 +102,6 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onNavigate, onToggleFav
                         color={isFavorite ? theme.red : theme.textSecondary}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity 
-                    style={styles.detailsButton}
-                    onPress={() => onNavigate(device.id)}
-                    activeOpacity={0.7}
-                >
-                    <Text style={styles.detailsButtonText}>Detalhes</Text>
-                </TouchableOpacity>
             </View>
         </View>
     );
@@ -127,7 +109,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onNavigate, onToggleFav
 
 const SearchFavoritePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { getUserObjects, markFavorite } = useObject();
+  const { getUserDevice, markFavorite } = useObject();
   const { getLatestMeasurement } = Measurementobject();
   const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [filteredDevices, setFilteredDevices] = useState<Device[]>([]);
@@ -138,7 +120,7 @@ const SearchFavoritePage = () => {
   const fetchDevices = useCallback(async () => {
     try {
       setLoading(true);
-      const userDevices = await getUserObjects();
+      const userDevices = await getUserDevice();
       if (userDevices) {
         const favoriteDevices = userDevices.filter((device: any) => device.favorite);
         const devicesWithMeasurements = await Promise.all(
@@ -159,7 +141,7 @@ const SearchFavoritePage = () => {
     } finally {
       setLoading(false);
     }
-  }, [getUserObjects, getLatestMeasurement]);
+  }, [getUserDevice, getLatestMeasurement]);
 
   useFocusEffect(
     useCallback(() => {
@@ -170,7 +152,7 @@ const SearchFavoritePage = () => {
   const handleSearch = () => {
     Keyboard.dismiss();
     const results = allDevices.filter(device =>
-      device.tittle.toLowerCase().includes(searchQuery.toLowerCase())
+      device.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredDevices(results);
   };

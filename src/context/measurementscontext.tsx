@@ -4,8 +4,8 @@ import { api } from '../services/api';
 import { AuthContext } from './authcontext';
 
 type MeasurementContextProps = {
-  getWeeklyAverage: (objectId: string) => Promise<any>;
-  getLatestMeasurement: (objectId: string) => Promise<any>;
+  getWeeklyAverage: (deviceId: string) => Promise<any>;
+  getLatestMeasurement: (deviceId: string) => Promise<any>;
 };
 
 export const MeasurementContext = createContext<MeasurementContextProps>({} as MeasurementContextProps);
@@ -13,14 +13,14 @@ export const MeasurementContext = createContext<MeasurementContextProps>({} as M
 export const MeasurementProvider = ({ children }: PropsWithChildren) => {
   const { user } = useContext(AuthContext);
   
-  async function getWeeklyAverage(objectId: string) {
+  async function getWeeklyAverage(deviceId: string) {
     if (!user?.token.token) {
       console.error('Usuário ou token não encontrados');
       return null;
     }
     try {
       const token = user.token.token;
-      const response = await api.get(`object/${objectId}/weekly-average`, {
+      const response = await api.get(`device/${deviceId}/weekly-average`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -31,14 +31,14 @@ export const MeasurementProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
-  async function getLatestMeasurement(objectId: string) {
+  async function getLatestMeasurement(deviceId: string) {
     if (!user?.token.token) {
       console.error('Usuário ou token não encontrados');
       return null;
     }
     try {
       const token = user.token.token;
-      const response = await api.get(`object/${objectId}/measurements-latest`, {
+      const response = await api.get(`device/${deviceId}/measurements-latest`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;

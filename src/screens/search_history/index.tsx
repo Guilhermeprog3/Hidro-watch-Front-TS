@@ -9,7 +9,7 @@ import { Measurementobject } from '../../hooks/measurements';
 
 type Device = {
   id: string;
-  tittle: string;
+  title: string;
   location: string;
   averageMeasurement: number;
   connected: boolean;
@@ -85,7 +85,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onNavigate, theme }) =>
                 <Ionicons name="water" size={22} color={theme.buttonText} />
                 </View>
                 <View style={styles.textContainer}>
-                <Text style={styles.deviceName} numberOfLines={1}>{device.tittle}</Text>
+                <Text style={styles.deviceName} numberOfLines={1}>{device.title}</Text>
                 <Text style={styles.deviceLocation} numberOfLines={1}>{device.location}</Text>
                 </View>
             </View>
@@ -103,7 +103,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onNavigate, theme }) =>
 
 const SearchHistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { getUserObjects } = useObject();
+  const { getUserDevice } = useObject();
   const { getLatestMeasurement } = Measurementobject();
   const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [filteredDevices, setFilteredDevices] = useState<Device[]>([]);
@@ -114,7 +114,7 @@ const SearchHistoryPage = () => {
   const fetchDevices = useCallback(async () => {
     try {
       setLoading(true);
-      const userDevices = await getUserObjects();
+      const userDevices = await getUserDevice();
       if (userDevices) {
         const devicesWithMeasurements = await Promise.all(
           userDevices.map(async (device: any) => {
@@ -134,7 +134,7 @@ const SearchHistoryPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [getUserObjects, getLatestMeasurement]);
+  }, [getUserDevice, getLatestMeasurement]);
 
   useFocusEffect(
     useCallback(() => {
@@ -145,13 +145,13 @@ const SearchHistoryPage = () => {
   const handleSearch = () => {
     Keyboard.dismiss();
     const results = allDevices.filter(device =>
-      device.tittle.toLowerCase().includes(searchQuery.toLowerCase())
+      device.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredDevices(results);
   };
 
   const handleDevicePress = (deviceId: string) => {
-    navigation.navigate('Week', { objectId: deviceId });
+    navigation.navigate('Week', { deviceId: deviceId });
   };
 
   const styles = StyleSheet.create({

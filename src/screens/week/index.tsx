@@ -8,19 +8,19 @@ import WeekResults from '../../components/weekresults';
 import InfoBoxes from '../../components/boxweek';
 import { ObjectContext } from '../../context/objectcontext';
 
-type WeekScreenRouteProp = RouteProp<{ Week: { objectId: string } }, 'Week'>;
+type WeekScreenRouteProp = RouteProp<{ Week: { deviceId: string } }, 'Week'>;
 
 const Week_page = () => {
   const route = useRoute<WeekScreenRouteProp>();
-  const { objectId } = route.params;
+  const { deviceId } = route.params;
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
-  const { GetObjectforId } = useContext(ObjectContext);
+  const { GetDeviceforId } = useContext(ObjectContext);
   const [objectTitle, setObjectTitle] = useState('Carregando...');
 
   useEffect(() => {
     const fetchObjectTitle = async () => {
-      const objectData = await GetObjectforId(objectId);
+      const objectData = await GetDeviceforId(deviceId);
       if (objectData) {
         setObjectTitle(objectData.tittle);
       } else {
@@ -28,7 +28,7 @@ const Week_page = () => {
       }
     };
     fetchObjectTitle();
-  }, [objectId]);
+  }, [deviceId]);
 
   const styles = StyleSheet.create({
     container: {
@@ -47,8 +47,8 @@ const Week_page = () => {
     <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
       <HeaderBack onBackPress={() => navigation.goBack()} />
         <Text style={styles.pageTitle}>{objectTitle}</Text>
-        <WeekResults objectId={objectId} />
-        <InfoBoxes objectId={objectId} />
+        <WeekResults deviceId={deviceId} />
+        <InfoBoxes deviceId={deviceId} />
     </LinearGradient>
   );
 };

@@ -12,7 +12,7 @@ type MeasurementBodyProps = {
 const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
   const { theme } = useTheme();
   const { getLatestMeasurement } = Measurementobject();
-  const { GetObjectforId } = useObject();
+  const { GetDeviceforId } = useObject();
   const [isLoading, setIsLoading] = useState(true);
   const [objectName, setObjectName] = useState('');
   const [measurement, setMeasurement] = useState({
@@ -28,12 +28,12 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
       setIsLoading(true);
       try {
         const [objectData, latestMeasurement] = await Promise.all([
-          GetObjectforId(deviceId),
+          GetDeviceforId(deviceId),
           getLatestMeasurement(deviceId),
         ]);
 
         if (objectData) {
-          setObjectName(objectData.tittle || 'Dispositivo sem nome');
+          setObjectName(objectData.title || 'Dispositivo sem nome');
         }
 
         if (latestMeasurement) {

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, TouchableWithoutFeedback, ScrollView, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -18,6 +18,7 @@ const SignUpScreen = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
 
   const handleContinue = async () => {
     Keyboard.dismiss();
@@ -47,131 +48,134 @@ const SignUpScreen = () => {
     scrollContainer: {
       flexGrow: 1,
       justifyContent: 'center',
-      paddingHorizontal: 24,
-      paddingVertical: 40,
+      paddingHorizontal: 32,
+      paddingVertical: 48,
     },
     content: {
       width: '100%',
-      maxWidth: 400,
+      maxWidth: 380,
       alignSelf: 'center',
     },
     headerContainer: {
       alignItems: 'center',
-      marginBottom: 40,
+      marginBottom: 48,
     },
     heading: {
       fontSize: 28,
       color: theme.textPrimary,
       marginBottom: 12,
-      fontWeight: '700',
+      fontWeight: '300',
       textAlign: 'center',
-      letterSpacing: -0.5,
+      letterSpacing: 0.5,
     },
     subtitle: {
-      fontSize: 16,
+      fontSize: 15,
       color: theme.textSecondary,
       textAlign: 'center',
       lineHeight: 22,
-      paddingHorizontal: 20,
+      paddingHorizontal: 16,
+      opacity: 0.7,
+      fontWeight: '400',
     },
     formContainer: {
       marginBottom: 32,
+      gap: 20,
+    },
+    inputGroup: {
+      gap: 6,
     },
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       width: '100%',
-      height: 56,
-      borderWidth: 1.5,
-      borderRadius: 12,
+      height: 52,
+      borderWidth: 1,
+      borderRadius: 8,
       paddingHorizontal: 16,
-      marginBottom: 8,
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      borderColor: errorMessage ? theme.red : 'rgba(255, 255, 255, 0.2)',
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-
-    },
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+    } as ViewStyle,
     inputContainerFocused: {
-      borderColor: theme.buttonBackground,
-      backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    },
+      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+    } as ViewStyle,
+    inputContainerError: {
+      borderColor: theme.red,
+      backgroundColor: 'rgba(255, 0, 0, 0.05)',
+    } as ViewStyle,
     inputIcon: {
       marginRight: 12,
+      opacity: 0.6,
     },
     input: {
       flex: 1,
       color: theme.textPrimary,
       fontSize: 16,
-      fontWeight: '500',
-    },
-    errorContainer: {
-      marginBottom: 16,
-      paddingHorizontal: 4,
+      fontWeight: '400',
     },
     errorText: {
       color: theme.red,
-      fontSize: 14,
-      fontWeight: '500',
-      textAlign: 'left',
+      fontSize: 13,
+      fontWeight: '400',
+      marginLeft: 4,
+      opacity: 0.9,
     },
     button: {
       width: '100%',
-      height: 56,
+      height: 52,
       backgroundColor: theme.buttonBackground,
-      borderRadius: 12,
+      borderRadius: 8,
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
-      marginBottom: 24,
-      shadowColor: theme.buttonBackground,
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 6,
+      marginTop: 8,
     },
     buttonDisabled: {
-      opacity: 0.7,
-      shadowOpacity: 0.1,
-      elevation: 2,
+      opacity: 0.6,
     },
     buttonText: {
       color: theme.buttonText,
-      fontSize: 18,
-      fontWeight: '600',
-      marginLeft: isLoading ? 10 : 0,
+      fontSize: 16,
+      fontWeight: '500',
+      marginLeft: isLoading ? 8 : 0,
     },
     linksContainer: {
       alignItems: 'center',
-      gap: 16,
+      gap: 20,
     },
     linkButton: {
-      paddingVertical: 8,
+      paddingVertical: 12,
       paddingHorizontal: 16,
     },
     link: {
       color: theme.textPrimary,
-      fontSize: 16,
-      fontWeight: '500',
-      textDecorationLine: 'underline',
-      opacity: 0.9,
+      fontSize: 14,
+      fontWeight: '400',
+      opacity: 0.7,
     },
     divider: {
       height: 1,
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      marginVertical: 8,
-      width: '60%',
-      alignSelf: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+      width: '40%',
     },
   });
 
-  const [isFocused, setIsFocused] = useState(false);
+  const getInputStyle = (): ViewStyle[] => {
+    const baseStyle = [styles.inputContainer];
+    
+    if (errorMessage) {
+      baseStyle.push(styles.inputContainerError);
+    } else if (isFocused) {
+      baseStyle.push(styles.inputContainerFocused);
+    }
+    
+    return baseStyle;
+  };
+
+  const getIconColor = () => {
+    if (errorMessage) return theme.red;
+    return theme.textPrimary;
+  };
 
   return (
     <LinearGradient colors={[theme.gradientstartlogin, theme.gradientendlogin]} style={styles.container}>
@@ -186,45 +190,42 @@ const SignUpScreen = () => {
               <HeaderHidro />
               <Text style={styles.heading}>Crie sua conta</Text>
               <Text style={styles.subtitle}>
-                Insira seu e-mail para enviarmos um código de verificação e começar sua jornada.
+                Insira seu e-mail para enviarmos um código de verificação e começar sua jornada
               </Text>
             </View>
 
             <View style={styles.formContainer}>
-              <View style={[
-                styles.inputContainer, 
-                isFocused && styles.inputContainerFocused
-              ]}>
-                <Ionicons 
-                  name="mail-outline" 
-                  size={22} 
-                  color={errorMessage ? theme.red : (isFocused ? theme.buttonBackground : theme.iconColor)} 
-                  style={styles.inputIcon} 
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Digite seu e-mail"
-                  placeholderTextColor={theme.textSecondary}
-                  value={email}
-                  onChangeText={text => {
-                    setEmail(text);
-                    if (errorMessage) setErrorMessage('');
-                  }}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="go"
-                  onSubmitEditing={handleContinue}
-                />
-              </View>
-
-              {errorMessage ? (
-                <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>{errorMessage}</Text>
+              <View style={styles.inputGroup}>
+                <View style={getInputStyle()}>
+                  <Ionicons 
+                    name="mail-outline" 
+                    size={20} 
+                    color={getIconColor()} 
+                    style={styles.inputIcon} 
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="E-mail"
+                    placeholderTextColor={`${theme.textSecondary}80`}
+                    value={email}
+                    onChangeText={text => {
+                      setEmail(text);
+                      if (errorMessage) setErrorMessage('');
+                    }}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="go"
+                    onSubmitEditing={handleContinue}
+                  />
                 </View>
-              ) : null}
+                
+                {errorMessage && (
+                  <Text style={styles.errorText}>{errorMessage}</Text>
+                )}
+              </View>
 
               <TouchableOpacity 
                 style={[styles.button, isLoading && styles.buttonDisabled]} 

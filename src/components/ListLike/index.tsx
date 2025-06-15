@@ -8,7 +8,7 @@ import { Measurementobject } from '../../hooks/measurements';
 
 type Device = {
   id: string;
-  tittle: string;
+  title: string;
   location: string;
   favorite: boolean;
   averageMeasurement: number;
@@ -18,7 +18,7 @@ type Device = {
 const ListLike: React.FC = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
-  const { getUserObjects, markFavorite } = useObject();
+  const { getUserDevice, markFavorite } = useObject();
   const { getLatestMeasurement } = Measurementobject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +26,7 @@ const ListLike: React.FC = () => {
   const fetchDevices = useCallback(async () => {
     try {
       setIsLoading(true);
-      const userDevices = await getUserObjects();
+      const userDevices = await getUserDevice();
       if (userDevices) {
         const favoriteDevices = userDevices.filter((device: any) => device.favorite);
 
@@ -47,7 +47,7 @@ const ListLike: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [getUserObjects, getLatestMeasurement]);
+  }, [getUserDevice, getLatestMeasurement]);
 
   useFocusEffect(
     useCallback(() => {
@@ -154,7 +154,7 @@ const ListLike: React.FC = () => {
               <Ionicons name="water" size={22} color="white" />
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.deviceName} numberOfLines={1}>{item.tittle}</Text>
+              <Text style={styles.deviceName} numberOfLines={1}>{item.title}</Text>
               <Text style={styles.deviceLocation} numberOfLines={1}>{item.location}</Text>
             </View>
           </View>

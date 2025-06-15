@@ -8,7 +8,7 @@ import { Measurementobject } from '../../hooks/measurements';
 
 type Device = {
   id: string;
-  tittle: string;
+  title: string;
   location: string;
   favorite: boolean;
   averageMeasurement: number;
@@ -18,7 +18,7 @@ type Device = {
 const ListHistorico: React.FC = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { theme } = useTheme();
-  const { getUserObjects } = useObject();
+  const { getUserDevice } = useObject();
   const { getLatestMeasurement } = Measurementobject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +26,7 @@ const ListHistorico: React.FC = () => {
   const fetchDevices = useCallback(async () => {
     try {
       setIsLoading(true);
-      const userDevices = await getUserObjects();
+      const userDevices = await getUserDevice();
       if (userDevices) {
         const devicesWithMeasurements = await Promise.all(
           userDevices.map(async (device: any) => {
@@ -45,7 +45,7 @@ const ListHistorico: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [getUserObjects, getLatestMeasurement]);
+  }, [getUserDevice, getLatestMeasurement]);
 
   useFocusEffect(
     useCallback(() => {
@@ -54,7 +54,7 @@ const ListHistorico: React.FC = () => {
   );
 
   const handleDevicePress = (deviceId: string) => {
-    navigation.navigate('Week', { objectId: deviceId });
+    navigation.navigate('Week', { deviceId: deviceId });
   };
 
   const styles = StyleSheet.create({
@@ -141,7 +141,7 @@ const ListHistorico: React.FC = () => {
               <Ionicons name="water" size={22} color="white" />
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.deviceName} numberOfLines={1}>{item.tittle}</Text>
+              <Text style={styles.deviceName} numberOfLines={1}>{item.title}</Text>
               <Text style={styles.deviceLocation} numberOfLines={1}>{item.location}</Text>
             </View>
           </View>

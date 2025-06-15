@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useContext, useRef, useEffect } from "react"
+import { useState, useContext, useEffect } from "react"
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Animated,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -30,21 +29,9 @@ const RecoverPage = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const [emailFocused, setEmailFocused] = useState(false)
 
-  // Animation values
-  const fadeAnim = useRef(new Animated.Value(0)).current
-  const shakeAnim = useRef(new Animated.Value(0)).current
-  const buttonScaleAnim = useRef(new Animated.Value(1)).current
-
   const { forgotPassword } = useContext(UserContext)
 
   useEffect(() => {
-    // Fade in animation
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start()
-
     // Keyboard listeners
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => setKeyboardVisible(true))
     const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false))
@@ -60,42 +47,14 @@ const RecoverPage = () => {
     return emailRegex.test(email)
   }
 
-  const shakeError = () => {
-    Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 10, duration: 100, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: -10, duration: 100, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 10, duration: 100, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 100, useNativeDriver: true }),
-    ]).start()
-  }
-
-  const animateButtonPress = () => {
-    Animated.sequence([
-      Animated.timing(buttonScaleAnim, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(buttonScaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start()
-  }
-
   const handleResetPassword = async () => {
-    animateButtonPress()
-
     if (!email.trim()) {
       setErrorMessage("Por favor, insira seu endereço de e-mail.")
-      shakeError()
       return
     }
 
     if (!validateEmail(email)) {
       setErrorMessage("Por favor, insira um email válido.")
-      shakeError()
       return
     }
 
@@ -107,7 +66,6 @@ const RecoverPage = () => {
       navigation.navigate("Codepass", { email })
     } catch (error: any) {
       setErrorMessage(error.message)
-      shakeError()
     } finally {
       setIsLoading(false)
     }
@@ -189,7 +147,7 @@ const RecoverPage = () => {
       fontSize: 16,
     },
     errorContainer: {
-      marginBottom: 20,
+      marginTop: 10, // Adicionado para dar espaço quando o erro aparece
       padding: 12,
       borderRadius: 8,
       backgroundColor: "rgba(255, 0, 0, 0.1)",
@@ -242,7 +200,7 @@ const RecoverPage = () => {
   })
 
   return (
-    <LinearGradient colors={[theme.gradientStart, theme.gradientEnd]} style={styles.container}>
+    <LinearGradient colors={[theme.gradientstartlogin, theme.gradientendlogin]} style={styles.container}>
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
         <View style={styles.innerContainer}>
           <View style={styles.headerContainer}>
@@ -250,7 +208,7 @@ const RecoverPage = () => {
           </View>
 
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
-            <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+            <View style={styles.content}>
               <View style={styles.iconContainer}>
                 <View style={styles.icon}>
                   <Ionicons name="key" size={40} color={theme.textPrimary} />
@@ -262,7 +220,7 @@ const RecoverPage = () => {
                 Digite o email associado à sua conta e enviaremos um código de verificação para redefinir sua senha.
               </Text>
 
-              <Animated.View style={[styles.inputContainer, { transform: [{ translateX: shakeAnim }] }]}>
+              <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Email</Text>
                 <View style={styles.inputWrapper}>
                   <Ionicons name="mail-outline" size={22} color={theme.textSecondary} style={styles.inputIcon} />
@@ -290,9 +248,9 @@ const RecoverPage = () => {
                     <Text style={styles.errorText}>{errorMessage}</Text>
                   </View>
                 ) : null}
-              </Animated.View>
+              </View>
 
-              <Animated.View style={{ transform: [{ scale: buttonScaleAnim }] }}>
+              <View>
                 <TouchableOpacity
                   style={styles.button}
                   onPress={handleResetPassword}
@@ -302,7 +260,7 @@ const RecoverPage = () => {
                   {isLoading ? <ActivityIndicator color={theme.buttonText} size="small" /> : null}
                   <Text style={styles.buttonText}>{isLoading ? "Enviando..." : "Enviar Código"}</Text>
                 </TouchableOpacity>
-              </Animated.View>
+              </View>
 
               <View style={styles.infoContainer}>
                 <Text style={styles.infoText}>
@@ -310,7 +268,7 @@ const RecoverPage = () => {
                   sua conta. Verifique também sua pasta de spam caso não encontre o email.
                 </Text>
               </View>
-            </Animated.View>
+            </View>
           </KeyboardAvoidingView>
         </View>
       </TouchableWithoutFeedback>

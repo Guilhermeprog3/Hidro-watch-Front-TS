@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, ScrollView, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/Auth';
@@ -90,148 +90,147 @@ const LoginScreen = () => {
     scrollContainer: {
       flexGrow: 1,
       justifyContent: 'center',
-      paddingHorizontal: 24,
-      paddingVertical: 40,
+      paddingHorizontal: 32,
+      paddingVertical: 48,
     },
     content: {
       width: '100%',
-      maxWidth: 400,
+      maxWidth: 380,
       alignSelf: 'center',
     },
     headerContainer: {
       alignItems: 'center',
-      marginBottom: 40,
+      marginBottom: 48,
     },
     heading: {
-      fontSize: 32,
+      fontSize: 28,
       color: theme.textPrimary,
       marginBottom: 8,
-      fontWeight: '700',
+      fontWeight: '300',
       textAlign: 'center',
-      letterSpacing: -0.5,
+      letterSpacing: 0.5,
     },
     subtitle: {
-      fontSize: 16,
+      fontSize: 15,
       color: theme.textSecondary,
       textAlign: 'center',
-      opacity: 0.8,
+      opacity: 0.7,
+      fontWeight: '400',
     },
     formContainer: {
-      marginBottom: 24,
+      marginBottom: 32,
+      gap: 20,
+    },
+    inputGroup: {
+      gap: 6,
     },
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       width: '100%',
-      height: 56,
-      borderWidth: 1.5,
-      borderRadius: 12,
+      height: 52,
+      borderWidth: 1,
+      borderRadius: 8,
       paddingHorizontal: 16,
-      marginBottom: 8,
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-    },
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+    } as ViewStyle,
     inputContainerFocused: {
-      backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    },
+      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+    } as ViewStyle,
+    inputContainerError: {
+      borderColor: theme.red,
+      backgroundColor: 'rgba(255, 0, 0, 0.05)',
+    } as ViewStyle,
     inputIcon: {
       marginRight: 12,
+      opacity: 0.6,
     },
     input: {
       flex: 1,
       color: theme.textPrimary,
       fontSize: 16,
-      fontWeight: '500',
+      fontWeight: '400',
     },
     showPasswordIcon: {
       marginLeft: 12,
       padding: 4,
+      opacity: 0.6,
     },
-    fieldErrorContainer: {
-      marginBottom: 12,
-      paddingHorizontal: 4,
-    },
-    fieldError: {
+    errorText: {
       color: theme.red,
-      fontSize: 14,
-      fontWeight: '500',
+      fontSize: 13,
+      fontWeight: '400',
+      marginLeft: 4,
+      opacity: 0.9,
     },
     forgotPasswordContainer: {
-      alignItems: 'flex-end',
-      marginBottom: 24,
+      alignItems: 'center',
+      marginBottom: 8,
     },
     forgotPasswordText: {
       color: theme.textPrimary,
       fontSize: 14,
-      fontWeight: '500',
-      textDecorationLine: 'underline',
-      opacity: 0.8,
+      fontWeight: '400',
+      opacity: 0.7,
     },
     button: {
       width: '100%',
-      height: 56,
+      height: 52,
       backgroundColor: theme.buttonBackground,
-      borderRadius: 12,
+      borderRadius: 8,
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
-      shadowColor: theme.buttonBackground,
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 6,
+      marginTop: 8,
     },
     buttonDisabled: {
-      opacity: 0.7,
-      shadowOpacity: 0.1,
-      elevation: 2,
+      opacity: 0.6,
     },
     buttonText: {
       color: theme.buttonText,
-      fontSize: 18,
-      fontWeight: '600',
-      marginLeft: isLoading ? 10 : 0,
+      fontSize: 16,
+      fontWeight: '500',
+      marginLeft: isLoading ? 8 : 0,
     },
     linksContainer: {
       alignItems: 'center',
-      gap: 16,
+      gap: 20,
+
     },
     linkButton: {
-      paddingVertical: 8,
+      paddingVertical: 12,
       paddingHorizontal: 16,
     },
     link: {
       color: theme.textPrimary,
-      fontSize: 16,
-      fontWeight: '500',
-      textDecorationLine: 'underline',
-      opacity: 0.9,
+      fontSize: 14,
+      fontWeight: '400',
+      opacity: 0.7,
     },
-    linkDivider: {
+    divider: {
       height: 1,
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      width: '60%',
-      alignSelf: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+      width: '40%',
     },
   });
 
-  const getInputBorderColor = (field: string) => {
-    if (hasError(field)) return theme.red;
-    if (focusedField === field) return theme.buttonBackground;
-    return 'rgba(255, 255, 255, 0.2)';
+  const getInputStyle = (field: string): ViewStyle[] => {
+    const baseStyle = [styles.inputContainer];
+    
+    if (hasError(field)) {
+      baseStyle.push(styles.inputContainerError);
+    } else if (focusedField === field) {
+      baseStyle.push(styles.inputContainerFocused);
+    }
+    
+    return baseStyle;
   };
 
   const getIconColor = (field: string) => {
     if (hasError(field)) return theme.red;
-    if (focusedField === field) return theme.buttonBackground;
-    return theme.iconColor;
+    return theme.textPrimary;
   };
 
   return (
@@ -249,82 +248,72 @@ const LoginScreen = () => {
           </View>
 
           <View style={styles.formContainer}>
-            <View style={[
-              styles.inputContainer,
-              focusedField === 'email' && styles.inputContainerFocused,
-              { borderColor: getInputBorderColor('email') }
-            ]}>
-              <Ionicons
-                name="mail-outline"
-                size={22}
-                color={getIconColor('email')}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Digite seu e-mail"
-                placeholderTextColor={theme.textSecondary}
-                value={email}
-                onChangeText={(text) => { setEmail(text); clearFieldError('email'); }}
-                onFocus={() => setFocusedField('email')}
-                onBlur={() => setFocusedField('')}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="next"
-              />
-            </View>
-            {fieldErrors.email && (
-              <View style={styles.fieldErrorContainer}>
-                <Text style={styles.fieldError}>{fieldErrors.email}</Text>
-              </View>
-            )}
-
-            <View style={[
-              styles.inputContainer,
-              focusedField === 'password' && styles.inputContainerFocused,
-              { borderColor: getInputBorderColor('password') }
-            ]}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={22}
-                color={getIconColor('password')}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Digite sua senha"
-                placeholderTextColor={theme.textSecondary}
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={(text) => { setPassword(text); clearFieldError('password'); }}
-                onFocus={() => setFocusedField('password')}
-                onBlur={() => setFocusedField('')}
-                returnKeyType="go"
-                onSubmitEditing={handleLogin}
-              />
-              <TouchableOpacity 
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.showPasswordIcon}
-                activeOpacity={0.7}
-              >
+            <View style={styles.inputGroup}>
+              <View style={getInputStyle('email')}>
                 <Ionicons
-                  name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                  size={22}
-                  color={getIconColor('password')}
+                  name="mail-outline"
+                  size={20}
+                  color={getIconColor('email')}
+                  style={styles.inputIcon}
                 />
-              </TouchableOpacity>
-            </View>
-            {fieldErrors.password && (
-              <View style={styles.fieldErrorContainer}>
-                <Text style={styles.fieldError}>{fieldErrors.password}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="E-mail"
+                  placeholderTextColor={`${theme.textSecondary}80`}
+                  value={email}
+                  onChangeText={(text) => { setEmail(text); clearFieldError('email'); }}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField('')}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  returnKeyType="next"
+                />
               </View>
-            )}
+              {fieldErrors.email && (
+                <Text style={styles.errorText}>{fieldErrors.email}</Text>
+              )}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <View style={getInputStyle('password')}>
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color={getIconColor('password')}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Senha"
+                  placeholderTextColor={`${theme.textSecondary}80`}
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={(text) => { setPassword(text); clearFieldError('password'); }}
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => setFocusedField('')}
+                  returnKeyType="go"
+                  onSubmitEditing={handleLogin}
+                />
+                <TouchableOpacity 
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.showPasswordIcon}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                    size={20}
+                    color={getIconColor('password')}
+                  />
+                </TouchableOpacity>
+              </View>
+              {fieldErrors.password && (
+                <Text style={styles.errorText}>{fieldErrors.password}</Text>
+              )}
+            </View>
 
             {errorMessage && globalError && (
-              <View style={styles.fieldErrorContainer}>
-                <Text style={styles.fieldError}>{errorMessage}</Text>
-              </View>
+              <Text style={styles.errorText}>{errorMessage}</Text>
             )}
 
             <View style={styles.forgotPasswordContainer}>
@@ -358,7 +347,7 @@ const LoginScreen = () => {
               <Text style={styles.link}>Não tem conta? Crie uma conta</Text>
             </TouchableOpacity>
             
-            <View style={styles.linkDivider} />
+            <View style={styles.divider} />
             
             <TouchableOpacity 
               style={styles.linkButton}

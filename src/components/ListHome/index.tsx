@@ -9,7 +9,7 @@ import StatsHome from '../StatsHome';
 
 type Device = {
   id: string;
-  tittle: string;
+  title: string;
   location: string;
   favorite: boolean;
   averageMeasurement: number;
@@ -18,7 +18,7 @@ type Device = {
 
 const DeviceListHome = () => {
   const { theme } = useTheme();
-  const { getUserObjects, markFavorite } = useObject();
+  const { getUserDevice, markFavorite } = useObject();
   const { getLatestMeasurement } = Measurementobject();
   const [devices, setDevices] = useState<Device[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +30,7 @@ const DeviceListHome = () => {
   const fetchDevices = async () => {
     try {
       setIsLoading(true);
-      const userDevices = await getUserObjects();
+      const userDevices = await getUserDevice();
       if (userDevices) {
         const devicesWithMeasurements = await Promise.all(
           userDevices.map(async (device: any) => {
@@ -182,7 +182,7 @@ const DeviceListHome = () => {
               <Ionicons name="water" size={22} color="white" />
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.deviceName} numberOfLines={1}>{item.tittle}</Text>
+              <Text style={styles.deviceName} numberOfLines={1}>{item.title}</Text>
               <Text style={styles.deviceLocation} numberOfLines={1}>{item.location}</Text>
             </View>
           </View>

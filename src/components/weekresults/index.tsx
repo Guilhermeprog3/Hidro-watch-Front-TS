@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Dataset } from 'react-native-chart-kit/dist/HelperTypes';
 
 type WeekResultsProps = {
-  objectId: string;
+  deviceId: string;
 };
 
 type ChartData = {
@@ -70,7 +70,7 @@ const ParameterStandardCard = ({ icon, name, value }: { icon: keyof typeof Ionic
   );
 };
 
-const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
+const WeekResults: React.FC<WeekResultsProps> = ({ deviceId }) => {
   const { theme } = useTheme();
   const { getWeeklyAverage } = useContext(MeasurementContext);
   const [charts, setCharts] = useState<ChartData[]>([]);
@@ -82,7 +82,7 @@ const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
     const fetchWeeklyData = async () => {
       setIsLoading(true);
       try {
-        const data = await getWeeklyAverage(objectId);
+        const data = await getWeeklyAverage(deviceId);
         if (data && data.length > 0) {
           const labels = data.map((d: any) => d.day);
           
@@ -113,7 +113,7 @@ const WeekResults: React.FC<WeekResultsProps> = ({ objectId }) => {
       }
     };
     fetchWeeklyData();
-  }, [objectId]);
+  }, [deviceId]);
 
   const goToPrevious = () => {
     setActiveIndex(prev => (prev === 0 ? charts.length - 1 : prev - 1));

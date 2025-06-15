@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { useTheme } from '../../context/themecontext';
 import { useObject } from '../../hooks/Objectcontext';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 type HeaderMeasurementProps = {
   deviceId: string;
@@ -13,8 +12,7 @@ type HeaderMeasurementProps = {
 
 const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackPress }) => {
   const { theme } = useTheme();
-  const { DeleteObject } = useObject();
-  const navigation = useNavigation<NavigationProp<any>>();
+  const { DeleteDevice } = useObject();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleDeletePress = () => {
@@ -23,8 +21,8 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
 
   const confirmDelete = async () => {
     try {
-      await DeleteObject(deviceId);
-      onBackPress()
+      await DeleteDevice(deviceId);
+      onBackPress();
     } catch (error) {
       Alert.alert("Erro", "Não foi possível deletar o objeto. Tente novamente.");
     } finally {
@@ -54,37 +52,46 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
       marginLeft: 8,
       fontFamily: 'Inter-Medium',
     },
+    menuTrigger: {
+      padding: 10,
+    },
     menuOptionsContainer: {
-      backgroundColor: theme.navBarBackground,
-      borderRadius: 10,
-      padding: 8,
-      width: 150,
+      backgroundColor: theme.gradientEnd,
+      borderRadius: 12,
+      paddingVertical: 8,
+      width: 180,
       marginTop: 40,
+      borderWidth: 1,
+      borderColor: theme.gradientEnd || '#444',
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 10,
+      elevation: 8,
     },
     menuOption: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 10,
-      paddingHorizontal: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+    },
+    menuOptionIcon: {
+      marginRight: 12,
     },
     menuOptionText: {
-      fontSize: 15,
-      marginLeft: 10,
+      fontSize: 16,
       fontFamily: 'Inter-Regular',
     },
-    menuTrigger: {
-      padding: 10,
+    separator: {
+      height: 1,
+      backgroundColor: theme.gradientEnd || '#444',
+      marginHorizontal: 12,
     },
     modalContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
+      backgroundColor: 'rgba(0,0,0,0.6)',
     },
     modalContent: {
       backgroundColor: theme.gradientStart,
@@ -96,6 +103,7 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
       shadowOpacity: 0.3,
       shadowRadius: 6,
       elevation: 10,
+      alignItems: 'center',
     },
     modalTitle: {
       color: theme.textPrimary,
@@ -116,6 +124,7 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
       flexDirection: 'row',
       justifyContent: 'space-between',
       marginTop: 8,
+      width: '100%',
     },
     modalButton: {
       flex: 1,
@@ -126,12 +135,12 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
       marginHorizontal: 6,
     },
     cancelButton: {
-      backgroundColor: theme.red,
+      backgroundColor: theme.gradientEnd,
       borderWidth: 1,
       borderColor: theme.gradientEnd,
     },
     deleteButton: {
-      backgroundColor: '#FF3B30',
+      backgroundColor: theme.red || '#FF3B30',
     },
     buttonText: {
       fontFamily: 'Inter-Medium',
@@ -142,9 +151,6 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
     },
     deleteButtonText: {
       color: 'white',
-    },
-    icon: {
-      marginRight: 8,
     },
   });
 
@@ -159,11 +165,22 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
         <MenuTrigger customStyles={{ triggerWrapper: styles.menuTrigger }}>
           <Ionicons name="ellipsis-vertical" size={24} color={theme.iconColor} />
         </MenuTrigger>
+        
         <MenuOptions customStyles={{ optionsContainer: styles.menuOptionsContainer }}>
+
+          <View style={styles.separator} />
+
           <MenuOption onSelect={handleDeletePress}>
             <View style={styles.menuOption}>
-              <Ionicons name="trash-outline" size={20} color="#FF3B30" style={styles.icon} />
-              <Text style={[styles.menuOptionText, { color: '#FF3B30' }]}>Deletar Objeto</Text>
+              <Ionicons 
+                name="trash-outline" 
+                size={20} 
+                color={theme.red || '#FF3B30'}
+                style={styles.menuOptionIcon} 
+              />
+              <Text style={[styles.menuOptionText, { color: theme.red || '#FF3B30' }]}>
+                Deletar Objeto
+              </Text>
             </View>
           </MenuOption>
         </MenuOptions>
@@ -180,8 +197,8 @@ const HeaderMeasurement: React.FC<HeaderMeasurementProps> = ({ deviceId, onBackP
             <Ionicons 
               name="warning-outline" 
               size={40} 
-              color="#FF3B30" 
-              style={{ alignSelf: 'center', marginBottom: 12 }} 
+              color={theme.red || '#FF3B30'}
+              style={{ marginBottom: 12 }} 
             />
             <Text style={styles.modalTitle}>Confirmar Exclusão</Text>
             <Text style={styles.modalText}>

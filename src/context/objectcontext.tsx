@@ -1,29 +1,28 @@
 import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
-import { Alert } from 'react-native';
 import { api } from '../services/api';
 import { AuthContext } from './authcontext';
 
 type ObjectContextProps = {
-  getUserObjects: () => Promise<any>;
-  postUserObject: (objectData: any) => Promise<void>;
-  GetObjectforId: (objectId: string) => Promise<any>;
-  markFavorite: (objectId: string) => Promise<void>;
-  DeleteObject: (objectId: string) => Promise<void>;
+  getUserDevice: () => Promise<any>;
+  postUserDevice: (deviceData: any) => Promise<void>;
+  GetDeviceforId: (deviceId: string) => Promise<any>;
+  markFavorite: (deviceId: string) => Promise<void>;
+  DeleteDevice: (deviceId: string) => Promise<void>;
 };
 
 export const ObjectContext = createContext<ObjectContextProps>({} as ObjectContextProps);
 
 export const ObjectProvider = ({ children }: PropsWithChildren) => {
   const { user } = useContext(AuthContext);
-  const [object, setObject] = useState<any | null>(null);
+  const [device, setdevice] = useState<any | null>(null);
 
-  async function getUserObjects() {
+  async function getUserDevice() {
     if (!user?.token.token) {
       return null;
     }
     try {
       const token = user.token.token;
-      const response = await api.get('object', {
+      const response = await api.get('device', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -33,37 +32,37 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
-  async function postUserObject(objectData: any) {
-    console.log(objectData)
+  async function postUserDevice(deviceData: any) {
+    console.log(deviceData)
     if (!user) return;
     try {
       const response = await api.post(
-        'object',
-        { tittle: objectData.title, location: objectData.location },
+        'device',
+        { title: deviceData.title, location: deviceData.location },
         { headers: { Authorization: `Bearer ${user.token.token}` } }
       );
     } catch (error) {
     }
   }
 
-  async function GetObjectforId(objectId: string) {
+  async function GetDeviceforId(deviceId: string) {
     if (!user?.token.token) {
       console.log('Usuário ou token não encontrados');
       return null;
     }
     try {
       const token = user.token.token;
-      const response = await api.get(`object/${objectId}`, {
+      const response = await api.get(`device/${deviceId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setObject(response.data);
+      setdevice(response.data);
       return response.data;
     } catch (error) {
       return null;
     }
   }
 
-  async function markFavorite(objectId: string) {
+  async function markFavorite(deviceId: string) {
     if (!user?.token.token) {
       console.log('Usuário ou token não encontrados');
       return;
@@ -71,7 +70,7 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
     try {
       const token = user.token.token;
       const response = await api.patch(
-        `object/${objectId}/edit`,
+        `device/${deviceId}/edit`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -81,14 +80,14 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
-  async function DeleteObject(objectId: string) {
+  async function DeleteDevice(deviceId: string) {
     if (!user?.token.token) {
       console.log('Usuário ou token não encontrados');
       return;
     }
     try {
       const token = user.token.token;
-      const response = await api.delete(`object/${objectId}`, {
+      const response = await api.delete(`device/${deviceId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log('Objeto deletado com sucesso');
@@ -101,11 +100,11 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
   return (
     <ObjectContext.Provider
       value={{ 
-        getUserObjects,
-        postUserObject,
-        GetObjectforId,
+        getUserDevice,
+        postUserDevice,
+        GetDeviceforId,
         markFavorite,
-        DeleteObject
+        DeleteDevice
        }}
     >
       {children}

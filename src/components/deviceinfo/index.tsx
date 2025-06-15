@@ -21,7 +21,7 @@ const colorLegend = [
 
 const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
   const { theme } = useTheme();
-  const { GetObjectforId } = useObject();
+  const { GetDeviceforId } = useObject();
   const { getLatestMeasurement } = Measurementobject();
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
@@ -35,7 +35,7 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({ deviceId }) => {
       }
       try {
         const [objectData, latestMeasurement] = await Promise.all([
-          GetObjectforId(deviceId),
+          GetDeviceforId(deviceId),
           getLatestMeasurement(deviceId),
         ]);
 
