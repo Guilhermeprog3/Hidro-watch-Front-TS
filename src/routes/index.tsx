@@ -26,7 +26,6 @@ const RoutesContent = () => {
           setShowTermsModal(true);
         }
       } catch (e) {
-        console.error("Failed to fetch terms status from storage", e);
         setShowTermsModal(true); 
       } finally {
         setIsLoadingTerms(false);
@@ -39,11 +38,9 @@ const RoutesContent = () => {
   useEffect(() => {
     if (user) {
       notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-        console.log('Notificação recebida:', notification);
       });
 
       responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-        console.log('Interação com notificação:', response);
         const objectId = response.notification.request.content.data.objectId as string | undefined;
         if (objectId) {
             navigation.navigate('Measurement', { deviceId: objectId });

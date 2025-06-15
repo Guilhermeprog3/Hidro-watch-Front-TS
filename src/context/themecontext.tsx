@@ -36,7 +36,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           setTheme(defaultTheme);
         }
       } catch (error) {
-        console.error('Erro ao carregar o tema:', error);
       }
     };
 
@@ -53,7 +52,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     try {
       await AsyncStorage.setItem('userMode', themeName);
     } catch (error) {
-      console.error('Erro ao salvar o tema:', error);
     }
   };
 

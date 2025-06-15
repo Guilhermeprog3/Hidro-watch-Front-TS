@@ -37,7 +37,6 @@ export async function registerForPushNotificationsAsync(): Promise<string | unde
     token = (await Notifications.getExpoPushTokenAsync({
         projectId: 'ec65b7e2-cebf-42d1-8d45-2ed2f00f334c',
     })).data;
-    console.log("Expo Push Token:", token);
   } else {
     Alert.alert('Atenção', 'É necessário um dispositivo físico para receber notificações push.');
   }

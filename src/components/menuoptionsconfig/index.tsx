@@ -52,7 +52,6 @@ const MenuOptionsConfig: React.FC<MenuOptionsConfigProps> = ({
           setCurrentTheme(savedTheme as ThemeMode);
         }
       } catch (error) {
-        console.error('Error fetching theme:', error);
       }
     };
     fetchTheme();

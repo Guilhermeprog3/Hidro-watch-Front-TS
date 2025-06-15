@@ -27,7 +27,6 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      console.warn('Sessão expirada - redirecionando para login');
       await SecureStore.deleteItemAsync('authToken');
     }
     
@@ -41,7 +40,6 @@ export const updateNotificationToken = async (token: string) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Erro ao atualizar token de notificação:', error);
     throw error;
   }
 };

@@ -14,7 +14,7 @@ export const ObjectContext = createContext<ObjectContextProps>({} as ObjectConte
 
 export const ObjectProvider = ({ children }: PropsWithChildren) => {
   const { user } = useContext(AuthContext);
-  const [device, setdevice] = useState<any | null>(null);
+  const [setdevice] = useState<any | null>(null);
 
   async function getUserDevice() {
     if (!user?.token.token) {
@@ -27,13 +27,11 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       });
       return response.data;
     } catch (error) {
-      console.error('Erro:', error);
       return null;
     }
   }
 
   async function postUserDevice(deviceData: any) {
-    console.log(deviceData)
     if (!user) return;
     try {
       const response = await api.post(
@@ -47,7 +45,6 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
 
   async function GetDeviceforId(deviceId: string) {
     if (!user?.token.token) {
-      console.log('Usuário ou token não encontrados');
       return null;
     }
     try {
@@ -64,7 +61,6 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
 
   async function markFavorite(deviceId: string) {
     if (!user?.token.token) {
-      console.log('Usuário ou token não encontrados');
       return;
     }
     try {
@@ -76,13 +72,11 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       );
       return response.data;
     } catch (error) {
-      console.log('Erro ao marcar como favorito:', error);
     }
   }
 
   async function DeleteDevice(deviceId: string) {
     if (!user?.token.token) {
-      console.log('Usuário ou token não encontrados');
       return;
     }
     try {
@@ -90,10 +84,8 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       const response = await api.delete(`device/${deviceId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log('Objeto deletado com sucesso');
       return response.data;
     } catch (error) {
-      console.log('Erro ao deletar objeto:', error);
     }
   }
 

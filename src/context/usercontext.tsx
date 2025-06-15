@@ -32,7 +32,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
   async function GetUserforId(): Promise<User | null> {
 
     if (!user?.user.id) {
-      console.error('GetUserforId: Usuário ou ID não encontrado no contexto.');
       return null;
     }
     try {
@@ -42,7 +41,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       });
       return response.data as User;
     } catch (error: any) {
-      console.log('Erro ao buscar dados do usuário:', error.response?.data?.message || error.message);
       return null;
     }
   }
@@ -89,7 +87,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error: any) {
-      console.error('Erro ao deletar usuário:', error.response?.data?.message || error.message);
       Alert.alert('Erro ao deletar usuário');
     }
   }
@@ -104,7 +101,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       if (error.response && error.response.data && error.response.data.message) {
         throw new Error(error.response.data.message);
       }
-      console.error('Falha no forgotPassword:', error);
       throw new Error('Falha ao enviar código de recuperação. Tente novamente mais tarde.');
     }
   }
@@ -156,7 +152,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       });
       return response.data as User;
     } catch (error: any) {
-      console.error('Erro no upload:', error.response?.data);
       throw new Error(error.response?.data?.message || 'Falha ao atualizar a foto de perfil');
     }
   };

@@ -47,7 +47,6 @@ const HeaderUser = () => {
           }).start();
         }
       } catch (error) {
-        console.error('Erro ao buscar dados do usuário:', error);
       }
     };
     
@@ -77,7 +76,6 @@ const HeaderUser = () => {
         setProfileImage(updatedUser.profile_picture ?? null);
       }
     } catch (error) {
-      console.error('Erro ao atualizar imagem:', error);
       Alert.alert('Erro', 'Não foi possível atualizar a foto.');
     } finally {
       setIsLoading(false);

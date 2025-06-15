@@ -43,7 +43,6 @@ const ListLike: React.FC = () => {
         setDevices(devicesWithMeasurements);
       }
     } catch (error) {
-      console.error('Erro ao buscar dispositivos favoritos:', error);
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +60,6 @@ const ListLike: React.FC = () => {
     try {
       await markFavorite(deviceId);
     } catch (error) {
-      console.error('Erro ao desmarcar como favorito:', error);
       fetchDevices();
     }
   };

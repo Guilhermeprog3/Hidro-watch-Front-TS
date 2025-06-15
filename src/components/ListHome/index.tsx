@@ -52,7 +52,6 @@ const DeviceListHome = () => {
         setDisconnectedCount(disconnected);
       }
     } catch (error) {
-      console.error("Erro ao buscar dispositivos:", error);
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +74,6 @@ const DeviceListHome = () => {
     try {
       await markFavorite(deviceId);
     } catch (error) {
-      console.error('Erro ao marcar como favorito:', error);
       setFavorites(originalFavorites);
     }
   };

@@ -107,7 +107,6 @@ const WeekResults: React.FC<WeekResultsProps> = ({ deviceId }) => {
           setCharts(chartArray);
         }
       } catch (error) {
-        console.error("Erro ao buscar dados da semana para o gráfico:", error);
       } finally {
         setIsLoading(false);
       }

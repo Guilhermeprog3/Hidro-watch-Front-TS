@@ -41,7 +41,6 @@ const ListHistorico: React.FC = () => {
         setDevices(devicesWithMeasurements);
       }
     } catch (error) {
-      console.error('Erro ao buscar dispositivos:', error);
     } finally {
       setIsLoading(false);
     }

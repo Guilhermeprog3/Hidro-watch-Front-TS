@@ -15,7 +15,6 @@ export const MeasurementProvider = ({ children }: PropsWithChildren) => {
   
   async function getWeeklyAverage(deviceId: string) {
     if (!user?.token.token) {
-      console.error('Usuário ou token não encontrados');
       return null;
     }
     try {
@@ -25,7 +24,6 @@ export const MeasurementProvider = ({ children }: PropsWithChildren) => {
       });
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar média semanal:', error);
       Alert.alert('Erro ao buscar média semanal');
       return null;
     }
@@ -33,7 +31,6 @@ export const MeasurementProvider = ({ children }: PropsWithChildren) => {
 
   async function getLatestMeasurement(deviceId: string) {
     if (!user?.token.token) {
-      console.error('Usuário ou token não encontrados');
       return null;
     }
     try {

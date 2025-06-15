@@ -90,7 +90,6 @@ export default function QRCodeScanner() {
           });
         })
         .catch((error) => {
-          console.log('Erro ao criar objeto:', error);
           setModalConfig({
             visible: true,
             type: 'error',
@@ -103,7 +102,6 @@ export default function QRCodeScanner() {
           });
         });
     } catch (error) {
-      console.log('Erro ao processar QR Code:', error);
       setModalConfig({
         visible: true,
         type: 'error',
@@ -158,7 +156,6 @@ export default function QRCodeScanner() {
         }
       }
     } catch (error) {
-      console.log('Erro ao escanear imagem da galeria:', error);
       setModalConfig({
         visible: true,
         type: 'error',

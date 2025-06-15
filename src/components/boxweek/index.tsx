@@ -36,7 +36,6 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ deviceId }) => {
           setLastMeasurementDate('Nenhuma medição encontrada');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
         setLastMeasurementDate('Erro ao carregar dados');
       } finally {
         setIsLoading(false);
