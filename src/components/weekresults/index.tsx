@@ -84,13 +84,34 @@ const WeekResults: React.FC<WeekResultsProps> = ({ deviceId }) => {
       try {
         const data = await getWeeklyAverage(deviceId);
         if (data && data.length > 0) {
-          const labels = data.map((d: any) => d.day);
+          // --- MODIFICATION START ---
+          // Map for translating day names to Portuguese abbreviations.
+          const dayMap: { [key: string]: string } = {
+            'Monday': 'Seg',
+            'Tuesday': 'Ter',
+            'Wednesday': 'Qua',
+            'Thursday': 'Qui',
+            'Friday': 'Sex',
+            'Saturday': 'Sáb',
+            'Sunday': 'Dom',
+            'Mon': 'Seg',
+            'Tue': 'Ter',
+            'Wed': 'Qua',
+            'Thu': 'Qui',
+            'Fri': 'Sex',
+            'Sat': 'Sáb',
+            'Sun': 'Dom'
+          };
+          
+          // Use the map to create labels, falling back to the original day if not found in the map.
+          const labels = data.map((d: any) => dayMap[d.day as keyof typeof dayMap] || d.day);
+          // --- MODIFICATION END ---
           
           const parameterData = [
             { title: 'pH', data: data.map((d: any) => parseFloat(d.ph) || 0), color: (opacity=1) => `rgba(134, 65, 244, ${opacity})` },
-            { title: 'Turbidez (NTU)', data: data.map((d: any) => parseFloat(d.turbidity) || 0), color: (opacity=1) => `rgba(255, 165, 0, ${opacity})` },
+            { title: 'Turbidez (uT)', data: data.map((d: any) => parseFloat(d.turbidity) || 0), color: (opacity=1) => `rgba(255, 165, 0, ${opacity})` },
             { title: 'Temperatura (°C)', data: data.map((d: any) => parseFloat(d.temperature) || 0), color: (opacity=1) => `rgba(255, 99, 71, ${opacity})` },
-            { title: 'TDS (ppm)', data: data.map((d: any) => parseFloat(d.tds) || 0), color: (opacity=1) => `rgba(0, 191, 255, ${opacity})` },
+            { title: 'TDS (mg/l)', data: data.map((d: any) => parseFloat(d.tds) || 0), color: (opacity=1) => `rgba(0, 191, 255, ${opacity})` },
           ];
 
           const chartArray = parameterData.map(param => ({
@@ -107,12 +128,13 @@ const WeekResults: React.FC<WeekResultsProps> = ({ deviceId }) => {
           setCharts(chartArray);
         }
       } catch (error) {
+        console.error("Failed to fetch weekly data:", error);
       } finally {
         setIsLoading(false);
       }
     };
     fetchWeeklyData();
-  }, [deviceId]);
+  }, [deviceId, getWeeklyAverage]);
 
   const goToPrevious = () => {
     setActiveIndex(prev => (prev === 0 ? charts.length - 1 : prev - 1));
@@ -298,15 +320,15 @@ const WeekResults: React.FC<WeekResultsProps> = ({ deviceId }) => {
           />
         ))}
       </View>
-       <View style={styles.standardsContainer}>
-         <Text style={styles.standardsTitle}>Padrões de Qualidade</Text>
-         <View style={styles.standardsGrid}>
-             <ParameterStandardCard icon="water-outline" name="pH" value="6.5 - 8.5" />
-             <ParameterStandardCard icon="eye-outline" name="Turbidez" value="< 5 NTU" />
-             <ParameterStandardCard icon="thermometer-outline" name="Temperatura" value="10°C - 25°C" />
-             <ParameterStandardCard icon="leaf-outline" name="TDS" value="< 500 ppm" />
-         </View>
-       </View>
+      <View style={styles.standardsContainer}>
+        <Text style={styles.standardsTitle}>Padrões de Qualidade</Text>
+        <View style={styles.standardsGrid}>
+            <ParameterStandardCard icon="water-outline" name="pH" value="6.0 - 9.5" />
+            <ParameterStandardCard icon="eye-outline" name="Turbidez" value="< 5 uT" />
+            <ParameterStandardCard icon="thermometer-outline" name="Temperatura" value="10°C - 20°C" />
+            <ParameterStandardCard icon="leaf-outline" name="TDS" value="< 500 mg/l" />
+        </View>
+      </View>
     </View>
   );
 };

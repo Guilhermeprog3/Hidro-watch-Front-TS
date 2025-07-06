@@ -1,8 +1,8 @@
-import * as ImagePicker from 'expo-image-picker';
-import { CameraView, Camera, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useEffect, useRef } from 'react';
+import React, { createContext, PropsWithChildren, useContext, useState, useRef, useEffect } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Modal, Pressable, Animated, Easing } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
+import { CameraView, Camera, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { useObject } from '../../hooks/Objectcontext';
 
@@ -72,17 +72,19 @@ export default function QRCodeScanner() {
     try {
       const qrData = JSON.parse(data);
 
-      if (typeof qrData.title !== 'string' || typeof qrData.location !== 'string') {
-        throw new Error('Dados do QR Code com formato inválido');
+      if (typeof qrData.deviceId !== 'string' && typeof qrData.deviceId !== 'number') {
+        throw new Error("Formato do QR Code inválido. 'deviceId' não encontrado.");
       }
 
-      postUserDevice({ title: qrData.title, location: qrData.location })
+      const deviceId = String(qrData.deviceId);
+
+      postUserDevice(deviceId)
         .then(() => {
           setModalConfig({
             visible: true,
             type: 'success',
             title: 'Sucesso!',
-            message: 'O objeto foi adicionado com sucesso à sua conta.',
+            message: 'Você foi conectado ao dispositivo com sucesso.',
             onConfirm: () => {
               setModalConfig({ ...modalConfig, visible: false });
               navigation.goBack();
@@ -93,8 +95,8 @@ export default function QRCodeScanner() {
           setModalConfig({
             visible: true,
             type: 'error',
-            title: 'Erro na Conexão',
-            message: 'Não foi possível adicionar o objeto. Verifique sua conexão e tente novamente.',
+            title: 'Erro na Associação',
+            message: 'Não foi possível se conectar ao dispositivo. Ele pode não existir ou você já pode estar conectado.',
             onConfirm: () => {
               setModalConfig({ ...modalConfig, visible: false });
               setScanned(false);
@@ -135,7 +137,7 @@ export default function QRCodeScanner() {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
       });
 
@@ -184,7 +186,6 @@ export default function QRCodeScanner() {
 
   const modalIconName = modalConfig.type === 'success' ? 'checkmark-circle-outline' : modalConfig.type === 'error' ? 'close-circle-outline' : 'information-circle-outline';
   const modalColor = modalConfig.type === 'success' ? '#009640' : modalConfig.type === 'error' ? '#ff3b30' : '#007aff';
-
 
   return (
     <View style={styles.container}>
@@ -238,7 +239,7 @@ export default function QRCodeScanner() {
       >
         <Pressable style={styles.modalOverlay} onPress={modalConfig.onConfirm}>
             <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
-              <Ionicons name={modalIconName} size={60} color={modalColor} />
+              <Ionicons name={modalIconName as any} size={60} color={modalColor} />
               <Text style={styles.modalTitle}>{modalConfig.title}</Text>
               <Text style={styles.modalMessage}>{modalConfig.message}</Text>
               <TouchableOpacity
@@ -250,11 +251,9 @@ export default function QRCodeScanner() {
             </Pressable>
         </Pressable>
       </Modal>
-
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -327,10 +326,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   scanLine: {
-      position: 'absolute',
-      width: '100%',
-      height: 2,
-      backgroundColor: '#009640',
+    position: 'absolute',
+    width: '100%',
+    height: 2,
+    backgroundColor: '#009640',
   },
   footer: {
     position: 'absolute',

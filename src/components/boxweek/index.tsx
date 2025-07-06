@@ -146,10 +146,7 @@ const InfoBoxes: React.FC<InfoBoxesProps> = ({ deviceId }) => {
             </View>
           </View>
           
-          <TouchableOpacity style={styles.detailsButton} onPress={handleLearnMore} activeOpacity={0.8}>
-            <Text style={styles.detailsButtonText}>Detalhes</Text>
-            <Ionicons name="arrow-forward" size={16} color={theme.buttonText} />
-          </TouchableOpacity>
+
         </LinearGradient>
       </View>
     </View>

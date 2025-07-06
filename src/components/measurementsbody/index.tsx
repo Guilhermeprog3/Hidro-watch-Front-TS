@@ -210,7 +210,7 @@ const MeasurementBody: React.FC<MeasurementBodyProps> = ({ deviceId }) => {
         >
           <Text style={styles.measurementLabel}>{getMeasurementLabel('turbidity', measurement.turbidity)}</Text>
           <Text style={styles.measurementValue}>{measurement.turbidity}</Text>
-          <Text style={styles.measurementUnit}>NTU</Text>
+          <Text style={styles.measurementUnit}>uT</Text>
         </LinearGradient>
         
         <LinearGradient

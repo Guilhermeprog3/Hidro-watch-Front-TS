@@ -90,7 +90,7 @@ const HeaderHidro = () => {
           </View>
           
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>HYDROWATCH</Text>
+            <Text style={styles.title}>HIDROWATCH</Text>
           </View>
         </View>
         

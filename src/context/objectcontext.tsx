@@ -4,7 +4,7 @@ import { AuthContext } from './authcontext';
 
 type ObjectContextProps = {
   getUserDevice: () => Promise<any>;
-  postUserDevice: (deviceData: any) => Promise<void>;
+  postUserDevice: (deviceId: string) => Promise<void>;
   GetDeviceforId: (deviceId: string) => Promise<any>;
   markFavorite: (deviceId: string) => Promise<void>;
   DeleteDevice: (deviceId: string) => Promise<void>;
@@ -14,7 +14,7 @@ export const ObjectContext = createContext<ObjectContextProps>({} as ObjectConte
 
 export const ObjectProvider = ({ children }: PropsWithChildren) => {
   const { user } = useContext(AuthContext);
-  const [setdevice] = useState<any | null>(null);
+  const [device, setDevice] = useState<any | null>(null);
 
   async function getUserDevice() {
     if (!user?.token.token) {
@@ -27,19 +27,21 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       });
       return response.data;
     } catch (error) {
+      console.error("Erro ao buscar dispositivos do usuário:", error);
       return null;
     }
   }
 
-  async function postUserDevice(deviceData: any) {
-    if (!user) return;
+  async function postUserDevice(deviceId: string) {
+    if (!user?.token.token) return;
     try {
-      const response = await api.post(
-        'device',
-        { title: deviceData.title, location: deviceData.location },
+      await api.post(
+        `device/${deviceId}/associate`,
+        {},
         { headers: { Authorization: `Bearer ${user.token.token}` } }
       );
     } catch (error) {
+      console.error("Erro ao associar dispositivo:", error);
     }
   }
 
@@ -52,9 +54,10 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       const response = await api.get(`device/${deviceId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setdevice(response.data);
+      setDevice(response.data);
       return response.data;
     } catch (error) {
+      console.error("Erro ao buscar dispositivo por ID:", error);
       return null;
     }
   }
@@ -72,6 +75,7 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
       );
       return response.data;
     } catch (error) {
+      console.error("Erro ao favoritar dispositivo:", error);
     }
   }
 
@@ -81,23 +85,23 @@ export const ObjectProvider = ({ children }: PropsWithChildren) => {
     }
     try {
       const token = user.token.token;
-      const response = await api.delete(`device/${deviceId}`, {
+      await api.delete(`device/${deviceId}/leave`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return response.data;
     } catch (error) {
+      console.error("Erro ao se desassociar do dispositivo:", error);
     }
   }
 
   return (
     <ObjectContext.Provider
-      value={{ 
+      value={{
         getUserDevice,
         postUserDevice,
         GetDeviceforId,
         markFavorite,
         DeleteDevice
-       }}
+      }}
     >
       {children}
     </ObjectContext.Provider>

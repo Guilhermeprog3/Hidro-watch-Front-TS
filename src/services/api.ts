@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
 export const api = axios.create({
-  baseURL: "https://hidro-watch-api.onrender.com/",
+  baseURL: "http://192.168.0.199:3333/",
   timeout: 10000,
   headers: {
     'Accept': 'application/json',
